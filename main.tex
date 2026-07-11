@@ -10,7 +10,7 @@
 \usepackage{tikz}
 \usepackage{pgfplots}
 \usepackage{xspace}
-\usetikzlibrary{arrows.meta,calc,positioning,fit}
+\usetikzlibrary{arrows.meta,calc,positioning,fit,decorations.pathreplacing}
 \pgfplotsset{compat=1.18}
 
 \definecolor{CornellRed}{HTML}{B31B1B}
@@ -27,9 +27,11 @@
 \newcommand{\Flat}{Flattened-TPHT\xspace}
 \newcommand{\keyterm}[1]{\textcolor{CornellRed}{\textbf{#1}}}
 \newcommand{\metric}[2]{\textcolor{CornellRed}{\textbf{#1}}\hspace{0.35em}{\small #2}}
+\newcommand{\apiop}[2]{{\ttfamily #1}\ensuremath{\left(#2\right)}}
 
 \mode<presentation>{
   \usetheme{default}
+  \usefonttheme{professionalfonts}
   \useinnertheme{rectangles}
   \setbeamertemplate{navigation symbols}{}
   \setbeamertemplate{blocks}[rounded][shadow=false]
@@ -71,17 +73,40 @@
 }
 
 \title{Succinct and Fast Tiny Pointer Hash Tables}
-\subtitle{How should we design a hash table in 2026?}
+\subtitle{Fast hash tables, without the memory tax}
 \author{Xilin Tang \quad Yuqi Mai \quad William Kuszmaul \quad Alex Conway}
 \institute{Cornell University \quad Carnegie Mellon University \quad Cornell Tech}
 \date{VLDB 2026}
+
+\newcommand{\authorphoto}[5]{%
+  \begin{tikzpicture}[baseline=-0.35ex]
+    \begin{scope}
+      \clip (0,0) circle (0.60cm);
+      \node[inner sep=0pt] at (#3,#4) {\includegraphics[height=#2]{#1}};
+      \fill[white,opacity=#5] (-0.60cm,-0.60cm) rectangle (0.60cm,0.60cm);
+    \end{scope}
+    \draw[white,line width=0.8pt] (0,0) circle (0.60cm);
+  \end{tikzpicture}%
+}
+
+\newcommand{\authorcard}[7]{%
+  \begin{minipage}[t]{0.215\paperwidth}
+    \centering
+    \parbox[t][0.72cm][t]{\linewidth}{\centering
+      {\small\bfseries #1}\par
+      {\scriptsize\color{white!84}#2}\par
+    }
+    \vspace{0.12cm}
+    \authorphoto{#3}{#4}{#5}{#6}{#7}\par
+  \end{minipage}%
+}
 
 \newcommand{\titleband}{
   \begin{tikzpicture}[remember picture,overlay]
     \fill[CornellRed] (current page.south west) rectangle (current page.north east);
     \fill[white,opacity=0.10] ($(current page.south west)+(0,0.4)$) rectangle ($(current page.north east)+(0,-6.45)$);
     \draw[white,opacity=0.22,line width=0.8pt] ($(current page.north west)+(0.7,-0.85)$) -- ($(current page.north east)+(-0.7,-0.85)$);
-    \node[anchor=south east,white] at ($(current page.south east)+(-0.65,0.55)$) {\small Cornell University};
+    \node[anchor=north east,white,opacity=0.90] at ($(current page.north east)+(-0.55,-0.35)$) {\small VLDB 2026};
   \end{tikzpicture}
 }
 
@@ -89,46 +114,143 @@
 
 \begin{frame}[plain]
   \titleband
-  \vspace{1.3cm}
-  \begin{beamercolorbox}[wd=0.86\paperwidth,sep=0.35cm,left]{title}
-    \usebeamerfont{title}\inserttitle\par
-    \vspace{0.15cm}
-    {\usebeamerfont{subtitle}\insertsubtitle}
-  \end{beamercolorbox}
-  \vspace{0.45cm}
-  \begin{beamercolorbox}[wd=0.86\paperwidth,sep=0.35cm,left]{author}
-    \insertauthor\par
-    \vspace{0.1cm}
-    {\small \insertinstitute}\par
-    \vspace{0.35cm}
-    {\small \insertdate}
+  \vspace{0.88cm}
+  \begin{center}
+    {\color{white}\resizebox{0.88\paperwidth}{!}{\bfseries\inserttitle}}\par
+    \vspace{0.36cm}
+    \begin{tikzpicture}
+      \node[fill=white,rounded corners=3pt,inner xsep=13pt,inner ysep=7pt,text=CornellRed]
+        {\Large\bfseries \insertsubtitle};
+    \end{tikzpicture}
+  \end{center}
+  \vspace{0.35cm}
+  \begin{beamercolorbox}[wd=0.94\paperwidth,sep=0.25cm,center]{author}
+    \authorcard{Xilin Tang}{Cornell University}{assets/figures/xilin-tang.jpeg}{1.36cm}{0cm}{-0.03cm}{0}
+    \hfill
+    \authorcard{Yuqi Mai}{Cornell University}{assets/figures/yuqi-mai.jpeg}{3.62cm}{1.17cm}{0.13cm}{0}
+    \hfill
+    \authorcard{William Kuszmaul}{Carnegie Mellon University}{assets/figures/william-kuszmaul.jpeg}{1.62cm}{-0.04cm}{-0.17cm}{0}
+    \hfill
+    \authorcard{Alex Conway}{Cornell Tech}{assets/figures/alex-conway.jpeg}{1.72cm}{0.02cm}{-0.13cm}{0}
   \end{beamercolorbox}
 \end{frame}
 
-\begin{frame}{The 2026 Hash-Table Question}
-  \begin{columns}[T,onlytextwidth]
-    \column{0.55\textwidth}
-      \Large
-      Everyone already knows hash tables matter.\par
-      \vspace{0.35cm}
-      The harder question is: \keyterm{after decades of tuning}, where is there still room to move?
-    \column{0.39\textwidth}
-      \begin{block}{Modern pressure}
-        \begin{itemize}
-          \item data grows faster than memory budgets
-          \item metadata and slack quietly dominate footprint
-          \item cache misses, not asymptotics, decide latency
-        \end{itemize}
-      \end{block}
-  \end{columns}
-  \vspace{0.35cm}
+\begin{frame}{What is a dictionary?}
+  \vspace{0.10cm}
+  {\large A \textbf{dictionary} stores \textcolor{BlueGray}{\textbf{key--value pairs}} and supports updates and lookups.}\par
+  \vspace{0.08cm}
+  {\small\color{BlueGray} Abstractly: entries are \((k,v)\in K\times V\), and lookup is a partial function \(f:K\to V\cup\{\bot\}\).}\par
+  \vspace{0.22cm}
   \begin{center}
-    \begin{tikzpicture}
-      \node[draw=CornellRed,line width=1pt,rounded corners=2pt,inner sep=8pt,text width=0.82\textwidth,align=center] {
-        \Large Can we make a hash table that is both \keyterm{near the information bound} and \keyterm{systems fast}?
-      };
-    \end{tikzpicture}
+  \begin{tikzpicture}[x=1cm,y=1cm]
+    \node[draw=Ink,rounded corners=3pt,line width=0.9pt,minimum width=4.35cm,minimum height=3.45cm,fill=CornellGray] (dict) at (0,0) {};
+    \node[anchor=north,font=\large\bfseries] at (dict.north) {Dictionary};
+    \node[draw=BlueGray,fill=white,rounded corners=2pt,minimum width=2.70cm,minimum height=0.42cm,font=\small] (alice) at (0,0.82) {\(\text{Alice}\mapsto 31\)};
+    \node[draw=BlueGray,fill=white,rounded corners=2pt,minimum width=2.70cm,minimum height=0.42cm,font=\small] (bob) at (0,0.25) {\(\text{Bob}\mapsto 24\)};
+    \node[draw=BlueGray,fill=white,rounded corners=2pt,minimum width=2.70cm,minimum height=0.42cm,font=\small] (carol) at (0,-0.32) {\(\text{Carol}\mapsto 42\)};
+    \node[font=\large\bfseries\color{BlueGray}] at (0,-0.78) {\(\cdots\)};
+    \node[draw=CornellRed,dashed,fill=white,rounded corners=2pt,minimum width=2.70cm,minimum height=0.42cm,font=\small] (dave) at (0,-1.20) {\(\text{Dave}\mapsto 19\)};
+
+    \node[draw=CornellRed,fill=CornellRed!7,rounded corners=2pt,minimum width=2.75cm,minimum height=0.55cm,font=\small\bfseries] (insert) at (-4.45,1.10) {\apiop{Insert}{\text{Dave}, 19}};
+    \node[draw=Green,fill=Green!8,rounded corners=2pt,minimum width=2.75cm,minimum height=0.55cm,font=\small\bfseries] (lookup) at (-4.45,0.05) {\apiop{Lookup}{\text{Bob}}};
+    \node[draw=Purple,fill=Purple!8,rounded corners=2pt,minimum width=2.75cm,minimum height=0.55cm,font=\small\bfseries] (delete) at (-4.45,-1.00) {\apiop{Delete}{\text{Carol}}};
+
+    \draw[-Latex,CornellRed,line width=1.05pt] (insert.east) to[out=0,in=180] (dave.west);
+    \draw[-Latex,Green,line width=1.05pt] (lookup.east) to[out=0,in=180] (bob.west);
+    \draw[-Latex,Purple,line width=1.05pt] (delete.east) to[out=0,in=180] (carol.west);
+    \node[Purple,font=\Large\bfseries] at (1.55,-0.32) {\(\times\)};
+
+    \node[draw=Green,fill=Green!8,rounded corners=2pt,minimum width=1.55cm,minimum height=0.55cm,font=\small\bfseries] (value) at (4.15,0.25) {\(24\)};
+    \draw[-Latex,Green,line width=1.05pt] (bob.east) to[out=0,in=180] (value.west);
+  \end{tikzpicture}
   \end{center}
+  \note{
+    Begin with the abstract object. A dictionary is the API: it stores key-value pairs. Mathematically, you can think of it as storing pairs from K times V, while lookup is a partial function from keys to values, returning bottom when the key is absent. The main operations are insert, lookup, and delete. This slide should be brief; it is just setting up what a hash table implements.
+  }
+\end{frame}
+
+\begin{frame}{What is a hash table?}
+  \vspace{0.08cm}
+  {\large A \textbf{hash table} is a construction for dictionaries: it uses a \textbf{hash function} to help assign each key--value pair to an array slot.}\par
+  \vspace{0.20cm}
+  \begin{columns}[T,onlytextwidth]
+    \column{0.58\textwidth}
+    \begin{center}
+    \begin{tikzpicture}[x=1cm,y=1cm,>={Latex[length=1.55mm,width=1.0mm]},every node/.style={font=\small}]
+      \node[font=\normalsize\bfseries] at (-3.78,1.80) {keys};
+      \node[draw=CornellRed,fill=CornellRed!8,rounded corners=2pt,minimum width=1.35cm,minimum height=0.48cm] (alicekey) at (-3.78,1.02) {Alice};
+      \node[draw=Green,fill=Green!8,rounded corners=2pt,minimum width=1.35cm,minimum height=0.48cm] (bobkey) at (-3.78,0.10) {Bob};
+      \node[draw=Purple,fill=Purple!8,rounded corners=2pt,minimum width=1.35cm,minimum height=0.48cm] (carolkey) at (-3.78,-0.82) {Carol};
+
+      \node[font=\normalsize\bfseries] at (-1.48,1.80) {hash function};
+      \node[font=\normalsize\bfseries] (hash) at (-1.48,0.10) {\(h(k)\)};
+      \coordinate (hashL) at (-1.88,0.10);
+      \coordinate (hashR) at (-1.08,0.10);
+
+      \node[font=\normalsize\bfseries] at (1.12,1.80) {hash table};
+      \draw[draw=Ink,rounded corners=2pt,fill=CornellGray,line width=0.75pt] (-0.12,-1.28) rectangle (2.36,1.42);
+      \foreach \j in {1,...,5} {
+        \draw[BlueGray!45,line width=0.45pt] (-0.12,{1.42-0.45*\j}) -- (2.36,{1.42-0.45*\j});
+      }
+      \draw[BlueGray!45,line width=0.55pt] (0.28,1.42) -- (0.28,-1.28);
+      \foreach \i in {0,...,5} {
+        \node[anchor=center,text=BlueGray] at (0.08,{1.195-0.45*\i}) {\i};
+      }
+      \node[anchor=west] at (0.43,0.745) {\(\text{Bob}\mapsto 24\)};
+      \node[anchor=west] at (0.43,-0.155) {\(\text{Alice}\mapsto 31\)};
+      \node[anchor=west] at (0.43,-0.605) {\(\text{Carol}\mapsto 42\)};
+      \coordinate (row1target) at (-0.23,0.745);
+      \coordinate (row3target) at (-0.23,-0.155);
+      \coordinate (row4target) at (-0.23,-0.605);
+
+      \draw[-Latex,CornellRed,line width=0.6pt,shorten >=2pt,shorten <=2pt]
+        (alicekey.east) to[out=0,in=165] (hashL);
+      \draw[-Latex,Green,line width=0.6pt,shorten >=2pt,shorten <=2pt]
+        (bobkey.east) -- (hashL);
+      \draw[-Latex,Purple,line width=0.6pt,shorten >=2pt,shorten <=2pt]
+        (carolkey.east) to[out=0,in=195] (hashL);
+
+      \draw[-Latex,CornellRed,line width=0.6pt,shorten >=2pt,shorten <=2pt]
+        (hashR) to[out=-10,in=180] (row3target);
+      \draw[-Latex,Green,line width=0.6pt,shorten >=2pt,shorten <=2pt]
+        (hashR) to[out=25,in=180] (row1target);
+      \draw[-Latex,Purple,line width=0.6pt,shorten >=2pt,shorten <=2pt]
+        (hashR) to[out=-25,in=180] (row4target);
+    \end{tikzpicture}
+    \end{center}
+
+    \column{0.39\textwidth}
+    \vspace{0.08cm}
+    \begin{minipage}{\linewidth}
+    \raggedright
+    {\normalsize\bfseries Hashing dates to \keyterm{1953}}\par
+    \vspace{0.16cm}
+    {\normalsize Expected \(O(1)\) operations}\par
+    \vspace{0.12cm}
+    {\normalsize Linear probing, chaining, \(\ldots\)}\par
+    \vspace{0.22cm}
+    {\normalsize Decades of tuning for
+    \(\left\{\begin{array}{l}
+      \text{\textbf{speed}}\\[-1pt]
+      \text{\textbf{space}}
+    \end{array}\right.\)}
+    \end{minipage}
+
+    \vspace{0.46cm}
+    \noindent\begin{tikzpicture}[x=1cm,y=1cm]
+      \node[anchor=west,align=left,font=\large\bfseries,inner sep=0pt] (theme) at (0,0.92)
+        {Practical hash tables\\can still be even};
+      \draw[decorate,decoration={brace,amplitude=5pt},line width=1pt,Ink]
+        (0.22,-0.90) -- (0.22,0.20);
+      \node[draw=CornellRed,line width=1.1pt,rounded corners=3pt,minimum width=1.72cm,minimum height=0.48cm,font=\large\bfseries] at (1.40,-0.04)
+        {faster};
+      \node[draw=CornellRed,line width=1.1pt,rounded corners=3pt,minimum width=1.72cm,minimum height=0.48cm,font=\large\bfseries] at (1.40,-0.70)
+        {smaller};
+    \end{tikzpicture}
+  \end{columns}
+  \note{
+    Now reveal the concrete implementation. Hash tables are a construction for the dictionary API: they use a hash function to help decide where a key-value pair belongs in an array. Different tables use that hash information differently--linear probing, chaining, and many other designs--so this slide intentionally leaves some space there. Historically this dates to 1953 and promises O(1) operations, so it is tempting to say: done. But even after many implementations and decades of optimization for speed and space, this work argues that practical hash tables can still be even faster and smaller.
+  }
 \end{frame}
 
 \begin{frame}{The Tradeoff We Want to Break}
