@@ -1,0 +1,25 @@
+# LaTeX build outputs
+*.aux
+*.bbl
+*.bcf
+*.blg
+*.fdb_latexmk
+*.fls
+*.log
+*.nav
+*.out
+*.run.xml
+*.snm
+*.synctex.gz
+*.toc
+*.vrb
+
+# Generated deck artifact
+/main.pdf
+
+# Editor and OS noise
+.DS_Store
+*.swp
+*.swo
+*~
+
