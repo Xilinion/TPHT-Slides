@@ -28,6 +28,13 @@
 \newcommand{\keyterm}[1]{\textcolor{CornellRed}{\textbf{#1}}}
 \newcommand{\metric}[2]{\textcolor{CornellRed}{\textbf{#1}}\hspace{0.35em}{\small #2}}
 \newcommand{\apiop}[2]{{\ttfamily #1}\ensuremath{\left(#2\right)}}
+\newcommand{\slotball}[3]{%
+  \ifnum#3=1
+    \fill[Ink] (#1,#2) circle (2.35pt);
+  \else
+    \draw[Ink,line width=0.55pt,fill=white] (#1,#2) circle (2.35pt);
+  \fi
+}
 
 \mode<presentation>{
   \usetheme{default}
@@ -253,22 +260,190 @@
   }
 \end{frame}
 
-\begin{frame}{The Tradeoff We Want to Break}
+\begin{frame}{Secret Sauce}
+  \begin{columns}[T,onlytextwidth]
+    \column{0.39\textwidth}
+      \vspace{0.42cm}
+      {\Large\bfseries Three ingredients:}\par
+      \vspace{0.34cm}
+      \begin{enumerate}\large
+        \item \keyterm{Tiny pointers}\\
+          {\normalsize compress the \textbf{pointer}}
+          \vspace{0.24cm}
+        \item \keyterm{Quotienting}\\
+          {\normalsize compress the \textbf{key}}
+          \vspace{0.24cm}
+        \item \keyterm{Cache-friendly layout}\\
+          {\normalsize compress the \textbf{execution time}}
+      \end{enumerate}
+
+    \column{0.58\textwidth}
+      \begin{center}
+        \begin{tikzpicture}[x=0.62cm,y=0.66cm]
+          \node[draw=CornellRed,fill=CornellRed!8,line width=1.0pt,rounded corners=3pt,
+                align=center,font=\Large\bfseries,text=CornellRed,inner sep=5pt]
+                at (4.25,5.95) {We break the tradeoff!};
+          \draw[-Latex,line width=0.9pt] (0,0) -- (8.45,0);
+          \node[font=\normalsize,anchor=north] at (4.22,-0.32) {space efficiency};
+          \draw[-Latex,line width=0.9pt] (0,0) -- (0,5.25) node[above,font=\normalsize] {throughput};
+          \draw[BlueGray,line width=1.5pt] plot[smooth] coordinates {(0.7,4.5) (2.1,3.7) (3.8,2.75) (5.5,1.85) (7.4,1.0)};
+          \node[BlueGray,anchor=west,font=\normalsize] at (1.15,4.45) {fast, sparse tables};
+          \node[BlueGray,anchor=west,font=\normalsize] at (4.28,0.70) {compact, slower tables};
+          \fill[CornellRed] (7.25,4.1) circle (4.3pt);
+          \node[align=left,anchor=west,font=\normalsize] at (7.55,4.1) {\textbf{TPHT target}\\fast and tiny};
+          \draw[CornellRed,very thick,-Latex] (5.15,2.7) -- (7.02,3.95);
+        \end{tikzpicture}
+      \end{center}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Ingredient 1: Tiny Pointer}
+  \vspace{0.05cm}
+  {\Large A \keyterm{tiny pointer} is a \textbf{very short pointer} that can be decoded only with its \textbf{owner}.}
+
+  \vspace{0.14cm}
   \begin{center}
-    \begin{tikzpicture}[x=1cm,y=1cm]
-      \draw[-Latex,line width=0.8pt] (0,0) -- (9.4,0) node[right] {space efficiency};
-      \draw[-Latex,line width=0.8pt] (0,0) -- (0,5.25) node[above] {throughput};
-      \draw[BlueGray,line width=1.3pt] plot[smooth] coordinates {(0.7,4.5) (2.1,3.7) (3.8,2.75) (5.5,1.85) (7.4,1.0)};
-      \node[BlueGray,anchor=west] at (2.1,4.25) {fast, sparse tables};
-      \node[BlueGray,anchor=west] at (4.85,1.45) {compact, slower tables};
-      \fill[CornellRed] (7.4,4.1) circle (3.5pt);
-      \node[align=left,anchor=west] at (7.7,4.1) {\textbf{TPHT target}\\fast and tiny};
-      \draw[CornellRed,thick,-Latex] (5.25,2.7) -- (7.15,3.95);
-      \node[align=center,text width=0.72\textwidth] at (4.7,-0.9) {
-        Collision resolution pays in empty slots, metadata, or full pointers.
-      };
-    \end{tikzpicture}
+  \begin{tikzpicture}[x=1cm,y=1cm,>=Latex,every node/.style={font=\small}]
+    \node[align=center,font=\Large\bfseries,text=CornellRed] at (0.80,3.38)
+      {The owner supplies the missing context.};
+
+    \node[draw=CornellRed,fill=CornellRed!7,rounded corners=2pt,minimum width=3.35cm,minimum height=0.55cm,font=\normalsize\bfseries] (alloc) at (-4.45,2.70)
+      {\apiop{Alloc}{\text{B}, \text{C}} \(\to p_2\)};
+    \node[draw=Green,fill=Green!8,rounded corners=2pt,minimum width=3.35cm,minimum height=0.55cm,font=\normalsize\bfseries] (deref) at (-4.45,1.80)
+      {\apiop{Deref}{\text{A}, p_1} \(\to \text{B}\)};
+    \node[draw=Purple,fill=Purple!8,rounded corners=2pt,minimum width=3.35cm,minimum height=0.55cm,font=\normalsize\bfseries] (free) at (-4.45,0.90)
+      {\apiop{Free}{\text{owner}, p}};
+
+    \draw[Ink,line width=0.9pt,rounded corners=4pt,fill=CornellGray!45] (-1.03,0.20) rectangle (3.12,3.12);
+    \node[anchor=north west,font=\large\bfseries] at (-0.89,3.03) {Linked list};
+
+    \draw[Green,line width=1.0pt,rounded corners=2pt,fill=Green!6] (-0.22,2.18) rectangle (2.20,2.76);
+    \draw[Green,line width=0.8pt] (0.86,2.18) -- (0.86,2.76);
+    \node[Green,font=\large\bfseries] (aobj) at (0.32,2.47) {A};
+    \node[Green,font=\large\bfseries] (aptr) at (1.53,2.47) {\(p_1\)};
+
+    \draw[Ink,line width=0.8pt,rounded corners=2pt,fill=white] (-0.22,1.20) rectangle (2.20,1.78);
+    \draw[Green,line width=1.0pt,fill=Green!8] (-0.22,1.20) rectangle (0.86,1.78);
+    \draw[CornellRed,dashed,line width=1.0pt,fill=CornellRed!7] (0.86,1.20) rectangle (2.20,1.78);
+    \node[Green,font=\large\bfseries] (bobj) at (0.32,1.49) {B};
+    \node[CornellRed,font=\large\bfseries] (bptr) at (1.53,1.49) {\(p_2\)};
+
+    \draw[CornellRed,dashed,line width=1.0pt,rounded corners=2pt,fill=CornellRed!7] (-0.22,0.36) rectangle (2.20,0.94);
+    \draw[CornellRed,dashed,line width=0.8pt] (0.86,0.36) -- (0.86,0.94);
+    \node[CornellRed,font=\large\bfseries] (cobj) at (0.32,0.65) {C};
+    \node[CornellRed,font=\large\bfseries] (cptr) at (1.53,0.65) {\(\bot\)};
+
+    \draw[-Latex,very thick,Green] (1.53,2.18) -- (1.53,1.80);
+    \draw[-Latex,very thick,CornellRed,dashed] (1.53,1.20) -- (1.53,0.96);
+
+    \draw[-Latex,Green,thick] (deref.east) to[out=0,in=180] (bobj.west);
+    \draw[-Latex,CornellRed,thick] (alloc.east) to[out=0,in=180] (bptr.west);
+
+    \node[align=center,text width=8.1cm,font=\normalsize\bfseries] at (1.05,-0.30)
+      {\(p_1\) and \(p_2\) may store the same bits;\\different owners decode different targets.};
+  \end{tikzpicture}
   \end{center}
+\end{frame}
+
+\begin{frame}{Tiny Pointer: Implementation}
+  \vspace{0.04cm}
+  {\large Tiny pointers require a \keyterm{special memory allocator}, called a \textbf{dereference table} in our literature.}
+
+  \vspace{0.05cm}
+  \begin{center}
+  \begin{tikzpicture}[x=1cm,y=1cm,>=Latex,every node/.style={font=\small}]
+    \node[font=\normalsize\bfseries] (api) at (-3.98,3.70)
+      {\apiop{Alloc}{\text{A}, \text{B}} \(\to p =\)};
+    \node[font=\normalsize\bfseries,text=CornellRed] (dirbit) at (-2.42,3.70) {\(0b1\)};
+    \node[font=\normalsize\bfseries] (concat) at (-1.93,3.70) {\(\circ\)};
+    \node[font=\normalsize\bfseries,text=CornellRed] (offsetbits) at (-0.94,3.70) {\(0b00000010\)};
+
+    \node[font=\Large\bfseries,BlueGray] at (-1.85,0.62) {\(\cdots\)};
+
+    \foreach \x in {-5.40,-3.20,0.60,1.70} {
+      \draw[Ink,line width=0.75pt,rounded corners=1pt,fill=white] ({\x-0.37},-0.92) rectangle +(0.74,2.82);
+    }
+
+    \draw[BlueGray,line width=0.95pt,rounded corners=1pt,fill=BlueGray!5] (-4.67,-0.92) rectangle +(0.74,2.82);
+
+    \draw[CornellRed,line width=1.05pt,rounded corners=1pt,fill=white] (-0.87,-0.92) rectangle +(0.74,2.82);
+
+    \slotball{-5.40}{1.62}{1}
+    \slotball{-5.40}{1.34}{0}
+    \slotball{-5.40}{1.06}{1}
+    \node[font=\large\bfseries] at (-5.40,0.58) {\(\vdots\)};
+    \slotball{-5.40}{0.02}{0}
+    \slotball{-5.40}{-0.26}{1}
+    \slotball{-5.40}{-0.54}{1}
+
+    \slotball{-4.30}{1.62}{1}
+    \slotball{-4.30}{1.34}{1}
+    \slotball{-4.30}{1.06}{0}
+    \node[font=\large\bfseries] at (-4.30,0.58) {\(\vdots\)};
+    \slotball{-4.30}{0.02}{1}
+    \slotball{-4.30}{-0.26}{0}
+    \slotball{-4.30}{-0.54}{1}
+
+    \slotball{-3.20}{1.62}{0}
+    \slotball{-3.20}{1.34}{1}
+    \slotball{-3.20}{1.06}{1}
+    \node[font=\large\bfseries] at (-3.20,0.58) {\(\vdots\)};
+    \slotball{-3.20}{0.02}{1}
+    \slotball{-3.20}{-0.26}{0}
+    \slotball{-3.20}{-0.54}{0}
+
+    \slotball{-0.50}{1.62}{0}
+    \draw[CornellRed,line width=1.0pt,fill=CornellRed!18] (-0.50,1.34) circle (3.15pt);
+    \coordinate (slot) at (-0.50,1.34);
+    \slotball{-0.50}{1.06}{1}
+    \node[font=\large\bfseries] at (-0.50,0.58) {\(\vdots\)};
+    \slotball{-0.50}{0.02}{0}
+    \slotball{-0.50}{-0.26}{1}
+    \slotball{-0.50}{-0.54}{0}
+
+    \slotball{0.60}{1.62}{1}
+    \slotball{0.60}{1.34}{0}
+    \slotball{0.60}{1.06}{0}
+    \node[font=\large\bfseries] at (0.60,0.58) {\(\vdots\)};
+    \slotball{0.60}{0.02}{1}
+    \slotball{0.60}{-0.26}{0}
+    \slotball{0.60}{-0.54}{1}
+
+    \slotball{1.70}{1.62}{0}
+    \slotball{1.70}{1.34}{1}
+    \slotball{1.70}{1.06}{0}
+    \node[font=\large\bfseries] at (1.70,0.58) {\(\vdots\)};
+    \slotball{1.70}{0.02}{1}
+    \slotball{1.70}{-0.26}{1}
+    \slotball{1.70}{-0.54}{0}
+
+    \draw[-Latex,BlueGray,thick]
+      (api.south) .. controls (-4.58,3.18) and (-4.68,2.48) ..
+      node[pos=0.50,fill=white,inner sep=1.6pt,font=\normalsize\bfseries] (h0) {\(h_0(\text{A})\)}
+      (-4.30,1.96);
+    \draw[-Latex,BlueGray,thick]
+      (api.south) .. controls (-3.05,3.18) and (-1.05,2.64) ..
+      node[pos=0.68,fill=white,inner sep=1.6pt,font=\normalsize\bfseries] (h1) {\(h_{\textcolor{CornellRed}{\mathbf{1}}}(\text{A})\)}
+      (-0.50,1.96);
+    \node[align=left,font=\scriptsize,text=CornellRed,anchor=west] at (-2.02,-0.28) {fewer\\occupied\\bin};
+
+    \draw[decorate,decoration={brace,amplitude=4pt},CornellRed,line width=0.8pt] (2.17,1.90) -- (2.17,-0.92);
+    \node[anchor=west,align=left,font=\scriptsize,text=CornellRed] at (2.32,0.49) {128 slots\\per bin};
+
+    \draw[-Latex,CornellRed,very thick] (slot) to[out=70,in=-115] (offsetbits.south);
+    \node[fill=white,inner sep=1pt,font=\scriptsize\bfseries,text=CornellRed] at (-0.20,2.21) {7-bit offset};
+    \draw[-Latex,CornellRed,thick] (h1.north) to[out=95,in=-80] (dirbit.south);
+    \node[fill=white,inner sep=1pt,font=\scriptsize\bfseries,text=CornellRed] at (-1.36,3.15) {direction bit = 1};
+
+    \node[draw=CornellRed,fill=CornellRed!6,line width=0.9pt,rounded corners=3pt,
+          anchor=west,align=left,text width=3.40cm,inner sep=5pt,font=\small]
+          at (4.20,1.55)
+          {\textbf{Dynamic allocator}\\[2pt]
+           Insert, delete, or lookup freely, as long as load factor stays below \textcolor{CornellRed}{\textbf{95\%}}\textsuperscript{*}.};
+  \end{tikzpicture}
+  \end{center}
+  \vspace{-0.16cm}
+  {\tiny\textsuperscript{*}No strict theoretical promise; empirically supports \(\mathrm{poly}(n)\) operations for \(n<2^{64}\).}
 \end{frame}
 
 \begin{frame}{TPHT in One Slide}
