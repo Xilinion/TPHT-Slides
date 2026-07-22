@@ -490,42 +490,64 @@
 
 \begin{frame}{Ingredient 2: Quotienting}
   \vspace{0.05cm}
-  {\Large \keyterm{Quotienting} means the \textbf{location} stores part of the key, so each record stores only the \textbf{remainder}.}
+  {\Large \keyterm{Quotienting} reduces the bits needed to represent a \textbf{key set} by \textbf{partitioning} it.}
 
-  \vspace{0.14cm}
+  \vspace{0.08cm}
+  {\large Insight: the \textbf{location of a partition} already encodes part of the information.}
+
+  \vspace{0.10cm}
   \begin{center}
   \begin{tikzpicture}[x=1cm,y=1cm,>=Latex,every node/.style={font=\small}]
-    \node[align=center,font=\Large\bfseries,text=CornellRed] at (0.18,3.34)
-      {The bucket supplies the missing context.};
+    \node[anchor=west,font=\large\bfseries] at (-5.68,1.28) {6-bit key};
 
-    \node[draw=Ink,fill=white,rounded corners=2pt,line width=0.8pt,
-          minimum width=5.3cm,minimum height=0.72cm,font=\normalsize\bfseries] (fullkey) at (-3.55,2.38) {};
-    \draw[CornellRed,line width=0.9pt,fill=CornellRed!9] (-6.20,2.02) rectangle (-4.52,2.74);
-    \draw[BlueGray,line width=0.9pt,fill=BlueGray!7] (-4.52,2.02) rectangle (-0.90,2.74);
-    \node[text=CornellRed,font=\normalsize\bfseries] at (-5.36,2.38) {quotient \(q\)};
-    \node[text=BlueGray,font=\normalsize\bfseries] at (-2.71,2.38) {remainder \(r\)};
-    \node[anchor=south,font=\scriptsize,BlueGray] at (-3.55,2.80) {permuted key bits};
+    \draw[CornellRed,line width=1.25pt,rounded corners=2pt,fill=CornellRed!12]
+      (-5.66,1.72) rectangle (-4.72,2.24);
+    \draw[BlueGray,line width=1.25pt,rounded corners=2pt,fill=BlueGray!10]
+      (-4.68,1.72) rectangle (-2.95,2.24);
 
-    \draw[Ink,line width=0.9pt,rounded corners=3pt,fill=CornellGray!65] (1.10,0.06) rectangle (5.80,2.98);
-    \node[anchor=north west,font=\large\bfseries] at (1.25,2.89) {Hash table};
-    \foreach \i/\q/\y in {0/00/2.28,1/01/1.72,2/10/1.16,3/11/0.60} {
-      \draw[BlueGray!55,line width=0.55pt] (1.22,\y-0.28) rectangle (5.65,\y+0.22);
-      \node[text=BlueGray,font=\scriptsize\bfseries] at (1.55,\y-0.03) {\(q=\q\)};
+    \foreach \b/\x/\name in {1/-5.38/b0,0/-4.94/b1,1/-4.50/b2,1/-4.06/b3,0/-3.62/b4,1/-3.18/b5} {
+      \node[font=\huge\bfseries\ttfamily,inner sep=1.0pt] (\name) at (\x,1.98) {\b};
     }
-    \node[draw=CornellRed,fill=white,line width=1.0pt,rounded corners=2pt,
-          minimum width=2.10cm,minimum height=0.36cm,font=\normalsize\bfseries] (entry) at (4.12,1.13) {store \(r\)};
-    \draw[CornellRed,line width=1.0pt,rounded corners=2pt] (1.22,0.88) rectangle (5.65,1.38);
 
-    \draw[-Latex,CornellRed,very thick] (-5.36,2.00) to[out=-70,in=155] (1.18,1.24);
-    \draw[-Latex,BlueGray,very thick] (-2.71,2.00) to[out=-55,in=175] (entry.west);
-    \node[fill=white,inner sep=1.4pt,font=\scriptsize\bfseries,text=CornellRed] at (-1.62,1.04) {choose the bucket};
-    \node[fill=white,inner sep=1.4pt,font=\scriptsize\bfseries,text=BlueGray] at (1.72,1.70) {keep only the rest};
+    \coordinate (qframe-bottom) at (-5.19,1.72);
+    \coordinate (rframe-east) at (-2.95,1.98);
+    \coordinate (qframe-north) at (-5.19,2.24);
+    \coordinate (rframe-north) at (-3.82,2.24);
+    \node[text=CornellRed,font=\large\bfseries] (qlabel) at (-5.48,3.30) {quotient \(q\)};
+    \node[text=BlueGray,font=\large\bfseries] (rlabel) at (-3.85,2.80) {remainder \(r\)};
+    \draw[-Latex,CornellRed,thick] (qlabel.south) -- (qframe-north);
+    \draw[-Latex,BlueGray,thick] (rlabel.south) -- (rframe-north);
 
-    \node[draw=Gold,fill=Gold!18,line width=0.95pt,rounded corners=4pt,
-          align=center,text width=3.15cm,inner sep=5pt,font=\normalsize\bfseries]
-          at (-3.15,0.26) {Same pattern as tiny pointers:\\context makes short data meaningful.};
+    \draw[Ink,line width=0.9pt,rounded corners=3pt,fill=CornellGray!60] (-1.95,-0.18) rectangle (2.18,2.92);
+    \node[anchor=north west,font=\large\bfseries] at (-1.80,2.82) {4 partitions};
+    \foreach \q/\y in {00/2.16,01/1.52,10/0.88,11/0.24} {
+      \draw[BlueGray!50,line width=0.7pt,fill=white,rounded corners=1pt] (-1.73,\y-0.29) rectangle (1.95,\y+0.29);
+      \node[anchor=west,font=\normalsize\bfseries,text=BlueGray] at (-1.52,\y) {partition \(\q\)};
+    }
+    \draw[CornellRed,line width=1.25pt,rounded corners=1pt] (-1.73,0.59) rectangle (1.95,1.17);
+    \node[font=\Large\bfseries,BlueGray] at (1.02,2.16) {\(\cdots\)};
+    \node[font=\Large\bfseries,BlueGray] at (1.02,1.52) {\(\cdots\)};
+    \node[font=\Large\bfseries,BlueGray] at (1.02,0.24) {\(\cdots\)};
+    \node[draw=BlueGray,fill=BlueGray!9,line width=1.0pt,rounded corners=2pt,text=BlueGray,
+          minimum width=1.05cm,minimum height=0.32cm,font=\normalsize\bfseries] (stored) at (1.05,0.88) {1101};
+    \node[draw=Gold,fill=Gold!20,line width=1.0pt,rounded corners=3pt,
+          inner sep=3.5pt,font=\small\bfseries,rotate=-8] at (2.5,1.43) {only 4 bits!};
+
+    \draw[-Latex,CornellRed,very thick] (qframe-bottom) to[out=-75,in=170] (-1.74,0.88);
+    \draw[-Latex,BlueGray,very thick] (rframe-east) to[out=-10,in=165] (stored.north);
+
+    \node[anchor=west,align=left,text width=3.95cm,font=\normalsize]
+          at (3.65,1.32)
+          {For a \textbf{\(w\)-bit key} \(k\) and \textbf{\(2^\ell\) partitions},
+           \(\begin{aligned}
+             q&=\left\lfloor\frac{k}{2^{w-\ell}}\right\rfloor,\\
+             r&=k\bmod 2^{w-\ell},\\
+             k&=q\cdot 2^{w-\ell}+r,\\
+              &=q\circ r.
+           \end{aligned}\)};
   \end{tikzpicture}
   \end{center}
+  \note{For the talk track: We split the key into two parts. We call the prefix the quotient, and we call the remaining bits the remainder. Since the quotient decides which partition the key belongs to, the partition location itself already remembers those quotient bits; inside the partition we only store the remainder.}
 \end{frame}
 
 \begin{frame}{Quotienting: Why It Saves Space}
