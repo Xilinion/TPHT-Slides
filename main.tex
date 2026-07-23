@@ -550,41 +550,77 @@
   \note{For the talk track: We split the key into two parts. We call the prefix the quotient, and we call the remaining bits the remainder. Since the quotient decides which partition the key belongs to, the partition location itself already remembers those quotient bits; inside the partition we only store the remainder.}
 \end{frame}
 
-\begin{frame}{Quotienting: Why It Saves Space}
-  \vspace{0.05cm}
-  {\large Each bucket name already carries \keyterm{\(\log m\)} bits of information. Quotienting avoids storing those bits again.}
+\begin{frame}{Chained-TPHT}
+  \vspace{0.04cm}
+  {\Large Let's construct a \keyterm{chained hash table} with our ingredients!}
 
-  \vspace{0.20cm}
+  \vspace{0.10cm}
   \begin{center}
   \begin{tikzpicture}[x=1cm,y=1cm,>=Latex,every node/.style={font=\small}]
-    \node[font=\large\bfseries] at (-3.65,2.72) {Ordinary hash table};
-    \draw[Ink,line width=0.9pt,rounded corners=3pt,fill=CornellGray!55] (-6.10,0.02) rectangle (-1.20,2.34);
-    \foreach \y in {1.77,1.20,0.63} {
-      \draw[BlueGray!55,line width=0.55pt] (-5.90,\y-0.26) rectangle (-1.40,\y+0.24);
+    \node[draw=CornellRed,fill=CornellRed!7,rounded corners=2pt,line width=1.0pt,
+          minimum width=2.25cm,minimum height=0.55cm,font=\normalsize\bfseries] (insert) at (-4.80,2.55)
+          {\apiop{Insert}{k,v}};
+
+    \node[draw=Ink,fill=white,line width=0.9pt,rounded corners=3pt,
+          minimum width=2.25cm,minimum height=0.55cm,font=\normalsize\bfseries] (split) at (-2.38,2.55)
+          {split \(k=q\circ r\)};
+    \draw[-Latex,thick] (insert.east) -- (split.west);
+
+    \node[draw=CornellRed,fill=CornellRed!9,line width=1.0pt,rounded corners=2pt,
+          minimum width=0.75cm,minimum height=0.47cm,font=\large\bfseries,text=CornellRed] (qbits) at (-1.02,2.55) {\(q\)};
+    \node[draw=BlueGray,fill=BlueGray!8,line width=1.0pt,rounded corners=2pt,
+          minimum width=1.15cm,minimum height=0.47cm,font=\large\bfseries,text=BlueGray] (rbits) at (0.10,2.55) {\(r\)};
+    \draw[-Latex,thick] (split.east) -- (qbits.west);
+    \node[anchor=north,font=\scriptsize,text=CornellRed] at (-1.02,2.27) {bucket id};
+    \node[anchor=north,font=\scriptsize,text=BlueGray] at (0.10,2.27) {stored key bits};
+
+    \draw[Ink,line width=0.9pt,rounded corners=4pt,fill=CornellGray!55] (-5.92,-0.92) rectangle (-2.52,1.55);
+    \node[anchor=north west,font=\large\bfseries] at (-5.72,1.43) {head array};
+    \node[anchor=north west,font=\scriptsize,text=BlueGray] at (-5.72,1.08) {one tiny pointer per quotient group};
+    \foreach \idx/\val/\y in {0/\(p_0\)/0.58,1/\(p_1\)/0.19,q/\(p_q\)/-0.20,\ldots/\(\cdots\)/-0.59} {
+      \draw[BlueGray!55,line width=0.65pt,fill=white] (-5.45,\y-0.15) rectangle (-3.05,\y+0.15);
+      \node[font=\scriptsize,text=BlueGray] at (-5.18,\y) {\(\idx\)};
+      \node[font=\scriptsize\bfseries] at (-4.20,\y) {\val};
     }
-    \node[text=BlueGray,font=\scriptsize\bfseries] at (-5.55,1.17) {bucket \(q\)};
-    \node[draw=Ink,fill=white,rounded corners=2pt,minimum width=2.95cm,minimum height=0.36cm] at (-3.16,1.17) {store full key \(k\)};
-    \draw[CornellRed,line width=1.0pt,rounded corners=2pt] (-5.90,0.94) rectangle (-1.40,1.44);
-    \node[text=CornellRed,font=\scriptsize\bfseries,align=center] at (-3.65,0.45) {bucket bits are also\\inside \(k\)};
+    \draw[CornellRed,line width=1.15pt,rounded corners=1pt] (-5.45,-0.35) rectangle (-3.05,-0.05);
+    \node[font=\scriptsize,text=CornellRed,anchor=east] (owner) at (-5.54,-0.20) {owner \(A_q\)};
+    \coordinate (headslot) at (-4.20,-0.20);
+    \draw[-Latex,CornellRed,very thick] (qbits.south) to[out=-110,in=55] (headslot);
 
-    \node[font=\large\bfseries] at (3.20,2.72) {Quotiented table};
-    \draw[Ink,line width=0.9pt,rounded corners=3pt,fill=CornellGray!55] (0.70,0.02) rectangle (5.70,2.34);
-    \foreach \y in {1.77,1.20,0.63} {
-      \draw[BlueGray!55,line width=0.55pt] (0.90,\y-0.26) rectangle (5.50,\y+0.24);
+    \draw[Ink,line width=0.9pt,rounded corners=4pt,fill=CornellGray!55] (-1.55,-0.92) rectangle (5.75,1.55);
+    \node[anchor=north west,font=\large\bfseries] at (-1.35,1.43) {dereference table};
+    \node[anchor=north west,font=\scriptsize,text=BlueGray] at (-1.35,1.08) {all chain nodes live in one compact pool};
+
+    \foreach \x/\lab in {-0.80/\(\cdots\),0.05/\(\mathrm{bin}\),0.90/\(\cdots\)} {
+      \draw[Ink,line width=0.65pt,rounded corners=1pt,fill=white] (\x-0.30,-0.58) rectangle (\x+0.30,0.80);
+      \node[font=\scriptsize,text=BlueGray,rotate=90] at (\x,0.10) {\lab};
     }
-    \node[text=CornellRed,font=\scriptsize\bfseries] at (1.27,1.17) {bucket \(q\)};
-    \node[draw=CornellRed,fill=white,line width=1.0pt,rounded corners=2pt,minimum width=2.45cm,minimum height=0.36cm] at (3.82,1.17) {store \(r\) only};
-    \draw[CornellRed,line width=1.0pt,rounded corners=2pt] (0.90,0.94) rectangle (5.50,1.44);
-    \node[text=CornellRed,font=\scriptsize\bfseries,align=center] at (3.20,0.45) {bucket gives back\\the missing bits};
+    \draw[CornellRed,line width=1.15pt,rounded corners=1pt,fill=white] (-0.25,-0.58) rectangle (0.35,0.80);
+    \coordinate (slot) at (0.05,0.10);
+    \fill[CornellRed] (slot) circle (3.0pt);
+    \node[anchor=south,font=\scriptsize\bfseries,text=CornellRed] at (0.05,0.83) {decoded slot};
+    \draw[-Latex,CornellRed,very thick] (headslot) to[out=-10,in=170]
+      node[pos=0.55,fill=white,inner sep=1.3pt,font=\scriptsize\bfseries,text=CornellRed]
+      {TinyDeref\((A_q,p_q)\)} (slot);
 
-    \draw[-Latex,line width=1.0pt,BlueGray] (-0.74,1.18) -- (0.34,1.18);
-    \node[above,font=\scriptsize\bfseries,text=BlueGray] at (-0.20,1.22) {remove duplication};
+    \node[draw=Ink,fill=white,line width=0.9pt,rounded corners=2pt,
+          minimum width=1.56cm,minimum height=0.48cm,font=\scriptsize\bfseries] (oldnode) at (2.20,0.10)
+          {\(r_\ell,v_\ell\;|\;p_\ell\)};
+    \node[draw=CornellRed,fill=CornellRed!7,line width=1.0pt,rounded corners=2pt,
+          minimum width=1.42cm,minimum height=0.48cm,font=\scriptsize\bfseries,text=CornellRed] (newnode) at (4.08,0.10)
+          {\(r,v\;|\;\bot\)};
+    \draw[-Latex,Ink,thick] (slot) -- (oldnode.west);
+    \draw[-Latex,CornellRed,thick] (oldnode.east) -- (newnode.west);
+    \node[anchor=south,font=\scriptsize\bfseries,text=BlueGray] at (3.08,0.50)
+      {chain for quotient \(q\)};
 
-    \node[draw=CornellRed,fill=CornellRed!7,line width=1.0pt,rounded corners=4pt,
-          align=center,text width=8.8cm,inner sep=6pt,font=\large\bfseries]
-          at (-0.15,-0.72) {The larger the table, the more location bits we get ``for free.''};
+    \draw[-Latex,BlueGray,very thick] (rbits.south) to[out=-80,in=90] (newnode.north);
+    \node[draw=Gold,fill=Gold!20,line width=1.0pt,rounded corners=3pt,
+          inner sep=3.5pt,font=\small\bfseries,rotate=-5] at (4.26,-0.60)
+          {store \(r\), not \(q\)};
   \end{tikzpicture}
   \end{center}
+  \note{This slide moves from the quotienting ingredient to the first full design. Insert splits the key into quotient q and remainder r. The quotient indexes the head array. The head cell stores a tiny pointer, whose owner is the address of that head cell. Dereferencing finds the chain node in the monolithic dereference table. The chain stores only remainders and values, because the quotient is already represented by the head-array location.}
 \end{frame}
 
 \begin{frame}{Quotienting: Implementation}
