@@ -623,53 +623,136 @@
   \note{This slide moves from the quotienting ingredient to the first full design. Insert splits the key into quotient q and remainder r. The quotient indexes the head array. The head cell stores a tiny pointer, whose owner is the address of that head cell. Dereferencing finds the chain node in the monolithic dereference table. The chain stores only remainders and values, because the quotient is already represented by the head-array location.}
 \end{frame}
 
-\begin{frame}{Quotienting: Implementation}
+\begin{frame}{Making TPHT Fast}
   \vspace{0.04cm}
-  {\large To quotient a \textbf{hash table}, we must still recover the original key. TPHT uses an \keyterm{invertible permutation}.}
+  {\Large \Chained is already \keyterm{more cache-friendly} than normal chaining.}
 
   \vspace{0.10cm}
   \begin{center}
   \begin{tikzpicture}[x=1cm,y=1cm,>=Latex,every node/.style={font=\small}]
-    \node[draw=Ink,fill=white,rounded corners=2pt,line width=0.9pt,
-          minimum width=2.65cm,minimum height=0.58cm,font=\normalsize\bfseries] (key) at (-5.05,2.58) {key \(k\)};
-    \node[draw=CornellRed,fill=CornellRed!7,rounded corners=3pt,line width=1.0pt,
-          minimum width=2.85cm,minimum height=0.70cm,font=\normalsize\bfseries] (perm) at (-1.95,2.58) {permutation \(P\)};
-    \node[draw=Ink,fill=white,rounded corners=2pt,line width=0.9pt,
-          minimum width=3.05cm,minimum height=0.58cm,font=\normalsize\bfseries] (qr) at (1.55,2.58) {\(P(k)=(q,r)\)};
-    \draw[-Latex,thick] (key.east) -- (perm.west);
-    \draw[-Latex,thick] (perm.east) -- (qr.west);
+    \node[align=center,text=CornellRed,font=\large\bfseries] at (-3.95,1.48)
+      {8\(\times\) smaller};
+    \node[align=center,text=CornellRed,font=\small\bfseries] at (-3.95,1.18)
+      {head array};
+    \node[align=center,text=BlueGray,font=\large\bfseries] at (0,1.48)
+      {store \(r\)};
+    \node[align=center,text=BlueGray,font=\small\bfseries] at (0,1.18)
+      {not the full key};
+    \node[align=center,text=Gold!85!Ink,font=\large\bfseries] at (3.95,1.48)
+      {more buckets};
+    \node[align=center,text=Gold!85!Ink,font=\small\bfseries] at (3.95,1.18)
+      {shorter chains};
+    \node[align=center,font=\small,text=BlueGray] at (-3.95,0.88)
+      {cache-resident heads};
+    \node[align=center,font=\small,text=BlueGray] at (0,0.88)
+      {compact tuples};
+    \node[align=center,font=\small,text=BlueGray] at (3.95,0.88)
+      {lower chain load};
+    \draw[BlueGray!35,line width=0.7pt] (-5.35,0.69) -- (5.35,0.69);
+    \node[font=\large\bfseries,text=CornellRed] at (0,0.34)
+      {Next: remove the first indirection miss};
 
-    \draw[CornellRed,line width=1.0pt,fill=CornellRed!8,rounded corners=2pt] (-0.10,1.30) rectangle (1.17,1.88);
-    \node[font=\normalsize\bfseries,text=CornellRed] (qbits) at (0.54,1.59) {\(q\)};
-    \draw[BlueGray,line width=1.0pt,fill=BlueGray!7,rounded corners=2pt] (1.17,1.30) rectangle (3.20,1.88);
-    \node[font=\normalsize\bfseries,text=BlueGray] (rbits) at (2.19,1.59) {\(r\)};
-    \draw[-Latex,CornellRed,thick] (qr.south) to[out=-110,in=75] (qbits.north);
-    \draw[-Latex,BlueGray,thick] (qr.south) to[out=-70,in=105] (rbits.north);
+    \node[anchor=west,font=\small\bfseries,text=BlueGray] at (-4.85,-0.08) {before};
+    \draw[BlueGray!55,line width=0.7pt,fill=CornellGray!60,rounded corners=2pt]
+      (-3.72,-0.36) rectangle (-2.22,0.32);
+    \node[font=\normalsize\bfseries] (oldhead) at (-2.97,-0.02) {\(p_q\)};
+    \node[draw=Ink,fill=white,line width=0.8pt,rounded corners=2pt,
+          minimum width=2.15cm,minimum height=0.58cm,font=\normalsize\bfseries] (oldnode) at (1.62,-0.02)
+      {\(r_1,v_1\mid p_2\)};
+    \draw[-Latex,CornellRed,thick] (oldhead.east) --
+      node[pos=0.52,fill=white,inner sep=1pt,font=\small\bfseries,text=CornellRed] {extra miss} (oldnode.west);
+    \draw[CornellRed,line width=1.1pt] (-0.58,0.34) -- (-0.03,-0.38);
+    \draw[CornellRed,line width=1.1pt] (-0.58,-0.38) -- (-0.03,0.34);
 
-    \draw[Ink,line width=0.9pt,rounded corners=3pt,fill=CornellGray!60] (-5.85,-0.82) rectangle (0.18,0.88);
-    \node[anchor=north west,font=\large\bfseries] at (-5.70,0.78) {Table location};
-    \node[draw=CornellRed,fill=white,line width=1.0pt,rounded corners=2pt,
-          minimum width=1.80cm,minimum height=0.43cm,font=\normalsize\bfseries] (bucket) at (-2.83,-0.05) {bucket \(q\)};
-    \draw[-Latex,CornellRed,very thick] (qbits.south) to[out=-110,in=80] (bucket.north);
-
-    \draw[Ink,line width=0.9pt,rounded corners=3pt,fill=CornellGray!60] (0.90,-0.82) rectangle (5.78,0.88);
-    \node[anchor=north west,font=\large\bfseries] at (1.05,0.78) {Stored record};
-    \node[draw=BlueGray,fill=white,line width=1.0pt,rounded corners=2pt,
-          minimum width=1.80cm,minimum height=0.43cm,font=\normalsize\bfseries] (recordr) at (3.15,-0.05) {remainder \(r\)};
-    \draw[-Latex,BlueGray,very thick] (rbits.south) to[out=-60,in=100] (recordr.north);
-
-    \node[draw=Gold,fill=Gold!18,line width=1.0pt,rounded corners=4pt,
-          align=center,text width=3.70cm,inner sep=5pt,font=\small\bfseries] (recover) at (4.15,2.58)
-          {Lookup reads location \(q\) and record \(r\), then applies \(P^{-1}\).};
-    \draw[-Latex,Gold!85!Ink,line width=1.0pt] (bucket.east) to[out=10,in=-135] (recover.south west);
-    \draw[-Latex,Gold!85!Ink,line width=1.0pt] (recordr.north) to[out=70,in=-90] (recover.south);
-    \node[font=\Large\bfseries,text=CornellRed] at (4.36,1.18) {recover \(k\)};
-
-    \node[draw=CornellRed,fill=white,line width=1.0pt,rounded corners=3pt,
-          align=center,text width=9.7cm,inner sep=5pt,font=\normalsize\bfseries]
-          at (-0.05,-1.45) {Key idea: quotienting is safe because \(P\) is reversible, not just a one-way hash.};
+    \node[anchor=west,font=\small\bfseries,text=BlueGray] at (-4.85,-1.28) {after};
+    \draw[CornellRed,line width=1.05pt,fill=CornellRed!7,rounded corners=2pt]
+      (-3.72,-1.72) rectangle (-0.72,-0.90);
+    \draw[BlueGray!50,line width=0.6pt] (-1.92,-1.72) -- (-1.92,-0.90);
+    \node[font=\normalsize\bfseries,text=CornellRed] at (-2.84,-1.31) {\(r_1,v_1\)};
+    \node[font=\normalsize\bfseries] (nextp) at (-1.32,-1.31) {\(p_2\)};
+    \node[draw=Ink,fill=white,line width=0.8pt,rounded corners=2pt,
+          minimum width=1.52cm,minimum height=0.52cm,font=\normalsize\bfseries] (nextnode) at (1.05,-1.31)
+      {\(r_2,v_2\)};
+    \draw[-Latex,Ink,thick] (nextp.east) -- (nextnode.west);
+    \node[font=\small\bfseries,text=Gold!85!Ink] at (-1.28,-2.12)
+      {first tuple lives in the head entry};
+    \node[align=center,font=\small,text=BlueGray] at (3.18,-1.30)
+      {overflow tuples\\still chain};
   \end{tikzpicture}
   \end{center}
+  \note{This slide transitions from the space story to the speed story. The main message is that Chained-TPHT is not merely smaller than a normal chained hash table; it is also more cache-friendly. Tiny pointers shrink the head array by a factor of eight, so the head array is much more likely to be cache-resident. Quotienting stores only the remainder r rather than the full key, so each tuple is smaller. Since head entries are cheap, we can also afford more quotient groups, which lowers the average chain length. Then emphasize the remaining problem: a head lookup still gives a pointer to the first chain node, and that first dereference can be an extra cache miss. The intermediate optimization is to inline the first tuple into the head entry. In the common case, the lookup obtains the first key-value candidate directly from the cache line holding the head entry; only later overflow tuples continue through pointers.}
+\end{frame}
+
+\begin{frame}{Making TPHT Fast: Chain Walks}
+  \vspace{0.04cm}
+  {\Large \keyterm{Opportunity 2:} reduce chain walks without wasting cache lines.}
+
+  \vspace{0.10cm}
+  \begin{center}
+  \begin{tikzpicture}[x=1cm,y=1cm,>=Latex,every node/.style={font=\small}]
+    \node[font=\normalsize\bfseries,text=BlueGray] at (-3.85,1.40) {naive extension};
+    \node[font=\normalsize\bfseries,text=BlueGray] at (2.30,1.40) {shared cache-line block};
+
+    \foreach \y/\lab/\used in {0.92/q/2,0.46/{q{+}1}/1,0.00/{q{+}2}/2,-0.46/{q{+}3}/0} {
+      \node[anchor=east,font=\small\bfseries,text=BlueGray] at (-5.55,\y) {\(\lab\)};
+      \draw[Ink,line width=0.75pt,fill=CornellGray!35,rounded corners=1.5pt]
+        (-5.38,\y-0.14) rectangle (-2.56,\y+0.14);
+      \ifnum\used>0
+        \foreach \i in {1,...,\used} {
+          \draw[CornellRed!75,fill=CornellRed!10,line width=0.55pt]
+            ({-5.26+0.42*(\i-1)},\y-0.10) rectangle ({-4.90+0.42*(\i-1)},\y+0.10);
+        }
+      \fi
+    }
+    \draw[CornellRed,line width=1.15pt] (-4.92,-0.78) -- (-3.05,1.20);
+    \draw[CornellRed,line width=1.15pt] (-4.92,1.20) -- (-3.05,-0.78);
+    \node[align=center,font=\small\bfseries,text=CornellRed] at (-3.95,-1.18)
+      {one line per chain\\wastes space};
+    \node[align=center,font=\small,text=BlueGray] at (-3.95,-1.66)
+      {short chains leave empty bytes};
+
+    \foreach \y/\q/\items in {0.88/q/2,0.48/{q{+}1}/1,0.08/{q{+}2}/2,-0.32/{q{+}3}/0} {
+      \node[anchor=east,font=\small\bfseries,text=BlueGray] at (-0.90,\y) {\(\q\)};
+      \draw[BlueGray!45,line width=0.6pt,fill=white] (-0.74,\y-0.12) rectangle (0.05,\y+0.12);
+      \ifnum\items>0
+        \foreach \i in {1,...,\items} {
+          \fill[CornellRed!75] ({-0.58+0.22*(\i-1)},\y) circle (1.8pt);
+        }
+      \fi
+    }
+    \draw[-Latex,CornellRed,thick] (0.24,0.26) --
+      node[pos=0.48,fill=white,inner sep=1pt,font=\small\bfseries,text=CornellRed] {pack} (1.08,0.26);
+    \node[align=center,font=\small,text=BlueGray] at (-0.30,-0.78)
+      {adjacent groups\\fit together};
+
+    \node[draw=CornellRed,fill=CornellRed!7,line width=0.9pt,rounded corners=2pt,
+          minimum width=1.34cm,minimum height=0.50cm,font=\small\bfseries] (hash) at (1.55,1.00)
+      {hash \(k\)};
+
+    \draw[Ink,line width=1.05pt,fill=CornellGray!55,rounded corners=2pt]
+      (2.24,-0.52) rectangle (5.78,0.66);
+    \draw[Gold!85!Ink,line width=0.85pt,fill=Gold!18]
+      (2.24,-0.52) rectangle (2.76,0.66);
+    \node[font=\small\bfseries,rotate=90] at (2.50,0.07) {meta};
+    \foreach \xa/\xb/\lab/\col in {2.76/3.48/\(q\)/CornellRed,3.48/4.18/\(q{+}1\)/BlueGray,4.18/4.90/\(q{+}2\)/BlueGray,4.90/5.78/\(q{+}3\)/BlueGray} {
+      \draw[\col!65,line width=0.7pt,fill=white] (\xa,-0.52) rectangle (\xb,0.66);
+      \node[font=\small\bfseries,text=\col] at ({(\xa+\xb)/2},0.43) {\lab};
+    }
+    \node[font=\small] at (3.12,0.02) {\(r,v\)};
+    \node[font=\small] at (3.82,0.02) {\(r,v\)};
+    \node[font=\small] at (4.54,0.02) {\(r,v\)};
+    \node[font=\small] at (5.34,0.02) {free};
+    \draw[-Latex,CornellRed,thick] (hash.east) --
+      node[pos=0.55,fill=white,inner sep=1pt,font=\small\bfseries,text=CornellRed] {one cache line} (2.24,0.35);
+
+    \draw[-Latex,Gold!85!Ink,thick] (2.50,-0.59) to[out=-90,in=180] (3.52,-1.20);
+    \node[anchor=west,align=left,text width=2.90cm,font=\small\bfseries,text=Gold!85!Ink] at (3.58,-1.20)
+      {offsets + counts\\find the chain};
+    \node[align=center,font=\small\bfseries,text=BlueGray] at (1.45,-2.03)
+      {intermediate design: share one line; metadata jumps inside it};
+  \end{tikzpicture}
+  \end{center}
+  \note{This slide explains the second locality opportunity. After the first tuple is moved into the head entry, the next natural question is whether we should move even more chain tuples next to the head. The naive version reserves a full cache line for every quotient chain. This would reduce chain walks, but it wastes memory badly because most chains are short; many cache lines would contain only one or two tuples and a lot of empty space. The key observation is that neighboring quotient groups are also short on average, so several adjacent groups can share one assigned cache line. The small metadata region records offsets and counts for the groups in that line. A lookup hashes to the shared line, then uses the quotient group and metadata to locate the local chain almost for free. Make clear that this is still an intermediate design idea: we are introducing the cache-line sharing intuition before the final flattened TPHT layout, not yet presenting the final home-block structure.}
 \end{frame}
 
 \begin{frame}{Design 1: Chained-TPHT}
