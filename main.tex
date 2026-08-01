@@ -755,52 +755,166 @@
   \note{This slide explains the second locality opportunity. After the first tuple is moved into the head entry, the next natural question is whether we should move even more chain tuples next to the head. The naive version reserves a full cache line for every quotient chain. This would reduce chain walks, but it wastes memory badly because most chains are short; many cache lines would contain only one or two tuples and a lot of empty space. The key observation is that neighboring quotient groups are also short on average, so several adjacent groups can share one assigned cache line. The small metadata region records offsets and counts for the groups in that line. A lookup hashes to the shared line, then uses the quotient group and metadata to locate the local chain almost for free. Make clear that this is still an intermediate design idea: we are introducing the cache-line sharing intuition before the final flattened TPHT layout, not yet presenting the final home-block structure.}
 \end{frame}
 
-\begin{frame}{Design 1: Chained-TPHT}
-  \begin{columns}[T,onlytextwidth]
-    \column{0.55\textwidth}
-      \includegraphics[width=\linewidth,height=0.67\textheight,keepaspectratio]{assets/figures/tpht_chained_v2.pdf}
-    \column{0.41\textwidth}
-      \begin{block}{Make chaining small enough to be modern}
-        \begin{itemize}
-          \item head array stores 1-byte tiny pointers
-          \item nodes store next pointer, quotiented key remainder, value
-          \item quotient groups are exactly chains
-          \item quotienting pays back the pointer overhead
-        \end{itemize}
-      \end{block}
-      \vspace{0.25cm}
-      \metric{105.4\%}{space efficiency}\par
-      \metric{38.6\%}{mean memory reduction vs. strong baselines}
-  \end{columns}
+\begin{frame}{After Opportunity 2: What Remains?}
+  \vspace{0.04cm}
+  {\Large Shared cache lines help locality, but the \keyterm{overflow table can still chain}.}
+
+  \vspace{0.10cm}
+  \begin{center}
+  \begin{tikzpicture}[x=1cm,y=1cm,>=Latex,every node/.style={font=\small}]
+    \node[font=\large\bfseries,text=Ink] at (-2.85,1.72)
+      {Opportunity 2 solution};
+    \node[align=center,font=\small,text=BlueGray] at (-2.85,1.36)
+      {pack adjacent quotient groups\\into the same cache line};
+
+    \draw[Ink,line width=1.05pt,fill=CornellGray!55,rounded corners=2pt]
+      (-5.78,0.04) rectangle (-0.14,0.94);
+    \draw[Gold!85!Ink,line width=0.85pt,fill=Gold!18]
+      (-5.78,0.04) rectangle (-5.08,0.94);
+    \node[font=\small\bfseries,rotate=90] at (-5.43,0.49) {meta};
+    \foreach \xa/\xb/\lab/\col in {-5.08/-3.86/\(q\)/CornellRed,-3.86/-2.72/\(q{+}1\)/BlueGray,-2.72/-1.58/\(q{+}2\)/BlueGray,-1.58/-0.14/\(q{+}3\)/BlueGray} {
+      \draw[\col!65,line width=0.7pt,fill=white] (\xa,0.04) rectangle (\xb,0.94);
+      \node[font=\small\bfseries,text=\col] at ({(\xa+\xb)/2},0.72) {\lab};
+    }
+    \node[font=\small\bfseries] at (-4.47,0.30) {\(r,v\)};
+    \node[font=\small\bfseries] at (-3.29,0.30) {\(r,v\)};
+    \node[font=\small\bfseries] at (-2.15,0.30) {\(r,v\)};
+    \node[font=\small\bfseries,text=BlueGray] at (-0.84,0.30) {free};
+    \node[align=center,font=\small\bfseries,text=Gold!85!Ink] at (-2.96,-0.34)
+      {metadata locates the group};
+
+    \node[font=\large\bfseries,text=CornellRed] at (2.90,1.72)
+      {Still left to solve};
+    \node[align=center,font=\small,text=BlueGray] at (2.90,1.36)
+      {if the tuple is not in the line,\\we jump into the overflow table};
+
+    \node[draw=CornellRed,fill=CornellRed!7,line width=0.9pt,rounded corners=2pt,
+          minimum width=1.35cm,minimum height=0.48cm,font=\small\bfseries] (home) at (0.82,0.49)
+      {home line};
+    \draw[Ink,line width=0.95pt,fill=CornellGray!45,rounded corners=3pt]
+      (2.02,-0.42) rectangle (5.94,0.92);
+    \node[anchor=west,font=\small\bfseries,text=Ink] at (2.12,0.78) {overflow table};
+    \node[draw=Ink,fill=white,line width=0.75pt,rounded corners=2pt,
+          minimum width=1.02cm,minimum height=0.40cm,font=\small\bfseries] (o1) at (2.70,0.08)
+      {node 1};
+    \node[draw=Ink,fill=white,line width=0.75pt,rounded corners=2pt,
+          minimum width=1.02cm,minimum height=0.40cm,font=\small\bfseries] (o2) at (3.88,0.08)
+      {node 2};
+    \node[draw=CornellRed,fill=CornellRed!9,line width=1.0pt,rounded corners=2pt,
+          minimum width=1.06cm,minimum height=0.40cm,font=\small\bfseries,text=CornellRed] (target) at (5.10,0.08)
+      {target};
+    \draw[-Latex,CornellRed,thick] (home.east) -- node[pos=0.55,fill=white,inner sep=1pt,font=\small\bfseries,text=CornellRed] {enter} (2.02,0.27);
+    \draw[-Latex,CornellRed,thick] (o1.east) -- node[pos=0.50,fill=white,inner sep=1pt,font=\small\bfseries,text=CornellRed] {hop} (o2.west);
+    \draw[-Latex,CornellRed,thick] (o2.east) -- node[pos=0.50,fill=white,inner sep=1pt,font=\small\bfseries,text=CornellRed] {hop} (target.west);
+    \node[align=center,font=\small,text=BlueGray] at (3.85,-0.78)
+      {the expensive hops happen\\inside the overflow table};
+
+    \draw[BlueGray!35,line width=0.7pt] (-5.55,-1.15) -- (5.70,-1.15);
+    \node[font=\large\bfseries,text=CornellRed] at (0,-1.45)
+      {We don't love chains anymore!};
+    \node[align=center,font=\small,text=BlueGray] at (0,-1.86)
+      {Next goal: keep the cache-line locality, but make overflow one-hop instead of iterative.};
+  \end{tikzpicture}
+  \end{center}
+  \note{This slide is the breakup with chaining. First elaborate opportunity 2: rather than reserving a private cache line for every short chain, we pack adjacent quotient groups into a shared cache line and use small metadata to locate the right group. But even with this optimization, chains are still there. If the desired tuple is not in the shared line, we may still walk through overflow nodes, and every hop can cost another cache miss. Chained hash table, we had a good time. I don't love you anymore. Mark the turning point clearly: we don't love chains anymore! The next design should preserve the good cache-line packing idea, but remove iterative pointer chasing.}
 \end{frame}
 
-\begin{frame}{Why Chaining Becomes Good Again}
-  \begin{columns}[T,onlytextwidth]
-    \column{0.48\textwidth}
-      \begin{block}{Conventional chaining}
-        \begin{itemize}
-          \item 8-byte pointers dominate metadata
-          \item head arrays become expensive
-          \item pointer chasing hurts locality
-        \end{itemize}
-      \end{block}
-    \column{0.48\textwidth}
-      \begin{block}{Chained-TPHT}
-        \begin{itemize}
-          \item 1-byte head pointers make many buckets cheap
-          \item compact head array is more cache-resident
-          \item quotienting removes enough key bits to offset links
-        \end{itemize}
-      \end{block}
-  \end{columns}
-  \vspace{0.25cm}
+\begin{frame}{Flattened-TPHT: One-Hop Overflow}
+  \vspace{0.04cm}
+  {\Large The flattened design is a \keyterm{procedure}: fill home, then use one-hop overflow.}
+
+  \vspace{0.08cm}
   \begin{center}
-    \begin{tikzpicture}
-      \node[draw=CornellRed,line width=1pt,rounded corners=2pt,inner sep=8pt,text width=0.82\textwidth,align=center] {
-        Chained-TPHT turns the oldest collision-resolution idea into a practical succinct hash table with expected \(O(1)\) operations.
-      };
-    \end{tikzpicture}
+  \resizebox{0.96\textwidth}{!}{%
+  \begin{tikzpicture}[x=1cm,y=1cm,>=Latex,every node/.style={font=\small}]
+    \node[font=\large\bfseries,text=CornellRed] at (-3.45,2.05)
+      {home block = one cache line for one bucket};
+    \node[draw=Gold,fill=Gold!20,line width=0.9pt,rounded corners=3pt,
+          align=center,font=\small\bfseries,text=Ink] at (3.10,2.05)
+      {quotienting shaved bytes,\\so this fits};
+
+    \node[font=\small\bfseries,text=BlueGray] at (-5.20,1.42) {1. append locally};
+    \draw[CornellRed,line width=1.0pt,rounded corners=2pt]
+      (-5.88,0.62) rectangle (-1.42,1.26);
+    \draw[Gold!85!Ink,line width=0.85pt,fill=Gold!18]
+      (-5.88,0.62) rectangle (-5.32,1.26);
+    \node[font=\small\bfseries,rotate=90] at (-5.60,0.94) {meta};
+    \foreach \xa/\xb/\lab/\col in {-5.20/-4.40/{\(r_1,v\)}/CornellRed,-4.28/-3.48/{\(r_2,v\)}/CornellRed,-3.36/-2.56/{\(r_3,v\)}/CornellRed,-2.44/-1.57/{free}/BlueGray} {
+      \draw[Ink!72,line width=0.65pt] (\xa,0.70) rectangle (\xb,1.18);
+      \node[font=\scriptsize\bfseries,text=\col] at ({(\xa+\xb)/2},0.94) {\lab};
+    }
+    \node[draw=CornellRed,fill=CornellRed!10,line width=0.8pt,rounded corners=2pt,
+          font=\small\bfseries] (newtuple) at (-0.92,0.94) {new};
+    \draw[-Latex,CornellRed,thick] (newtuple.west) -- (-1.42,0.94);
+
+    \node[font=\small\bfseries,text=BlueGray] at (1.10,1.42) {2. full tuple area: use one tiny pointer};
+    \draw[CornellRed,line width=1.0pt,rounded corners=2pt]
+      (-0.30,0.62) rectangle (4.70,1.26);
+    \draw[Gold!85!Ink,line width=0.85pt,fill=Gold!18]
+      (-0.30,0.62) rectangle (0.26,1.26);
+    \node[font=\small\bfseries,rotate=90] at (-0.02,0.94) {meta};
+    \foreach \xa/\xb/\lab/\col in {0.38/1.10/{\(r_1,v\)}/CornellRed,1.22/1.94/{\(r_2,v\)}/CornellRed,2.06/2.78/{\(r_3,v\)}/CornellRed,2.90/3.62/{\(r_4,v\)}/CornellRed,3.74/4.55/{tp}/Gold!85!Ink} {
+      \draw[Ink!72,line width=0.65pt] (\xa,0.70) rectangle (\xb,1.18);
+      \node[font=\scriptsize\bfseries,text=\col] at ({(\xa+\xb)/2},0.94) {\lab};
+    }
+    \draw[Ink,line width=0.85pt,fill=CornellGray!40,rounded corners=2pt]
+      (4.98,0.48) rectangle (6.05,1.28);
+    \node[font=\small\bfseries] at (5.52,1.10) {overflow};
+    \draw[BlueGray!65,line width=0.6pt,fill=white] (5.18,0.62) rectangle (5.86,0.92);
+    \node[font=\small\bfseries] at (5.52,0.77) {\(r_5,v\)};
+    \draw[-Latex,Gold!85!Ink,thick] (4.16,0.62) to[out=-50,in=180] (5.18,0.77);
+
+    \node[font=\small\bfseries,text=BlueGray] at (-4.70,-0.06) {3. need more home space: push one tuple out};
+    \draw[CornellRed,line width=1.0pt,rounded corners=2pt]
+      (-5.88,-0.92) rectangle (-0.82,-0.26);
+    \draw[Gold!85!Ink,line width=0.85pt,fill=Gold!18]
+      (-5.88,-0.92) rectangle (-5.32,-0.26);
+    \node[font=\small\bfseries,rotate=90] at (-5.60,-0.59) {meta};
+    \foreach \xa/\xb/\lab/\col in {-5.20/-4.48/{\(r_1,v\)}/CornellRed,-4.36/-3.64/{\(r_2,v\)}/CornellRed,-3.52/-2.80/{\(r_3,v\)}/CornellRed,-2.68/-1.96/{\(r_4,v\)}/CornellRed,-1.84/-0.97/{tp}/Gold!85!Ink} {
+      \draw[Ink!72,line width=0.65pt] (\xa,-0.84) rectangle (\xb,-0.34);
+      \node[font=\scriptsize\bfseries,text=\col] at ({(\xa+\xb)/2},-0.59) {\lab};
+    }
+    \node[draw=CornellRed,fill=CornellRed!10,line width=0.8pt,rounded corners=2pt,
+          font=\small\bfseries] (incoming) at (-0.28,-0.59) {incoming};
+    \draw[-Latex,CornellRed,thick] (incoming.west) -- (-0.82,-0.59);
+    \draw[Ink,line width=0.85pt,fill=CornellGray!40,rounded corners=2pt]
+      (-5.15,-1.95) rectangle (-2.70,-1.16);
+    \node[font=\small\bfseries] at (-3.92,-1.32) {overflow table};
+    \draw[BlueGray!65,line width=0.6pt,fill=white] (-4.92,-1.82) rectangle (-4.12,-1.52);
+    \draw[BlueGray!65,line width=0.6pt,fill=white] (-3.92,-1.82) rectangle (-3.12,-1.52);
+    \node[font=\small\bfseries] at (-4.52,-1.67) {old};
+    \node[font=\small\bfseries] at (-3.52,-1.67) {new};
+    \draw[-Latex,CornellRed,thick] (-3.22,-0.92) to[out=-90,in=90] (-4.52,-1.52);
+    \node[align=center,font=\small\bfseries,text=CornellRed] at (-1.52,-1.55)
+      {convert a home tuple\\into a tiny pointer};
+
+    \node[font=\small\bfseries,text=BlueGray] at (2.65,-0.06) {4. resulting lookup shape};
+    \draw[CornellRed,line width=1.0pt,rounded corners=2pt]
+      (0.38,-0.92) rectangle (4.70,-0.26);
+    \draw[Gold!85!Ink,line width=0.85pt,fill=Gold!18]
+      (0.38,-0.92) rectangle (0.94,-0.26);
+    \node[font=\small\bfseries,rotate=90] at (0.66,-0.59) {meta};
+    \foreach \xa/\xb/\lab/\col in {1.06/1.78/{\(r_1,v\)}/CornellRed,1.90/2.62/{\(r_2,v\)}/CornellRed,2.74/3.46/{tp}/Gold!85!Ink,3.58/4.43/{tp}/Gold!85!Ink} {
+      \draw[Ink!72,line width=0.65pt] (\xa,-0.84) rectangle (\xb,-0.34);
+      \node[font=\scriptsize\bfseries,text=\col] at ({(\xa+\xb)/2},-0.59) {\lab};
+    }
+    \draw[Ink,line width=0.85pt,fill=CornellGray!40,rounded corners=2pt]
+      (4.98,-1.95) rectangle (6.10,-0.98);
+    \node[font=\small\bfseries] at (5.54,-1.16) {overflow};
+    \draw[BlueGray!65,line width=0.6pt,fill=white] (5.18,-1.82) rectangle (5.90,-1.52);
+    \node[font=\small\bfseries] at (5.54,-1.67) {tuple};
+    \draw[-Latex,Gold!85!Ink,thick] (3.04,-0.92) to[out=-80,in=180] (5.18,-1.67);
+    \draw[-Latex,Gold!85!Ink,thick] (4.08,-0.92) to[out=-70,in=170] (5.18,-1.52);
+    \node[align=center,font=\small\bfseries,text=CornellRed] at (2.65,-2.03)
+      {tiny pointer targets one tuple;\\no iterative overflow chain};
+
+    \node[draw=CornellRed,fill=white,line width=0.9pt,rounded corners=3pt,
+          align=center,text width=5.65cm,font=\small,inner sep=3pt] at (-1.25,-2.37)
+      {Safety story: \textbf{64B block}, \textbf{4 home tuple slots + 2 tiny-pointer slots}; overflow capacity is analyzed; queries average about \textbf{1.25 cache misses}.};
+  \end{tikzpicture}
+  }
   \end{center}
+  \note{This slide introduces Flattened-TPHT in a simplified way for the audience. We do not need to exactly follow every construction detail from the paper. The story is: each key bucket owns a cache-line home block. We append quotient-compressed tuples into the home block first. If we cannot append a full tuple, we store a tiny pointer to one tuple in the overflow table. Stress that this is not a linked list: the overflow tuple does not iteratively point to more overflow tuples. If more room is needed in the home block, we can push one existing tuple to the overflow table and replace it by a tiny pointer, which creates more space for new home-resident tuples or more tiny pointers. This works because quotienting shaved bytes off the stored keys. If the audience asks whether four home slots, two pointer slots, and the overflow table are enough, say that the paper analyzes these capacity questions and sizes the overflow pool using the spill tail; the slide gives the key numbers and the measured result that queries average about 1.25 cache misses.}
 \end{frame}
 
 \begin{frame}{Design 2: Flattened-TPHT}
