@@ -917,171 +917,221 @@
   \note{This slide introduces Flattened-TPHT in a simplified way for the audience. We do not need to exactly follow every construction detail from the paper. The story is: each key bucket owns a cache-line home block. We append quotient-compressed tuples into the home block first. If we cannot append a full tuple, we store a tiny pointer to one tuple in the overflow table. Stress that this is not a linked list: the overflow tuple does not iteratively point to more overflow tuples. If more room is needed in the home block, we can push one existing tuple to the overflow table and replace it by a tiny pointer, which creates more space for new home-resident tuples or more tiny pointers. This works because quotienting shaved bytes off the stored keys. If the audience asks whether four home slots, two pointer slots, and the overflow table are enough, say that the paper analyzes these capacity questions and sizes the overflow pool using the spill tail; the slide gives the key numbers and the measured result that queries average about 1.25 cache misses.}
 \end{frame}
 
-\begin{frame}{Design 2: Flattened-TPHT}
-  \begin{columns}[T,onlytextwidth]
-    \column{0.55\textwidth}
-      \begin{tikzpicture}[font=\small]
-        \node[draw=CornellRed,line width=1pt,minimum width=6.5cm,minimum height=1.15cm,anchor=west] (block) at (0,3.2) {};
-        \foreach \i/\name in {0/F,1/T1,2/T2,3/T3,4/T4,5/P1,6/P2} {
-          \draw ($(block.west)+(0.15+\i*0.85,-0.42)$) rectangle ++(0.68,0.84);
-          \node at ($(block.west)+(0.49+\i*0.85,0)$) {\name};
-        }
-        \node[anchor=west] at (0,4.05) {\textbf{64-byte home block}};
-        \node[anchor=west,align=left] at (0,2.25) {up to four home tuples\\plus fingerprints and tiny pointers};
-        \node[draw=BlueGray,rounded corners=2pt,minimum width=2.15cm,minimum height=0.85cm] (overflow) at (5.2,1.35) {overflow table};
-        \draw[-Latex,thick,BlueGray] ($(block.west)+(5.25,-0.35)$) to[out=-80,in=130] (overflow.north);
-        \draw[-Latex,thick,BlueGray] ($(block.west)+(6.1,-0.35)$) to[out=-80,in=60] (overflow.north);
-        \node[anchor=west,align=left,text width=6.8cm] at (0,0.35) {
-          Most operations inspect one cache line; overflow tuples cost one extra miss rather than a chain walk.
-        };
-      \end{tikzpicture}
-    \column{0.41\textwidth}
-      \begin{block}{Spend a little space where latency sees it}
-        \begin{itemize}
-          \item home blocks fit in one cache line
-          \item overflow references are tiny pointers
-          \item SIMD fingerprints prune comparisons
-          \item queries average about 1.25 cache misses
-        \end{itemize}
-      \end{block}
-      \vspace{0.2cm}
-      \metric{83.4\%}{space efficiency}\par
-      \metric{310.4M}{average run-phase ops/s}
-  \end{columns}
-\end{frame}
-
-\begin{frame}{Two Designs, One Family}
+\begin{frame}{Transition: Experimental Results}
+  \vspace{0.02cm}
   \begin{center}
-    \begin{tabular}{p{0.24\linewidth}p{0.30\linewidth}p{0.30\linewidth}}
-      \toprule
-      & \textbf{Chained-TPHT} & \textbf{Flattened-TPHT} \\
-      \midrule
-      Main goal & smallest practical table & fastest compact table \\
-      Layout & quotient groups as chains & cache-line home blocks \\
-      Critical primitive & tiny pointers everywhere & tiny pointers for overflow \\
-      Key trick & quotienting pays for links & home tuples avoid indirection \\
-      Best headline & 105.4\% space efficiency & up to 89.3\% faster than baselines \\
-      \bottomrule
-    \end{tabular}
+    {\Large\bfseries Do tiny pointers survive a systems benchmark?}\par
+    \vspace{0.08cm}
+    {\small\color{BlueGray} We evaluate both TPHT variants under the same conditions as strong production-style hash tables.}
   \end{center}
-  \vspace{0.25cm}
-  \centering
-  The contribution is not only a point design: it is a reusable recipe for compact, update-friendly tables.
-\end{frame}
 
-\begin{frame}{Practicality Is Part of the Result}
+  \vspace{0.18cm}
   \begin{columns}[T,onlytextwidth]
-    \column{0.31\textwidth}
-      \begin{block}{Operations}
-        64-bit keys and values, inserts, queries, updates, deletes.
+    \column{0.32\textwidth}
+      \begin{block}{Machine}
+        \small
+        \textbf{Single-socket server}\par
+        Intel Xeon Silver 4314\par
+        16 cores / 32 threads\par
+        128 GiB RAM, 24 MiB L3\par
+        Linux 5.15, one NUMA node
       \end{block}
-    \column{0.31\textwidth}
-      \begin{block}{Resizing}
-        Online resizing avoids global pauses; Chained-TPHT staggers memory growth.
+    \column{0.32\textwidth}
+      \begin{block}{Workloads}
+        \small
+        \textbf{64-bit keys + values}\par
+        YCSB hash-table variant\par
+        load: 64M inserts\par
+        runs: A/B/C, negative queries, deletes\par
+        plus uniform-key microbenchmarks
       \end{block}
-    \column{0.31\textwidth}
-      \begin{block}{Concurrency}
-        Near-linear scaling to 16 threads in the evaluation.
+    \column{0.32\textwidth}
+      \begin{block}{Comparisons}
+        \small
+        libcuckoo, IcebergHT, Junction, TBB\par
+        compact tables: bucketing, Cleary, Layered\par
+        throughput, space efficiency, scaling, resizing\par
+        no duplicate keys in benchmarks
       \end{block}
   \end{columns}
-  \vspace{0.35cm}
-  \begin{columns}[T,onlytextwidth]
-    \column{0.31\textwidth}
-      \begin{center}
-        \fcolorbox{Green}{white}{\parbox{0.86\linewidth}{\centering \metric{541 ns}{\Flat 99p insert latency during resizing}}}
-      \end{center}
-    \column{0.31\textwidth}
-      \begin{center}
-        \fcolorbox{Green}{white}{\parbox{0.86\linewidth}{\centering \metric{778 ns}{\Chained 99p insert latency during resizing}}}
-      \end{center}
-    \column{0.31\textwidth}
-      \begin{center}
-        \fcolorbox{Green}{white}{\parbox{0.86\linewidth}{\centering \metric{0.925}{\Flat thread scaling factor}}}
-      \end{center}
-  \end{columns}
+
+  \vspace{0.30cm}
+  \begin{center}
+  \begin{tikzpicture}[x=1cm,y=1cm,every node/.style={font=\small}]
+    \node[draw=Ink,fill=CornellGray,rounded corners=3pt,line width=0.8pt,minimum width=3.10cm,minimum height=0.72cm] (setup) at (-4.75,0) {controlled setup};
+    \node[draw=BlueGray,fill=BlueGray!7,rounded corners=3pt,line width=0.8pt,minimum width=3.10cm,minimum height=0.72cm] (metrics) at (0,0) {speed--space metrics};
+    \node[draw=CornellRed,fill=CornellRed!7,rounded corners=3pt,line width=0.8pt,minimum width=3.10cm,minimum height=0.72cm] (claims) at (4.75,0) {Pareto-frontier claims};
+    \draw[-Latex,line width=1pt,BlueGray] (setup.east) -- (metrics.west);
+    \draw[-Latex,line width=1pt,CornellRed] (metrics.east) -- (claims.west);
+  \end{tikzpicture}
+  \end{center}
+
+  \vspace{0.06cm}
+  \centering
+  {\small\textbf{Space efficiency} = raw key--value payload / maximum allocated memory footprint.}
 \end{frame}
 
 \begin{frame}{Result: TPHT Moves the Space Frontier}
-  \begin{center}
-    \begin{tikzpicture}
-      \begin{axis}[
-        ybar,
-        width=0.88\linewidth,
-        height=0.58\textheight,
-        ymin=0,
-        ymax=120,
-        ylabel={max space efficiency (\%)},
-        symbolic x coords={TBB,Cuckoo,Junction,IcebergHT,Flattened,Chained},
-        xtick=data,
-        x tick label style={rotate=20,anchor=east,font=\small},
-        nodes near coords,
-        nodes near coords style={font=\scriptsize},
-        bar width=12pt,
-        axis line style={draw=Ink},
-        grid=major,
-        grid style={CornellGray}
-      ]
-        \addplot[fill=BlueGray!55,draw=BlueGray] coordinates
-          {(TBB,32.3) (Cuckoo,70.1) (Junction,75.0) (IcebergHT,81.7)};
-        \addplot[fill=CornellRed!78,draw=CornellRed] coordinates
-          {(Flattened,83.4) (Chained,105.4)};
-      \end{axis}
-    \end{tikzpicture}
-  \end{center}
+  \vspace{-0.04cm}
+  \begin{columns}[T,onlytextwidth]
+    \column{0.52\textwidth}
+      \begin{center}
+      {\small\bfseries Figure 1(a): YCSB throughput}\\[-0.08cm]
+      \begin{tikzpicture}
+        \begin{axis}[
+          ybar,
+          width=\linewidth,
+          height=0.55\textheight,
+          ymin=0,
+          ymax=430,
+          ylabel={throughput (M ops/s)},
+          ylabel style={font=\scriptsize},
+          symbolic x coords={Cuckoo,Iceberg,Junction,TBB,Chained,Flattened},
+          xtick={Cuckoo,Iceberg,Junction,TBB,Chained,Flattened},
+          x tick label style={rotate=28,anchor=east,font=\scriptsize},
+          y tick label style={font=\scriptsize},
+          legend style={draw=none,fill=none,at={(0.50,1.03)},anchor=south,legend columns=2,font=\scriptsize},
+          bar width=4.3pt,
+          enlarge x limits=0.11,
+          axis line style={draw=Ink},
+          grid=major,
+          grid style={CornellGray},
+          major grid style={line width=0.25pt,draw=CornellGray},
+          tick align=outside
+        ]
+          \addplot[fill=BlueGray!48,draw=BlueGray] coordinates
+            {(Cuckoo,116.1) (Iceberg,114.3) (Junction,18.4) (TBB,8.5) (Chained,100.4) (Flattened,227.5)};
+          \addplot[fill=CornellRed!74,draw=CornellRed] coordinates
+            {(Cuckoo,130.5) (Iceberg,167.5) (Junction,156.7) (TBB,40.2) (Chained,196.0) (Flattened,391.2)};
+          \legend{load, run}
+        \end{axis}
+      \end{tikzpicture}
+      \end{center}
+    \column{0.45\textwidth}
+      \begin{center}
+      {\small\bfseries Figure 1(b): max space efficiency}\\[-0.08cm]
+      \begin{tikzpicture}
+        \begin{axis}[
+          ybar,
+          width=\linewidth,
+          height=0.55\textheight,
+          ymin=0,
+          ymax=120,
+          ylabel={space efficiency (\%)},
+          ylabel style={font=\scriptsize},
+          symbolic x coords={TBB,Cuckoo,Junction,IcebergHT,Flattened,Chained},
+          xtick={TBB,Cuckoo,Junction,IcebergHT,Flattened,Chained},
+          x tick label style={rotate=28,anchor=east,font=\scriptsize},
+          y tick label style={font=\scriptsize},
+          nodes near coords,
+          nodes near coords style={font=\tiny,anchor=south},
+          bar width=7pt,
+          enlarge x limits=0.12,
+          axis line style={draw=Ink},
+          grid=major,
+          grid style={CornellGray},
+          major grid style={line width=0.25pt,draw=CornellGray},
+          tick align=outside
+        ]
+          \addplot[fill=BlueGray!48,draw=BlueGray] coordinates
+            {(TBB,32.3) (Cuckoo,70.1) (Junction,75.0) (IcebergHT,81.7)};
+          \addplot[fill=CornellRed!78,draw=CornellRed] coordinates
+            {(Flattened,83.4) (Chained,105.4)};
+        \end{axis}
+      \end{tikzpicture}
+      \end{center}
+  \end{columns}
+  \vspace{0.02cm}
   \centering
-  Chained-TPHT goes beyond the raw key-value payload size; Flattened-TPHT remains compact while targeting latency.
+  {\small Chained-TPHT goes beyond the raw key-value payload size; Flattened-TPHT is both compact and fast.}
 \end{frame}
 
-\begin{frame}{Result: Fast on Real Workloads}
+\begin{frame}{Figure 8(a): Insertion Throughput vs. Space}
+  \vspace{-0.08cm}
   \begin{center}
-    \begin{tikzpicture}
-      \begin{axis}[
-        ybar,
-        width=0.88\linewidth,
-        height=0.58\textheight,
-        ymin=0,
-        ymax=350,
-        ylabel={throughput (M ops/s)},
-        symbolic x coords={Cuckoo,IcebergHT,Junction,TBB,Chained,Flattened},
-        xtick=data,
-        x tick label style={rotate=20,anchor=east,font=\small},
-        legend style={draw=none,at={(0.5,1.03)},anchor=south,legend columns=2},
-        bar width=8pt,
-        grid=major,
-        grid style={CornellGray}
-      ]
-        \addplot[fill=BlueGray!50,draw=BlueGray] coordinates
-          {(Cuckoo,116.7) (IcebergHT,123.1) (Junction,17.5) (TBB,8.5) (Chained,99.5) (Flattened,226.9)};
-        \addplot[fill=CornellRed!72,draw=CornellRed] coordinates
-          {(Cuckoo,126.3) (IcebergHT,159.9) (Junction,137.8) (TBB,42.3) (Chained,153.0) (Flattened,310.4)};
-        \legend{load phase, run phases}
-      \end{axis}
-    \end{tikzpicture}
+  \begin{tikzpicture}
+    \begin{axis}[
+      width=0.91\linewidth,
+      height=0.62\textheight,
+      xmin=0,
+      xmax=110,
+      ymin=0,
+      ymax=27,
+      xlabel={space efficiency (\%)},
+      ylabel={insertion throughput (M ops/s)},
+      xlabel style={font=\small},
+      ylabel style={font=\small},
+      tick label style={font=\scriptsize},
+      axis line style={draw=Ink},
+      grid=major,
+      major grid style={line width=0.25pt,draw=CornellGray},
+      minor tick num=1,
+      legend style={draw=none,fill=none,at={(0.5,1.04)},anchor=south,legend columns=3,font=\scriptsize},
+      legend cell align=left,
+      every axis plot/.append style={line width=1.05pt,mark size=1.65pt},
+    ]
+      \addplot[color=BlueGray!72!Ink,mark=o] coordinates {(4.4,11.3) (8.8,10.8) (13.2,10.4) (17.5,10.1) (21.9,9.8) (26.3,9.5) (30.7,9.3) (35.1,9.0) (39.5,8.7) (43.8,8.3) (48.2,7.9) (52.6,7.5) (57.0,7.0) (61.4,6.5) (65.8,6.0) (70.1,5.3)};
+      \addplot[color=Gold!92!Ink,mark=square*] coordinates {(4.1,15.2) (8.3,15.9) (12.4,16.3) (16.5,16.4) (20.6,16.2) (24.8,16.2) (28.9,16.1) (33.0,15.9) (37.1,15.8) (41.3,15.7) (45.4,15.5) (49.5,15.4) (53.6,15.2) (57.8,15.1) (61.9,14.9) (66.0,14.8) (70.1,14.6) (74.3,14.4) (78.4,14.3) (81.7,14.0)};
+      \addplot[color=Green!88!Ink,mark=triangle*] coordinates {(5.0,19.1) (10.0,20.2) (15.0,20.0) (20.0,19.7) (25.0,19.5) (30.0,19.1) (35.0,18.8) (40.0,18.3) (45.0,18.0) (50.0,17.5) (55.0,17.1) (60.0,16.5) (65.0,15.9) (70.0,15.3) (75.0,14.6)};
+      \addplot[color=Purple!88!Ink,mark=diamond*] coordinates {(6.2,2.6) (10.0,2.6) (13.1,2.7) (15.6,2.7) (17.1,2.8) (19.9,2.8) (20.8,2.9) (22.3,2.9) (23.3,3.0) (24.7,3.0) (25.4,3.0) (27.1,3.1) (27.6,3.0) (28.6,3.1) (29.1,3.1) (29.3,3.2) (30.5,3.2) (30.9,3.2) (31.2,3.2) (32.3,3.2)};
+      \addplot[color=CornellRed!86!Ink,mark=*,line width=1.25pt] coordinates {(5.3,12.9) (10.6,13.0) (16.0,12.9) (21.3,12.7) (26.6,12.4) (31.9,12.1) (37.3,11.8) (42.6,11.4) (47.9,11.2) (53.2,10.9) (58.6,10.6) (63.9,10.3) (69.2,10.0) (74.5,9.8) (79.9,9.5) (85.2,9.3) (90.5,9.1) (95.8,8.9) (101.2,8.7) (105.4,8.5)};
+      \addplot[color=CornellRed!62!Gold,mark=pentagon*,line width=1.25pt] coordinates {(4.2,24.7) (8.4,24.5) (12.6,24.6) (16.8,24.5) (21.1,24.1) (25.3,23.9) (29.5,23.7) (33.7,23.5) (37.9,23.2) (42.1,22.8) (46.3,22.6) (50.5,22.2) (54.8,21.9) (59.0,21.5) (63.2,20.9) (67.4,20.7) (71.6,20.3) (75.8,19.9) (80.0,19.3) (83.4,19.0)};
+      \draw[dashed,CornellRed!65,line width=0.7pt] (axis cs:100,0) -- (axis cs:100,27);
+      \node[anchor=south east,font=\scriptsize,text=CornellRed] at (axis cs:99.2,0.6) {100\% payload};
+      \legend{Cuckoo, IcebergHT, Junction, TBB, Chained-TPHT, Flattened-TPHT}
+    \end{axis}
+  \end{tikzpicture}
   \end{center}
+  \vspace{-0.02cm}
   \centering
-  On YCSB with 16 threads, Flattened-TPHT has the highest average load and run throughput.
+  {\small Each curve sweeps load factor; TPHT pushes farther right while keeping competitive insertion throughput.}
 \end{frame}
 
-\begin{frame}{What to Remember}
+\begin{frame}{Summary: What TPHT Delivers}
+  \vspace{0.04cm}
+  \begin{center}
+    {\Large Tiny pointers turn a few saved key bits into a better speed--space tradeoff.}
+  \end{center}
+
+  \vspace{0.18cm}
   \begin{columns}[T,onlytextwidth]
     \column{0.31\textwidth}
-      \begin{block}{1}
-        Tiny pointers make pointer-rich structures worth revisiting.
+      \begin{block}{Compactness}
+        \small
+        \metric{105.4\%}{max space efficiency}\par
+        \vspace{0.08cm}
+        \Chained stores less than the raw key--value payload by using quotient bits and tiny-pointer chains.
       \end{block}
     \column{0.31\textwidth}
-      \begin{block}{2}
-        Quotienting turns location into saved key bits without losing recoverability.
+      \begin{block}{Throughput}
+        \small
+        \metric{391.2M}{avg run-phase ops/s}\par
+        \vspace{0.08cm}
+        \Flat is the fastest YCSB design while keeping higher space efficiency than the baselines.
       \end{block}
     \column{0.31\textwidth}
-      \begin{block}{3}
-        The same primitives produce both a succinct table and a latency-first table.
+      \begin{block}{Pareto frontier}
+        \small
+        \metric{83.4\%}{\Flat space efficiency}\par
+        \vspace{0.08cm}
+        Across load factors, TPHT reaches farther right without giving up competitive insertion throughput.
       \end{block}
   \end{columns}
-  \vspace{0.45cm}
+
+  \vspace{0.38cm}
   \begin{center}
-    \Large
-    TPHT shows that ideas once treated as ``too theoretical'' can redraw a very practical Pareto frontier.
+  \begin{tikzpicture}[x=1cm,y=1cm,every node/.style={font=\small}]
+    \node[draw=BlueGray,fill=BlueGray!7,rounded corners=3pt,line width=0.8pt,minimum width=3.0cm,minimum height=0.72cm] (bits) at (-4.4,0) {quotient bits};
+    \node[draw=Gold,fill=Gold!18,rounded corners=3pt,line width=0.8pt,minimum width=3.0cm,minimum height=0.72cm] (ptrs) at (0,0) {tiny pointers};
+    \node[draw=CornellRed,fill=CornellRed!7,rounded corners=3pt,line width=0.8pt,minimum width=3.0cm,minimum height=0.72cm] (tables) at (4.4,0) {fast compact tables};
+    \draw[-Latex,line width=1pt,BlueGray] (bits.east) -- (ptrs.west);
+    \draw[-Latex,line width=1pt,CornellRed] (ptrs.east) -- (tables.west);
+  \end{tikzpicture}
   \end{center}
+
+  \vspace{0.12cm}
+  \centering
+  {\small The main lesson: succinct hashing ideas can be engineered into practical, concurrent hash tables.}
 \end{frame}
 
 \begin{frame}[plain]
