@@ -165,31 +165,30 @@
 
 \begin{frame}{What is a dictionary?}
   \vspace{0.10cm}
-  {\Large A \textbf{dictionary} stores \textcolor{BlueGray}{\textbf{key--value pairs}} and supports updates and lookups.}\par
+  {\LARGE A \textbf{dictionary} stores \textcolor{BlueGray}{\textbf{key--value pairs}} and supports updates and lookups.}\par
   \vspace{0.08cm}
-  {\small\color{BlueGray} Abstractly: entries are \((k,v)\in K\times V\), and lookup is a partial function \(f:K\to V\cup\{\bot\}\).}\par
+  {\normalsize\color{BlueGray} Abstractly: entries are \((k,v)\in K\times V\), and lookup is a partial function \(f:K\to V\cup\{\bot\}\).}\par
   \vspace{0.22cm}
   \begin{center}
   \begin{tikzpicture}[x=1cm,y=1cm]
     \node[draw=Ink,rounded corners=3pt,line width=0.9pt,minimum width=4.35cm,minimum height=3.45cm,fill=CornellGray] (dict) at (0,0) {};
-    \node[anchor=north,font=\LARGE\bfseries] at (dict.north) {Dictionary};
+    \node[anchor=north,font=\Large\bfseries] at (dict.north) {Dictionary};
     \node[draw=BlueGray,fill=white,rounded corners=2pt,minimum width=2.70cm,minimum height=0.42cm,font=\large] (alice) at (0,0.82) {\(\text{Alice}\mapsto 31\)};
     \node[draw=BlueGray,fill=white,rounded corners=2pt,minimum width=2.70cm,minimum height=0.42cm,font=\large] (bob) at (0,0.25) {\(\text{Bob}\mapsto 24\)};
     \node[draw=BlueGray,fill=white,rounded corners=2pt,minimum width=2.70cm,minimum height=0.42cm,font=\large] (carol) at (0,-0.32) {\(\text{Carol}\mapsto 42\)};
     \node[font=\LARGE\bfseries\color{BlueGray}] at (0,-0.78) {\(\cdots\)};
     \node[draw=CornellRed,dashed,fill=white,rounded corners=2pt,minimum width=2.70cm,minimum height=0.42cm,font=\large] (dave) at (0,-1.20) {\(\text{Dave}\mapsto 19\)};
 
-    \node[draw=CornellRed,fill=CornellRed!7,rounded corners=2pt,minimum width=2.75cm,minimum height=0.55cm,font=\large\bfseries] (insert) at (-4.45,1.10) {\apiop{Insert}{\text{Dave}, 19}};
-    \node[draw=Green,fill=Green!8,rounded corners=2pt,minimum width=2.75cm,minimum height=0.55cm,font=\large\bfseries] (lookup) at (-4.45,0.05) {\apiop{Lookup}{\text{Bob}}};
-    \node[draw=Purple,fill=Purple!8,rounded corners=2pt,minimum width=2.75cm,minimum height=0.55cm,font=\large\bfseries] (delete) at (-4.45,-1.00) {\apiop{Delete}{\text{Carol}}};
+    \node[draw=CornellRed,fill=CornellRed!7,rounded corners=2pt,minimum width=2.75cm,minimum height=0.55cm,font=\large] (insert) at (-6.15,1.22) {\apiop{\textbf{Insert}}{\text{Dave}, 19}};
+    \node[draw=Green,fill=Green!8,rounded corners=2pt,minimum width=2.75cm,minimum height=0.55cm,font=\large] (lookup) at (-6.15,0.05) {\apiop{\textbf{Lookup}}{\text{Bob}}};
+    \node[font=\Large\bfseries,Green!65!black] at (-6.15,-0.55) {return \(24\)};
+    \node[draw=Purple,fill=Purple!8,rounded corners=2pt,minimum width=2.75cm,minimum height=0.55cm,font=\large] (delete) at (-6.15,-1.36) {\apiop{\textbf{Delete}}{\text{Carol}}};
 
     \draw[-Latex,CornellRed,line width=1.05pt] (insert.east) to[out=0,in=180] (dave.west);
     \draw[-Latex,Green,line width=1.05pt] (lookup.east) to[out=0,in=180] (bob.west);
     \draw[-Latex,Purple,line width=1.05pt] (delete.east) to[out=0,in=180] (carol.west);
     \node[Purple,font=\LARGE\bfseries] at (1.55,-0.32) {\(\times\)};
 
-    \node[draw=Green,fill=Green!8,rounded corners=2pt,minimum width=1.55cm,minimum height=0.55cm,font=\large\bfseries] (value) at (4.15,0.25) {\(24\)};
-    \draw[-Latex,Green,line width=1.05pt] (bob.east) to[out=0,in=180] (value.west);
   \end{tikzpicture}
   \end{center}
   \note{
