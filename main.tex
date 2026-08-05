@@ -197,11 +197,18 @@
 \end{frame}
 
 \begin{frame}{What is a hash table?}
-  \vspace{0.08cm}
-  {\Large A \textbf{hash table} is a construction for dictionaries: it uses a \textbf{hash function} to help assign each key--value pair to an array slot.}\par
-  \vspace{0.20cm}
+  % \vspace{0.08cm}
+  \noindent\begin{tikzpicture}[x=1cm,y=1cm]
+    \node[anchor=west,inner sep=0pt,font=\LARGE] at (0,0.52)
+      {A \textbf{hash table} is a construction for dictionaries: it uses a};
+    \node[anchor=west,inner sep=0pt,font=\LARGE] at (0,0.00)
+      {\textbf{hash function} to help assign each key--value pair};
+    \node[anchor=west,inner sep=0pt,font=\LARGE] at (0,-0.52)
+      {to an array slot.};
+  \end{tikzpicture}\par
+  % \vspace{0.08cm}
   \begin{columns}[T,onlytextwidth]
-    \column{0.58\textwidth}
+    \column{0.54\textwidth}
     \begin{center}
     \begin{tikzpicture}[x=1cm,y=1cm,>={Latex[length=1.55mm,width=1.0mm]},every node/.style={font=\large}]
       \node[font=\large\bfseries] at (-3.78,1.80) {keys};
@@ -209,15 +216,15 @@
       \node[draw=Green,fill=Green!8,rounded corners=2pt,minimum width=1.35cm,minimum height=0.48cm] (bobkey) at (-3.78,0.10) {Bob};
       \node[draw=Purple,fill=Purple!8,rounded corners=2pt,minimum width=1.35cm,minimum height=0.48cm] (carolkey) at (-3.78,-0.82) {Carol};
 
-      \node[font=\large\bfseries] at (-1.48,1.80) {hash function};
+      \node[font=\large\bfseries,align=center] at (-1.48,0.94) {hash\\function};
       \node[font=\large\bfseries] (hash) at (-1.48,0.10) {\(h(k)\)};
       \coordinate (hashL) at (-1.88,0.10);
       \coordinate (hashR) at (-1.08,0.10);
 
-      \node[font=\large\bfseries] at (1.12,1.80) {hash table};
-      \draw[draw=Ink,rounded corners=2pt,fill=CornellGray,line width=0.75pt] (-0.12,-1.28) rectangle (2.36,1.42);
+      \node[font=\large\bfseries] at (1.32,1.80) {hash table};
+      \draw[draw=Ink,rounded corners=2pt,fill=CornellGray,line width=0.75pt] (-0.12,-1.28) rectangle (2.76,1.42);
       \foreach \j in {1,...,5} {
-        \draw[BlueGray!45,line width=0.45pt] (-0.12,{1.42-0.45*\j}) -- (2.36,{1.42-0.45*\j});
+        \draw[BlueGray!45,line width=0.45pt] (-0.12,{1.42-0.45*\j}) -- (2.76,{1.42-0.45*\j});
       }
       \draw[BlueGray!45,line width=0.55pt] (0.28,1.42) -- (0.28,-1.28);
       \foreach \i in {0,...,5} {
@@ -246,16 +253,16 @@
     \end{tikzpicture}
     \end{center}
 
-    \column{0.39\textwidth}
-    \vspace{0.08cm}
+    \column{0.44\textwidth}
+    \vspace{-0.22cm}
     \begin{minipage}{\linewidth}
     \raggedright
     {\large\bfseries Hashing dates to \keyterm{1953}}\par
-    \vspace{0.16cm}
+    \vspace{0.10cm}
     {\large Expected \(O(1)\) operations}\par
-    \vspace{0.12cm}
+    \vspace{0.08cm}
     {\large Linear probing, chaining, \(\ldots\)}\par
-    \vspace{0.22cm}
+    \vspace{0.12cm}
     {\large Decades of tuning for
     \(\left\{\begin{array}{l}
       \text{\textbf{speed}}\\[-1pt]
@@ -263,15 +270,15 @@
     \end{array}\right.\)}
     \end{minipage}
 
-    \vspace{0.28cm}
+    \vspace{0.38cm}
     \noindent\begin{tikzpicture}[x=1cm,y=1cm]
       \node[anchor=west,align=left,font=\LARGE\bfseries,inner sep=0pt] (theme) at (0,0.92)
         {Practical hash tables\\can still be even};
       \draw[decorate,decoration={brace,amplitude=5pt},line width=1pt,Ink]
-        (0.22,-0.90) -- (0.22,0.20);
-      \node[draw=CornellRed,line width=1.1pt,rounded corners=3pt,minimum width=1.72cm,minimum height=0.48cm,font=\LARGE\bfseries] at (1.40,-0.04)
+        (0.22,-1.05) -- (0.22,0.05);
+      \node[anchor=west,text=CornellRed,font=\LARGE\bfseries] at (0.40,-0.14)
         {faster};
-      \node[draw=CornellRed,line width=1.1pt,rounded corners=3pt,minimum width=1.72cm,minimum height=0.48cm,font=\LARGE\bfseries] at (1.40,-0.70)
+      \node[anchor=west,text=CornellRed,font=\LARGE\bfseries] at (0.40,-0.80)
         {smaller};
     \end{tikzpicture}
   \end{columns}
@@ -280,40 +287,51 @@
   }
 \end{frame}
 
-\begin{frame}{Secret Sauce}
+\begin{frame}{What is a good hash table?}
   \begin{columns}[T,onlytextwidth]
-    \column{0.39\textwidth}
-      \vspace{0.20cm}
-      {\LARGE\bfseries Three ingredients:}\par
-      \vspace{0.16cm}
-      \begin{enumerate}\Large
-        \item \keyterm{Tiny pointers}\\
-          {\large compress the \textbf{pointer}}
-          \vspace{0.14cm}
-        \item \keyterm{Quotienting}\\
-          {\large compress the \textbf{key}}
-          \vspace{0.14cm}
-        \item \keyterm{Cache-friendly layout}\\
-          {\large compress the \textbf{execution time}}
-      \end{enumerate}
-
     \column{0.58\textwidth}
+      \vspace{0.02cm}
+      {\large\raggedright
+        \textcolor{CornellRed}{\LARGE\textbf{Throughput}}: $\displaystyle\frac{\text{\# operations}}{\text{time}}$\par
+        \vspace{0.06cm}
+        \textcolor{CornellRed}{\LARGE\textbf{Space efficiency}}: $\displaystyle\frac{\text{data size}}{\text{memory footprint}}$
+      }\par
+      \vspace{0.04cm}
       \begin{center}
-        \begin{tikzpicture}[x=0.62cm,y=0.66cm]
-          \node[draw=CornellRed,fill=CornellRed!8,line width=1.0pt,rounded corners=3pt,
-                align=center,font=\LARGE\bfseries,text=CornellRed,inner sep=5pt]
-                at (4.25,5.95) {We break the tradeoff!};
+        \begin{tikzpicture}[x=0.58cm,y=0.52cm]
+          \fill[CornellRed!8] (6.95,0) rectangle (8.35,5.15);
+          \fill[CornellRed!8] (0,4.15) rectangle (8.35,5.15);
+          \fill[CornellRed!8]
+            (0.85,4.15) -- (6.95,4.15) -- (6.95,1.22)
+            -- (5.2,1.95) -- (3.6,2.72) -- (2.0,3.42) -- cycle;
           \draw[-Latex,line width=0.9pt] (0,0) -- (8.45,0);
           \node[font=\large,anchor=north] at (4.22,-0.32) {space efficiency};
           \draw[-Latex,line width=0.9pt] (0,0) -- (0,5.25) node[above,font=\large] {throughput};
-          \draw[BlueGray,line width=1.5pt] plot[smooth] coordinates {(0.7,4.5) (2.1,3.7) (3.8,2.75) (5.5,1.85) (7.4,1.0)};
-          \node[BlueGray,anchor=west,font=\large] at (1.15,4.45) {fast, sparse tables};
-          \node[BlueGray,anchor=west,font=\large] at (4.28,0.70) {compact, slower tables};
+          \draw[CornellRed,dashed,line width=0.9pt] (6.95,0) -- (6.95,5.05);
+          \draw[CornellRed,dashed,line width=0.9pt] (0,4.15) -- (8.25,4.15);
+          \draw[BlueGray,line width=1.5pt] plot[smooth] coordinates {(0.85,4.15) (2.0,3.42) (3.6,2.72) (5.2,1.95) (6.95,1.22)};
+          \node[BlueGray,anchor=west,font=\large] at (0.15,4.50) {fast, huge};
+          \node[BlueGray,anchor=west,font=\large] at (4.08,0.92) {small, slow};
           \fill[CornellRed] (7.25,4.1) circle (4.3pt);
-          \node[align=left,anchor=west,font=\large] at (7.55,4.1) {\textbf{TPHT target}\\fast and tiny};
+          \node[align=left,anchor=west,font=\large] at (7.55,4.1) {\textbf{TPHT target}\\fast and small};
           \draw[CornellRed,very thick,-Latex] (5.15,2.7) -- (7.02,3.95);
         \end{tikzpicture}
       \end{center}
+
+    \column{0.39\textwidth}
+      \vspace{0.08cm}
+      {\LARGE\bfseries Three ingredients:}\par
+      \vspace{0.12cm}
+      \begin{enumerate}\Large
+        \item \keyterm{Tiny pointers}\\[-1pt]
+          {\Large compress the \textbf{pointer}}
+          \vspace{0.12cm}
+        \item \keyterm{Quotienting}\\[-1pt]
+          {\Large compress the \textbf{key}}
+          \vspace{0.12cm}
+        \item \keyterm{Cache-friendly layout}\\[-1pt]
+          {\Large compress the \textbf{execution time}}
+      \end{enumerate}
   \end{columns}
 \end{frame}
 
