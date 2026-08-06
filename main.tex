@@ -320,7 +320,7 @@
 
     \column{0.39\textwidth}
       \vspace{0.08cm}
-      {\LARGE\bfseries Three ingredients:}\par
+      {\LARGE\bfseries Secret sauce:}\par
       \vspace{0.12cm}
       \begin{enumerate}\Large
         \item \keyterm{Tiny pointers}\\[-1pt]
@@ -335,68 +335,95 @@
   \end{columns}
 \end{frame}
 
-\begin{frame}{Ingredient 1: Tiny Pointer}
-  \vspace{0.05cm}
-  {\Large A \keyterm{tiny pointer} is a \textbf{very short pointer} that can be decoded only with its \textbf{owner}.}
+\begin{frame}[t]{Ingredient 1: Tiny Pointer}
+  % \vspace{0.42cm}
 
-  \vspace{0.14cm}
-  \begin{center}
-  \begin{tikzpicture}[x=1cm,y=1cm,>=Latex,every node/.style={font=\large}]
-    \node[align=center,font=\LARGE\bfseries,text=CornellRed] at (0.80,3.38)
-      {The owner supplies the missing context.};
+  {\LARGE A \keyterm{tiny pointer} is a \textbf{very short pointer} that can be decoded only with its \textbf{unique owner}.}
 
-    \node[draw=CornellRed,fill=CornellRed!7,rounded corners=2pt,minimum width=3.35cm,minimum height=0.55cm,font=\large\bfseries] (alloc) at (-4.45,2.70)
-      {\apiop{Alloc}{\text{B}, \text{C}} \(\to p_2\)};
-    \node[draw=Green,fill=Green!8,rounded corners=2pt,minimum width=3.35cm,minimum height=0.55cm,font=\large\bfseries] (deref) at (-4.45,1.80)
-      {\apiop{Deref}{\text{A}, p_1} \(\to \text{B}\)};
-    \node[draw=Purple,fill=Purple!8,rounded corners=2pt,minimum width=3.35cm,minimum height=0.55cm,font=\large\bfseries] (free) at (-4.45,0.90)
+  \vspace{0.42cm}
+  \begin{columns}[T,onlytextwidth]
+  \begin{column}{0.6\textwidth}
+  \vspace{0.4cm}
+  \centering
+  \begin{tikzpicture}[x=1cm,y=1cm,>={Latex[length=1.6mm,width=1.0mm]},every node/.style={font=\normalsize}]
+    % Keep the diagram independent of the prose column.
+    \path[use as bounding box] (-6.08,-1.10) rectangle (1.80,2.38);
+
+    \node[anchor=south west,align=left,inner sep=0pt,font=\small,text=BlueGray]
+      at (-5.96,1.92) {Bob: owner\\Carol: object};
+    \node[draw=CornellRed,fill=CornellRed!7,rounded corners=2pt,
+          anchor=west,minimum width=3.25cm,minimum height=0.52cm,font=\normalsize\bfseries] (alloc) at (-6.00,1.55)
+      {\apiop{Alloc}{\text{Bob}, \text{Carol}}};
+    \node[font=\large\bfseries,CornellRed] at (-4.37,0.98) {return \(p_2\)};
+    \node[draw=Green,fill=Green!8,rounded corners=2pt,
+          anchor=west,minimum width=3.25cm,minimum height=0.52cm,font=\normalsize\bfseries] (deref) at (-6.00,0.43)
+      {\apiop{Deref}{\text{Alice}, p_1}};
+    \node[font=\large\bfseries,Green!65!black] at (-4.37,-0.14) {return Bob};
+    \node[draw=Purple,fill=Purple!8,rounded corners=2pt,
+          anchor=west,minimum width=3.25cm,minimum height=0.52cm,font=\normalsize\bfseries] (free) at (-6.00,-0.69)
       {\apiop{Free}{\text{owner}, p}};
 
-    \draw[Ink,line width=0.9pt,rounded corners=4pt,fill=CornellGray!45] (-1.03,0.20) rectangle (3.12,3.12);
-    \node[anchor=north west,font=\LARGE\bfseries] at (-0.89,3.03) {Linked list};
+    \draw[Ink,line width=0.9pt,rounded corners=4pt,fill=CornellGray!45]
+      (-1.25,-1.02) rectangle (1.75,2.15);
+    \node[anchor=north west,font=\large\bfseries] at (-1.05,2.02) {Linked list};
 
-    \draw[Green,line width=1.0pt,rounded corners=2pt,fill=Green!6] (-0.22,2.18) rectangle (2.20,2.76);
-    \draw[Green,line width=0.8pt] (0.86,2.18) -- (0.86,2.76);
-    \node[Green,font=\LARGE\bfseries] (aobj) at (0.32,2.47) {A};
-    \node[Green,font=\LARGE\bfseries] (aptr) at (1.53,2.47) {\(p_1\)};
+    \draw[Green,line width=0.9pt,rounded corners=2pt,fill=Green!6]
+      (-0.75,0.94) rectangle (1.55,1.46);
+    \draw[Green,line width=0.7pt] (0.75,0.94) -- (0.75,1.46);
+    \node[Green,font=\normalsize\bfseries] (aobj) at (0.02,1.20) {Alice};
+    \node[Green,font=\normalsize\bfseries] (aptr) at (1.20,1.20) {\(p_1\)};
 
-    \draw[Ink,line width=0.8pt,rounded corners=2pt,fill=white] (-0.22,1.20) rectangle (2.20,1.78);
-    \draw[Green,line width=1.0pt,fill=Green!8] (-0.22,1.20) rectangle (0.86,1.78);
-    \draw[CornellRed,dashed,line width=1.0pt,fill=CornellRed!7] (0.86,1.20) rectangle (2.20,1.78);
-    \node[Green,font=\LARGE\bfseries] (bobj) at (0.32,1.49) {B};
-    \node[CornellRed,font=\LARGE\bfseries] (bptr) at (1.53,1.49) {\(p_2\)};
+    \draw[Ink,line width=0.9pt,rounded corners=2pt,fill=Green!8]
+      (-0.75,0.04) rectangle (0.75,0.56);
+    \draw[CornellRed,dashed,line width=0.9pt,rounded corners=2pt,fill=CornellRed!7]
+      (0.75,0.04) rectangle (1.55,0.56);
+    \node[Green,font=\normalsize\bfseries] (bobj) at (0.02,0.30) {Bob};
+    \node[CornellRed,font=\normalsize\bfseries] (bptr) at (1.20,0.30) {\(p_2\)};
 
-    \draw[CornellRed,dashed,line width=1.0pt,rounded corners=2pt,fill=CornellRed!7] (-0.22,0.36) rectangle (2.20,0.94);
-    \draw[CornellRed,dashed,line width=0.8pt] (0.86,0.36) -- (0.86,0.94);
-    \node[CornellRed,font=\LARGE\bfseries] (cobj) at (0.32,0.65) {C};
-    \node[CornellRed,font=\LARGE\bfseries] (cptr) at (1.53,0.65) {\(\bot\)};
+    \draw[CornellRed,dashed,line width=0.9pt,rounded corners=2pt,fill=CornellRed!7]
+      (-0.75,-0.86) rectangle (1.55,-0.34);
+    \draw[CornellRed,dashed,line width=0.7pt] (0.75,-0.86) -- (0.75,-0.34);
+    \node[CornellRed,font=\normalsize\bfseries] (cobj) at (0.02,-0.60) {Carol};
+    \node[CornellRed,font=\normalsize\bfseries] (cptr) at (1.20,-0.60) {\(\bot\)};
 
-    \draw[-Latex,very thick,Green] (1.53,2.18) -- (1.53,1.80);
-    \draw[-Latex,very thick,CornellRed,dashed] (1.53,1.20) -- (1.53,0.96);
+    \draw[-{Latex[length=1.35mm,width=0.90mm]},Green,line width=0.85pt]
+      (1.20,0.94) -- (1.20,0.58);
+    \draw[-{Latex[length=1.35mm,width=0.90mm]},CornellRed,dashed,line width=0.85pt]
+      (1.20,0.04) -- (1.20,-0.32);
 
-    \draw[-Latex,Green,thick] (deref.east) to[out=0,in=180] (bobj.west);
-    \draw[-Latex,CornellRed,thick] (alloc.east) to[out=0,in=180] (bptr.west);
-
-    \node[align=center,text width=8.1cm,font=\large\bfseries] at (1.05,-0.30)
-      {\(p_1\) and \(p_2\) may store the same bits;\\different owners decode different targets.};
+    \coordinate (bobwest) at (-0.75,0.30);
+    \coordinate (carolwest) at (-0.75,-0.60);
+    \draw[-Latex,Green,line width=1.0pt] (deref.east) to[out=0,in=180] (bobwest);
+    \draw[-Latex,CornellRed,line width=1.0pt] (alloc.east) to[out=0,in=180] (carolwest);
   \end{tikzpicture}
-  \end{center}
+  \end{column}
+  \begin{column}{0.36\textwidth}
+    \vspace{0.27cm}
+    \raggedright
+    {\normalsize
+      \(p_1\) and \(p_2\) may store the \textbf{same} bits; different owners decode different targets.\par}
+
+    \vspace{0.44cm}
+    {\large\color{CornellRed}
+      Pointers can be \textbf{shorter}, because the \textbf{owner} supplies the missing context.\par}
+  \end{column}
+  \end{columns}
 \end{frame}
 
 \begin{frame}{Tiny Pointer: Implementation}
   \vspace{0.04cm}
   {\Large Tiny pointers require a \keyterm{special memory allocator}, called a \textbf{dereference table} in our literature.}
 
-  \vspace{0.05cm}
+  \vspace{0.02cm}
   \begin{center}
-  \begin{tikzpicture}[x=1cm,y=1cm,>=Latex,every node/.style={font=\large}]
-    \node[font=\large\bfseries] (api) at (-3.98,3.70)
+  \begin{tikzpicture}[x=1cm,y=1cm,>=Latex,every node/.style={font=\normalsize}]
+    \node[font=\normalsize\bfseries] (api) at (-4.05,3.48)
       {\apiop{Alloc}{\text{A}, \text{B}} \(\to p =\)};
-    \node[anchor=east,align=left,font=\small,BlueGray] at (-5.14,3.38)
+    \node[anchor=west,align=left,font=\small,BlueGray] at (3.62,3.50)
       {\(\text{A}\): owner\\\(\text{B}\): object};
-    \node[font=\large\bfseries,text=CornellRed] (dirbit) at (-2.42,3.70) {\(0b1\)};
-    \node[font=\large\bfseries] (concat) at (-1.93,3.70) {\(\circ\)};
-    \node[font=\large\bfseries,text=CornellRed] (offsetbits) at (-0.94,3.70) {\(0b00000010\)};
+    \node[font=\normalsize\bfseries,text=CornellRed] (dirbit) at (-2.35,3.48) {\(0b1\)};
+    \node[font=\normalsize\bfseries] (concat) at (-1.86,3.48) {\(\circ\)};
+    \node[font=\normalsize\bfseries,text=CornellRed] (offsetbits) at (-0.82,3.48) {\(0b00000010\)};
     \node[font=\LARGE\bfseries,BlueGray] at (-1.25,0.62) {\(\cdots\)};
 
     \foreach \x in {-5.05,-2.70,1.30,2.55} {
@@ -458,11 +485,11 @@
 
     \draw[-Latex,BlueGray,thick]
       (api.south) .. controls (-4.25,3.18) and (-4.22,2.48) ..
-      node[pos=0.50,fill=white,inner sep=1.6pt,font=\large\bfseries] (h0) {\(h_0(\text{A})\)}
+      node[pos=0.50,fill=white,inner sep=1.6pt,font=\normalsize\bfseries] (h0) {\(h_0(\text{A})\)}
       (-3.85,1.96);
     \draw[-Latex,BlueGray,thick]
       (api.south) .. controls (-2.82,3.18) and (-0.58,2.64) ..
-      node[pos=0.68,fill=white,inner sep=1.6pt,font=\large\bfseries] (h1) {\(h_{\textcolor{CornellRed}{\mathbf{1}}}(\text{A})\)}
+      node[pos=0.68,fill=white,inner sep=1.6pt,font=\normalsize\bfseries] (h1) {\(h_{\textcolor{CornellRed}{\mathbf{1}}}(\text{A})\)}
       (0.15,1.96);
     \node[align=left,font=\small,text=CornellRed,anchor=west] at (-1.42,-0.28) {fewer\\occupied\\bin};
 
@@ -470,19 +497,19 @@
     \node[anchor=west,align=left,font=\small,text=CornellRed] at (3.17,0.49) {128 slots\\per bin};
 
     \draw[-Latex,CornellRed,very thick] (slot) to[out=70,in=-115] (offsetbits.south);
-    \node[fill=white,inner sep=1pt,font=\small\bfseries,text=CornellRed] at (0.32,2.21) {7-bit offset};
+    \node[fill=white,inner sep=1pt,font=\scriptsize\bfseries,text=CornellRed] at (0.58,2.20) {7-bit offset};
     \draw[-Latex,CornellRed,thick] (h1.north) to[out=95,in=-80] (dirbit.south);
-    \node[fill=white,inner sep=1pt,font=\small\bfseries,text=CornellRed] at (-1.36,3.15) {direction bit = 1};
+    \node[fill=white,inner sep=1pt,font=\scriptsize\bfseries,text=CornellRed] at (-1.52,3.02) {direction bit = 1};
 
     \node[draw=CornellRed,fill=CornellRed!6,line width=0.9pt,rounded corners=3pt,
           anchor=west,align=left,text width=2.95cm,inner sep=5pt,font=\small]
-          at (3.28,2.34)
+          at (3.28,2.20)
           {\textbf{Dynamic allocator}\\[2pt]
            Insert, delete, or lookup freely, as long as load factor stays below \textcolor{CornellRed}{\textbf{95\%}}\textsuperscript{*}.};
 
     \node[draw=Gold,fill=Gold!22,line width=2.0pt,rounded corners=6pt,
-          inner xsep=12pt,inner ysep=7pt,font=\LARGE\bfseries,text=Ink,rotate=4]
-          at (-1.35,1.62) {Magic!};
+          inner xsep=10pt,inner ysep=5pt,font=\large\bfseries,text=Ink,rotate=4]
+          at (4.55,-0.38) {Magic!};
   \end{tikzpicture}
   \end{center}
   \vspace{-0.16cm}
@@ -496,10 +523,10 @@
   \vspace{0.08cm}
   {\Large Insight: the \textbf{location of a partition} already encodes part of the information.}
 
-  \vspace{0.10cm}
+  \vspace{0.06cm}
   \begin{center}
-  \begin{tikzpicture}[x=1cm,y=1cm,>=Latex,every node/.style={font=\large}]
-    \node[anchor=west,font=\LARGE\bfseries] at (-5.68,1.28) {6-bit key};
+  \begin{tikzpicture}[x=1cm,y=1cm,>=Latex,every node/.style={font=\normalsize}]
+    \node[anchor=west,font=\large\bfseries] at (-5.68,1.28) {6-bit key};
 
     \draw[CornellRed,line width=1.25pt,rounded corners=2pt,fill=CornellRed!12]
       (-5.66,1.72) rectangle (-4.72,2.24);
@@ -507,23 +534,23 @@
       (-4.68,1.72) rectangle (-2.95,2.24);
 
     \foreach \b/\x/\name in {1/-5.38/b0,0/-4.94/b1,1/-4.50/b2,1/-4.06/b3,0/-3.62/b4,1/-3.18/b5} {
-      \node[font=\LARGE\bfseries\ttfamily,inner sep=1.0pt] (\name) at (\x,1.98) {\b};
+      \node[font=\large\bfseries\ttfamily,inner sep=1.0pt] (\name) at (\x,1.98) {\b};
     }
 
     \coordinate (qframe-bottom) at (-5.19,1.72);
     \coordinate (rframe-east) at (-2.95,1.98);
     \coordinate (qframe-north) at (-5.19,2.24);
     \coordinate (rframe-north) at (-3.82,2.24);
-    \node[text=CornellRed,font=\LARGE\bfseries] (qlabel) at (-5.48,3.30) {quotient \(q\)};
-    \node[text=BlueGray,font=\LARGE\bfseries] (rlabel) at (-3.85,2.80) {remainder \(r\)};
+    \node[text=CornellRed,font=\large\bfseries] (qlabel) at (-5.50,3.08) {quotient \(q\)};
+    \node[text=BlueGray,font=\large\bfseries] (rlabel) at (-3.30,3.08) {remainder \(r\)};
     \draw[-Latex,CornellRed,thick] (qlabel.south) -- (qframe-north);
     \draw[-Latex,BlueGray,thick] (rlabel.south) -- (rframe-north);
 
     \draw[Ink,line width=0.9pt,rounded corners=3pt,fill=CornellGray!60] (-1.95,-0.18) rectangle (2.18,2.92);
-    \node[anchor=north west,font=\LARGE\bfseries] at (-1.80,2.82) {4 partitions};
+    \node[anchor=north west,font=\large\bfseries] at (-1.80,2.82) {4 partitions};
     \foreach \q/\y in {00/2.16,01/1.52,10/0.88,11/0.24} {
       \draw[BlueGray!50,line width=0.7pt,fill=white,rounded corners=1pt] (-1.73,\y-0.29) rectangle (1.95,\y+0.29);
-      \node[anchor=west,font=\large\bfseries,text=BlueGray] at (-1.52,\y) {partition \(\q\)};
+      \node[anchor=west,font=\normalsize\bfseries,text=BlueGray] at (-1.52,\y) {partition \(\q\)};
     }
     \draw[CornellRed,line width=1.25pt,rounded corners=1pt] (-1.73,0.59) rectangle (1.95,1.17);
     \node[font=\LARGE\bfseries,BlueGray] at (1.02,2.16) {\(\cdots\)};
@@ -537,7 +564,7 @@
     \draw[-Latex,CornellRed,very thick] (qframe-bottom) to[out=-75,in=170] (-1.74,0.88);
     \draw[-Latex,BlueGray,very thick] (rframe-east) to[out=-10,in=165] (stored.north);
 
-    \node[anchor=west,align=left,text width=3.95cm,font=\large]
+    \node[anchor=west,align=left,text width=3.95cm,font=\normalsize]
           at (3.65,1.32)
           {For a \textbf{\(w\)-bit key} \(k\) and \textbf{\(2^\ell\) partitions},
            \(\begin{aligned}
@@ -555,69 +582,71 @@
   \vspace{0.04cm}
   {\Large Let's construct a \keyterm{chained hash table} with our ingredients!}
 
-  \vspace{0.10cm}
+  \vspace{0.06cm}
   \begin{center}
-  \begin{tikzpicture}[x=1cm,y=1cm,>=Latex,every node/.style={font=\large}]
+  \begin{tikzpicture}[x=1cm,y=1cm,>=Latex,every node/.style={font=\normalsize}]
     \node[draw=CornellRed,fill=CornellRed!7,rounded corners=2pt,line width=1.0pt,
-          minimum width=2.25cm,minimum height=0.55cm,font=\large\bfseries] (insert) at (-4.80,2.55)
+          minimum width=2.10cm,minimum height=0.50cm,font=\normalsize\bfseries] (insert) at (-5.10,2.55)
           {\apiop{Insert}{k,v}};
 
     \node[draw=Ink,fill=white,line width=0.9pt,rounded corners=3pt,
-          minimum width=2.25cm,minimum height=0.55cm,font=\large\bfseries] (split) at (-2.38,2.55)
+          minimum width=2.15cm,minimum height=0.50cm,font=\normalsize\bfseries] (split) at (-2.92,2.55)
           {split \(k=q\circ r\)};
     \draw[-Latex,thick] (insert.east) -- (split.west);
 
     \node[draw=CornellRed,fill=CornellRed!9,line width=1.0pt,rounded corners=2pt,
-          minimum width=0.75cm,minimum height=0.47cm,font=\LARGE\bfseries,text=CornellRed] (qbits) at (-1.02,2.55) {\(q\)};
+          minimum width=0.70cm,minimum height=0.44cm,font=\large\bfseries,text=CornellRed] (qbits) at (-1.45,2.55) {\(q\)};
     \node[draw=BlueGray,fill=BlueGray!8,line width=1.0pt,rounded corners=2pt,
-          minimum width=1.15cm,minimum height=0.47cm,font=\LARGE\bfseries,text=BlueGray] (rbits) at (0.10,2.55) {\(r\)};
+          minimum width=1.05cm,minimum height=0.44cm,font=\large\bfseries,text=BlueGray] (rbits) at (0.02,2.55) {\(r\)};
     \draw[-Latex,thick] (split.east) -- (qbits.west);
-    \node[anchor=north,font=\small,text=CornellRed] at (-1.02,2.27) {bucket id};
-    \node[anchor=north,font=\small,text=BlueGray] at (0.10,2.27) {stored key bits};
+    \node[anchor=north,font=\tiny,text=CornellRed] at (-1.18,2.27) {bucket id};
+    \node[anchor=north,font=\scriptsize,text=BlueGray] at (0.02,2.27) {stored key bits};
 
-    \draw[Ink,line width=0.9pt,rounded corners=4pt,fill=CornellGray!55] (-5.92,-0.92) rectangle (-2.52,1.55);
-    \node[anchor=north west,font=\LARGE\bfseries] at (-5.72,1.43) {head array};
-    \node[anchor=north west,font=\small,text=BlueGray] at (-5.72,1.08) {one tiny pointer per quotient group};
-    \foreach \idx/\val/\y in {0/\(p_0\)/0.58,1/\(p_1\)/0.19,q/\(p_q\)/-0.20,\ldots/\(\cdots\)/-0.59} {
+    \draw[Ink,line width=0.9pt,rounded corners=4pt,fill=CornellGray!55] (-5.92,-1.42) rectangle (-2.10,1.50);
+    \node[anchor=north west,font=\large\bfseries] at (-5.72,1.34) {head array};
+    \node[anchor=north west,font=\tiny,text=BlueGray] at (-5.72,0.94) {one tiny pointer per quotient group};
+    \foreach \idx/\val/\y in {0/\(p_0\)/0.39,1/\(p_1\)/0.03,q/\(p_q\)/-0.33,\ldots/\(\cdots\)/-0.69} {
       \draw[BlueGray!55,line width=0.65pt,fill=white] (-5.45,\y-0.15) rectangle (-3.05,\y+0.15);
       \node[font=\small,text=BlueGray] at (-5.18,\y) {\(\idx\)};
       \node[font=\small\bfseries] at (-4.20,\y) {\val};
     }
-    \draw[CornellRed,line width=1.15pt,rounded corners=1pt] (-5.45,-0.35) rectangle (-3.05,-0.05);
-    \node[font=\small,text=CornellRed,anchor=east] (owner) at (-5.54,-0.20) {owner \(A_q\)};
-    \coordinate (headslot) at (-4.20,-0.20);
-    \draw[-Latex,CornellRed,very thick] (qbits.south) to[out=-110,in=55] (headslot);
+    \draw[CornellRed,line width=1.15pt,rounded corners=1pt] (-5.45,-0.48) rectangle (-3.05,-0.18);
+    \node[font=\small,text=CornellRed,anchor=west] (owner) at (-5.72,-1.14) {owner \(A_q\)};
+    \coordinate (headslot) at (-4.20,-0.33);
+    \draw[-Latex,CornellRed,very thick,rounded corners=4pt] (qbits.south)
+      -- (-1.81,2.05) -- (-1.81,-0.33) -- (headslot);
 
-    \draw[Ink,line width=0.9pt,rounded corners=4pt,fill=CornellGray!55] (-1.55,-0.92) rectangle (5.75,1.55);
-    \node[anchor=north west,font=\LARGE\bfseries] at (-1.35,1.43) {dereference table};
-    \node[anchor=north west,font=\small,text=BlueGray] at (-1.35,1.08) {all chain nodes live in one compact pool};
+    \draw[Ink,line width=0.9pt,rounded corners=4pt,fill=CornellGray!55] (-1.52,-1.42) rectangle (5.82,1.50);
+    \node[anchor=north west,font=\large\bfseries] at (-1.30,1.34) {dereference table};
+    \node[anchor=north west,font=\scriptsize,text=BlueGray] at (-1.30,0.94) {all chain nodes live in one compact pool};
 
     \foreach \x/\lab in {-0.80/\(\cdots\),0.05/\(\mathrm{bin}\),0.90/\(\cdots\)} {
-      \draw[Ink,line width=0.65pt,rounded corners=1pt,fill=white] (\x-0.30,-0.58) rectangle (\x+0.30,0.80);
-      \node[font=\small,text=BlueGray,rotate=90] at (\x,0.10) {\lab};
+      \draw[Ink,line width=0.65pt,rounded corners=1pt,fill=white] (\x-0.30,-1.08) rectangle (\x+0.30,0.30);
+      \node[font=\small,text=BlueGray,rotate=90] at (\x,-0.40) {\lab};
     }
-    \draw[CornellRed,line width=1.15pt,rounded corners=1pt,fill=white] (-0.25,-0.58) rectangle (0.35,0.80);
-    \coordinate (slot) at (0.05,0.10);
+    \draw[CornellRed,line width=1.15pt,rounded corners=1pt,fill=white] (-0.25,-1.08) rectangle (0.35,0.30);
+    \coordinate (slot) at (0.05,-0.40);
     \fill[CornellRed] (slot) circle (3.0pt);
-    \node[anchor=south,font=\small\bfseries,text=CornellRed] at (0.05,0.83) {decoded slot};
-    \draw[-Latex,CornellRed,very thick] (headslot) to[out=-10,in=170]
-      node[pos=0.55,fill=white,inner sep=1.3pt,font=\small\bfseries,text=CornellRed]
-      {TinyDeref\((A_q,p_q)\)} (slot);
+    \node[anchor=south,font=\scriptsize\bfseries,text=CornellRed] at (0.05,0.34) {decoded slot};
+    \draw[-Latex,CornellRed,very thick] (headslot) to[out=-10,in=170] (slot);
+    \node[font=\scriptsize\bfseries,text=CornellRed] at (-3.20,-1.15)
+      {TinyDeref\((A_q,p_q)\)};
 
     \node[draw=Ink,fill=white,line width=0.9pt,rounded corners=2pt,
-          minimum width=1.56cm,minimum height=0.48cm,font=\small\bfseries] (oldnode) at (2.20,0.10)
+          minimum width=1.56cm,minimum height=0.48cm,font=\small\bfseries] (oldnode) at (2.20,-0.40)
           {\(r_\ell,v_\ell\;|\;p_\ell\)};
     \node[draw=CornellRed,fill=CornellRed!7,line width=1.0pt,rounded corners=2pt,
-          minimum width=1.42cm,minimum height=0.48cm,font=\small\bfseries,text=CornellRed] (newnode) at (4.08,0.10)
+          minimum width=1.42cm,minimum height=0.48cm,font=\small\bfseries,text=CornellRed] (newnode) at (4.08,-0.40)
           {\(r,v\;|\;\bot\)};
     \draw[-Latex,Ink,thick] (slot) -- (oldnode.west);
     \draw[-Latex,CornellRed,thick] (oldnode.east) -- (newnode.west);
-    \node[anchor=south,font=\small\bfseries,text=BlueGray] at (3.08,0.50)
+    \node[anchor=south,font=\small\bfseries,text=BlueGray] at (3.08,-0.06)
       {chain for quotient \(q\)};
 
-    \draw[-Latex,BlueGray,very thick] (rbits.south) to[out=-80,in=90] (newnode.north);
+    \draw[-Latex,BlueGray,very thick] (rbits.south)
+      .. controls (5.28,2.08) and (5.25,0.32) .. (newnode.north);
     \node[draw=Gold,fill=Gold!20,line width=1.0pt,rounded corners=3pt,
-          inner sep=3.5pt,font=\small\bfseries,rotate=-5] at (4.26,-0.60)
+          inner sep=3.5pt,font=\small\bfseries,rotate=-5] at (4.26,-1.08)
           {store \(r\), not \(q\)};
   \end{tikzpicture}
   \end{center}
