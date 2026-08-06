@@ -347,20 +347,20 @@
   \centering
   \begin{tikzpicture}[x=1cm,y=1cm,>={Latex[length=1.6mm,width=1.0mm]},every node/.style={font=\normalsize}]
     % Keep the diagram independent of the prose column.
-    \path[use as bounding box] (-6.08,-1.10) rectangle (1.80,2.38);
+    \path[use as bounding box] (-6.08,-1.40) rectangle (1.80,2.38);
 
     \node[anchor=south west,align=left,inner sep=0pt,font=\small,text=BlueGray]
       at (-5.96,1.92) {Bob: owner\\Carol: object};
     \node[draw=CornellRed,fill=CornellRed!7,rounded corners=2pt,
           anchor=west,minimum width=3.25cm,minimum height=0.52cm,font=\normalsize\bfseries] (alloc) at (-6.00,1.55)
       {\apiop{Alloc}{\text{Bob}, \text{Carol}}};
-    \node[font=\large\bfseries,CornellRed] at (-4.37,0.98) {return \(p_2\)};
+    \node[font=\large\bfseries,CornellRed] at (-4.37,0.90) {return \(p_2\)};
     \node[draw=Green,fill=Green!8,rounded corners=2pt,
-          anchor=west,minimum width=3.25cm,minimum height=0.52cm,font=\normalsize\bfseries] (deref) at (-6.00,0.43)
+          anchor=west,minimum width=3.25cm,minimum height=0.52cm,font=\normalsize\bfseries] (deref) at (-6.00,0.25)
       {\apiop{Deref}{\text{Alice}, p_1}};
-    \node[font=\large\bfseries,Green!65!black] at (-4.37,-0.14) {return Bob};
+    \node[font=\large\bfseries,Green!65!black] at (-4.37,-0.40) {return Bob};
     \node[draw=Purple,fill=Purple!8,rounded corners=2pt,
-          anchor=west,minimum width=3.25cm,minimum height=0.52cm,font=\normalsize\bfseries] (free) at (-6.00,-0.69)
+          anchor=west,minimum width=3.25cm,minimum height=0.52cm,font=\normalsize\bfseries] (free) at (-6.00,-1.05)
       {\apiop{Free}{\text{owner}, p}};
 
     \draw[Ink,line width=0.9pt,rounded corners=4pt,fill=CornellGray!45]
@@ -368,31 +368,31 @@
     \node[anchor=north west,font=\large\bfseries] at (-1.05,2.02) {Linked list};
 
     \draw[Green,line width=0.9pt,rounded corners=2pt,fill=Green!6]
-      (-0.75,0.94) rectangle (1.55,1.46);
-    \draw[Green,line width=0.7pt] (0.75,0.94) -- (0.75,1.46);
-    \node[Green,font=\normalsize\bfseries] (aobj) at (0.02,1.20) {Alice};
-    \node[Green,font=\normalsize\bfseries] (aptr) at (1.20,1.20) {\(p_1\)};
+      (-0.90,0.97) rectangle (1.40,1.43);
+    \draw[Green,line width=0.7pt] (0.60,0.97) -- (0.60,1.43);
+    \node[Green,font=\normalsize\bfseries] (aobj) at (-0.15,1.20) {Alice};
+    \node[Green,font=\normalsize\bfseries] (aptr) at (1.00,1.20) {\(p_1\)};
 
     \draw[Ink,line width=0.9pt,rounded corners=2pt,fill=Green!8]
-      (-0.75,0.04) rectangle (0.75,0.56);
+      (-0.90,0.05) rectangle (0.60,0.51);
     \draw[CornellRed,dashed,line width=0.9pt,rounded corners=2pt,fill=CornellRed!7]
-      (0.75,0.04) rectangle (1.55,0.56);
-    \node[Green,font=\normalsize\bfseries] (bobj) at (0.02,0.30) {Bob};
-    \node[CornellRed,font=\normalsize\bfseries] (bptr) at (1.20,0.30) {\(p_2\)};
+      (0.60,0.05) rectangle (1.40,0.51);
+    \node[Green,font=\normalsize\bfseries] (bobj) at (-0.15,0.28) {Bob};
+    \node[CornellRed,font=\normalsize\bfseries] (bptr) at (1.00,0.28) {\(p_2\)};
 
     \draw[CornellRed,dashed,line width=0.9pt,rounded corners=2pt,fill=CornellRed!7]
-      (-0.75,-0.86) rectangle (1.55,-0.34);
-    \draw[CornellRed,dashed,line width=0.7pt] (0.75,-0.86) -- (0.75,-0.34);
-    \node[CornellRed,font=\normalsize\bfseries] (cobj) at (0.02,-0.60) {Carol};
-    \node[CornellRed,font=\normalsize\bfseries] (cptr) at (1.20,-0.60) {\(\bot\)};
+      (-0.90,-0.87) rectangle (1.40,-0.41);
+    \draw[CornellRed,dashed,line width=0.7pt] (0.60,-0.87) -- (0.60,-0.41);
+    \node[CornellRed,font=\normalsize\bfseries] (cobj) at (-0.15,-0.64) {Carol};
+    \node[CornellRed,font=\normalsize\bfseries] (cptr) at (1.00,-0.64) {\(\bot\)};
 
-    \draw[-{Latex[length=1.35mm,width=0.90mm]},Green,line width=0.85pt]
-      (1.20,0.94) -- (1.20,0.58);
-    \draw[-{Latex[length=1.35mm,width=0.90mm]},CornellRed,dashed,line width=0.85pt]
-      (1.20,0.04) -- (1.20,-0.32);
+    \draw[-{Latex[length=2.15mm,width=1.55mm]},Green,line width=0.95pt]
+      (1.00,0.97) -- (1.00,0.53);
+    \draw[-{Latex[length=2.15mm,width=1.55mm]},CornellRed,dashed,line width=0.95pt]
+      (1.00,0.05) -- (1.00,-0.39);
 
-    \coordinate (bobwest) at (-0.75,0.30);
-    \coordinate (carolwest) at (-0.75,-0.60);
+    \coordinate (bobwest) at (-0.90,0.28);
+    \coordinate (carolwest) at (-0.90,-0.64);
     \draw[-Latex,Green,line width=1.0pt] (deref.east) to[out=0,in=180] (bobwest);
     \draw[-Latex,CornellRed,line width=1.0pt] (alloc.east) to[out=0,in=180] (carolwest);
   \end{tikzpicture}
@@ -404,7 +404,7 @@
       \(p_1\) and \(p_2\) may store the \textbf{same} bits; different owners decode different targets.\par}
 
     \vspace{0.44cm}
-    {\large\color{CornellRed}
+    {\Large\color{CornellRed}
       Pointers can be \textbf{shorter}, because the \textbf{owner} supplies the missing context.\par}
   \end{column}
   \end{columns}
@@ -412,7 +412,7 @@
 
 \begin{frame}{Tiny Pointer: Implementation}
   \vspace{0.04cm}
-  {\Large Tiny pointers require a \keyterm{special memory allocator}, called a \textbf{dereference table} in our literature.}
+  {\LARGE Tiny pointers require a \keyterm{special memory allocator}, called a \textbf{dereference table} in our literature.}
 
   \vspace{0.02cm}
   \begin{center}
