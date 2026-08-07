@@ -64,7 +64,6 @@
   \nointerlineskip
   \begin{beamercolorbox}[wd=\paperwidth,ht=0.72cm,dp=0.22cm,leftskip=0.55cm,rightskip=0.45cm]{frametitle}
     \usebeamerfont{frametitle}\insertframetitle
-    \hfill {\footnotesize Cornell University}
   \end{beamercolorbox}
 }
 
@@ -257,13 +256,13 @@
     \vspace{-0.22cm}
     \begin{minipage}{\linewidth}
     \raggedright
-    {\large\bfseries Hashing dates to \keyterm{1953}}\par
-    \vspace{0.10cm}
-    {\large Expected \(O(1)\) operations}\par
-    \vspace{0.08cm}
-    {\large Linear probing, chaining, \(\ldots\)}\par
+    {\normalsize\bfseries Hashing dates to \keyterm{1953}}\par
+    % \vspace{0.10cm}
+    {\normalsize Expected \(O(1)\) operations}\par
+    % \vspace{0.08cm
+    {\normalsize Linear probing, chaining, \(\ldots\)}\par
     \vspace{0.12cm}
-    {\large Decades of tuning for
+    {\normalsize Decades of tuning for \large
     \(\left\{\begin{array}{l}
       \text{\textbf{speed}}\\[-1pt]
       \text{\textbf{space}}
@@ -412,169 +411,187 @@
 
 \begin{frame}{Tiny Pointer: Implementation}
   \vspace{0.04cm}
-  {\LARGE Tiny pointers require a \keyterm{special memory allocator}, called a \textbf{dereference table} in our literature.}
+  {\LARGE Tiny pointers require a \textbf{special memory allocator}, called a \keyterm{dereference table} in our literature.}
 
-  \vspace{0.02cm}
-  \begin{center}
-  \begin{tikzpicture}[x=1cm,y=1cm,>=Latex,every node/.style={font=\normalsize}]
-    \node[font=\normalsize\bfseries] (api) at (-4.05,3.48)
-      {\apiop{Alloc}{\text{A}, \text{B}} \(\to p =\)};
-    \node[anchor=west,align=left,font=\small,BlueGray] at (3.62,3.50)
-      {\(\text{A}\): owner\\\(\text{B}\): object};
-    \node[font=\normalsize\bfseries,text=CornellRed] (dirbit) at (-2.35,3.48) {\(0b1\)};
-    \node[font=\normalsize\bfseries] (concat) at (-1.86,3.48) {\(\circ\)};
-    \node[font=\normalsize\bfseries,text=CornellRed] (offsetbits) at (-0.82,3.48) {\(0b00000010\)};
-    \node[font=\LARGE\bfseries,BlueGray] at (-1.25,0.62) {\(\cdots\)};
+  \vspace{0.10cm}
+  \begin{columns}[T,onlytextwidth]
+  \begin{column}{0.70\textwidth}
+  \centering
+  \begin{tikzpicture}[x=1cm,y=1cm,every node/.style={font=\normalsize},
+      flow/.style={-{Latex[length=2.4mm,width=1.7mm]},line width=1.0pt},
+      fieldbrace/.style={decorate,decoration={brace,amplitude=3.5pt,raise=2.5pt},line width=0.7pt}]
 
-    \foreach \x in {-5.05,-2.70,1.30,2.55} {
-      \draw[Ink,line width=0.75pt,rounded corners=1pt,fill=white] ({\x-0.37},-0.92) rectangle +(0.74,2.82);
+    % --- API call and the tiny pointer it returns -------------------------
+    \node[anchor=east,align=left,inner sep=0pt,font=\small,text=BlueGray]
+      at (0.02,3.40) {A: owner\\B: object};
+    \node[draw=CornellRed,fill=CornellRed!7,rounded corners=2pt,
+          anchor=west,minimum width=2.75cm,minimum height=0.52cm,font=\large\bfseries]
+          (api) at (0.20,3.40) {\apiop{Alloc}{\text{A}, \text{B}}};
+    \node[font=\large\bfseries,CornellRed,anchor=west] at (3.15,3.40) {return \(p\)};
+    \node[draw=Green,fill=Green!10,line width=1.0pt,rounded corners=2pt,
+          minimum width=0.70cm,minimum height=0.50cm,font=\normalsize\bfseries,text=Green]
+          (dirbit) at (5.40,3.40) {1};
+    \node[draw=Purple,fill=Purple!10,line width=1.0pt,rounded corners=2pt,
+          minimum width=2.00cm,minimum height=0.50cm,font=\normalsize\bfseries,text=Purple]
+          (offsetbits) at (6.85,3.40) {00000010};
+    \draw[fieldbrace,Green] (dirbit.north west) -- (dirbit.north east)
+      node[midway,above=8pt,xshift=-0.78cm,align=center,font=\small\bfseries,text=Green] {direction bit};
+    \draw[fieldbrace,Purple] (offsetbits.north west) -- (offsetbits.north east)
+      node[midway,above=8pt,align=center,font=\small\bfseries,text=Purple] {7-bit offset};
+
+    % --- Bins -------------------------------------------------------------
+    \foreach \x in {1.15,2.30,5.95,7.10} {
+      \draw[Ink,line width=0.75pt,rounded corners=1pt,fill=white] ({\x-0.37},-0.50) rectangle +(0.74,2.40);
     }
+    \draw[BlueGray,line width=0.95pt,rounded corners=1pt,fill=BlueGray!5] (-0.37,-0.50) rectangle +(0.74,2.40);
+    \draw[Green,line width=1.05pt,rounded corners=1pt,fill=Green!4] (4.43,-0.50) rectangle +(0.74,2.40);
 
-    \draw[BlueGray,line width=0.95pt,rounded corners=1pt,fill=BlueGray!5] (-4.22,-0.92) rectangle +(0.74,2.82);
+    \slotball{0.00}{1.62}{1}
+    \slotball{0.00}{1.34}{1}
+    \slotball{0.00}{1.06}{0}
+    \node[font=\LARGE\bfseries] at (0.00,0.56) {\(\vdots\)};
+    \slotball{0.00}{0.06}{0}
+    \slotball{0.00}{-0.22}{1}
 
-    \draw[CornellRed,line width=1.05pt,rounded corners=1pt,fill=white] (-0.22,-0.92) rectangle +(0.74,2.82);
+    \slotball{1.15}{1.62}{1}
+    \slotball{1.15}{1.34}{0}
+    \slotball{1.15}{1.06}{1}
+    \node[font=\LARGE\bfseries] at (1.15,0.56) {\(\vdots\)};
+    \slotball{1.15}{0.06}{1}
+    \slotball{1.15}{-0.22}{1}
 
-    \slotball{-5.05}{1.62}{1}
-    \slotball{-5.05}{1.34}{0}
-    \slotball{-5.05}{1.06}{1}
-    \node[font=\LARGE\bfseries] at (-5.05,0.58) {\(\vdots\)};
-    \slotball{-5.05}{0.02}{0}
-    \slotball{-5.05}{-0.26}{1}
-    \slotball{-5.05}{-0.54}{1}
+    \slotball{2.30}{1.62}{0}
+    \slotball{2.30}{1.34}{1}
+    \slotball{2.30}{1.06}{1}
+    \node[font=\LARGE\bfseries] at (2.30,0.56) {\(\vdots\)};
+    \slotball{2.30}{0.06}{0}
+    \slotball{2.30}{-0.22}{0}
 
-    \slotball{-3.85}{1.62}{1}
-    \slotball{-3.85}{1.34}{1}
-    \slotball{-3.85}{1.06}{0}
-    \node[font=\LARGE\bfseries] at (-3.85,0.58) {\(\vdots\)};
-    \slotball{-3.85}{0.02}{1}
-    \slotball{-3.85}{-0.26}{0}
-    \slotball{-3.85}{-0.54}{1}
+    \slotball{4.80}{1.62}{0}
+    \draw[Purple,line width=1.0pt,fill=Purple!18] (4.80,1.34) circle (3.15pt);
+    \coordinate (slot) at (4.80,1.34);
+    \slotball{4.80}{1.06}{1}
+    \node[font=\LARGE\bfseries] at (4.80,0.56) {\(\vdots\)};
+    \slotball{4.80}{0.06}{1}
+    \slotball{4.80}{-0.22}{0}
 
-    \slotball{-2.70}{1.62}{0}
-    \slotball{-2.70}{1.34}{1}
-    \slotball{-2.70}{1.06}{1}
-    \node[font=\LARGE\bfseries] at (-2.70,0.58) {\(\vdots\)};
-    \slotball{-2.70}{0.02}{1}
-    \slotball{-2.70}{-0.26}{0}
-    \slotball{-2.70}{-0.54}{0}
+    \slotball{5.95}{1.62}{1}
+    \slotball{5.95}{1.34}{0}
+    \slotball{5.95}{1.06}{0}
+    \node[font=\LARGE\bfseries] at (5.95,0.56) {\(\vdots\)};
+    \slotball{5.95}{0.06}{0}
+    \slotball{5.95}{-0.22}{1}
 
-    \slotball{0.15}{1.62}{0}
-    \draw[CornellRed,line width=1.0pt,fill=CornellRed!18] (0.15,1.34) circle (3.15pt);
-    \coordinate (slot) at (0.15,1.34);
-    \slotball{0.15}{1.06}{1}
-    \node[font=\LARGE\bfseries] at (0.15,0.58) {\(\vdots\)};
-    \slotball{0.15}{0.02}{0}
-    \slotball{0.15}{-0.26}{1}
-    \slotball{0.15}{-0.54}{0}
+    \slotball{7.10}{1.62}{0}
+    \slotball{7.10}{1.34}{1}
+    \slotball{7.10}{1.06}{0}
+    \node[font=\LARGE\bfseries] at (7.10,0.56) {\(\vdots\)};
+    \slotball{7.10}{0.06}{1}
+    \slotball{7.10}{-0.22}{0}
 
-    \slotball{1.30}{1.62}{1}
-    \slotball{1.30}{1.34}{0}
-    \slotball{1.30}{1.06}{0}
-    \node[font=\LARGE\bfseries] at (1.30,0.58) {\(\vdots\)};
-    \slotball{1.30}{0.02}{1}
-    \slotball{1.30}{-0.26}{0}
-    \slotball{1.30}{-0.54}{1}
+    \node[font=\LARGE\bfseries,BlueGray] at (3.55,1.50) {\(\cdots\)};
+    \node[anchor=east,align=right,font=\small\bf,text=Green] at (4.34,0.42) {fewer\\occupied\\bin};
 
-    \slotball{2.55}{1.62}{0}
-    \slotball{2.55}{1.34}{1}
-    \slotball{2.55}{1.06}{0}
-    \node[font=\LARGE\bfseries] at (2.55,0.58) {\(\vdots\)};
-    \slotball{2.55}{0.02}{1}
-    \slotball{2.55}{-0.26}{1}
-    \slotball{2.55}{-0.54}{0}
+    \draw[decorate,decoration={brace,mirror,amplitude=4pt},Ink!60,line width=0.8pt]
+      (-0.56,1.90) -- (-0.56,-0.50);
+    \node[anchor=east,align=right,font=\small,text=Ink!60] at (-0.72,0.70) {128\\slots\\per bin};
 
-    \draw[-Latex,BlueGray,thick]
-      (api.south) .. controls (-4.25,3.18) and (-4.22,2.48) ..
-      node[pos=0.50,fill=white,inner sep=1.6pt,font=\normalsize\bfseries] (h0) {\(h_0(\text{A})\)}
-      (-3.85,1.96);
-    \draw[-Latex,BlueGray,thick]
-      (api.south) .. controls (-2.82,3.18) and (-0.58,2.64) ..
-      node[pos=0.68,fill=white,inner sep=1.6pt,font=\normalsize\bfseries] (h1) {\(h_{\textcolor{CornellRed}{\mathbf{1}}}(\text{A})\)}
-      (0.15,1.96);
-    \node[align=left,font=\small,text=CornellRed,anchor=west] at (-1.42,-0.28) {fewer\\occupied\\bin};
-
-    \draw[decorate,decoration={brace,amplitude=4pt},CornellRed,line width=0.8pt] (3.02,1.90) -- (3.02,-0.92);
-    \node[anchor=west,align=left,font=\small,text=CornellRed] at (3.17,0.49) {128 slots\\per bin};
-
-    \draw[-Latex,CornellRed,very thick] (slot) to[out=70,in=-115] (offsetbits.south);
-    \node[fill=white,inner sep=1pt,font=\scriptsize\bfseries,text=CornellRed] at (0.58,2.20) {7-bit offset};
-    \draw[-Latex,CornellRed,thick] (h1.north) to[out=95,in=-80] (dirbit.south);
-    \node[fill=white,inner sep=1pt,font=\scriptsize\bfseries,text=CornellRed] at (-1.52,3.02) {direction bit = 1};
-
-    \node[draw=CornellRed,fill=CornellRed!6,line width=0.9pt,rounded corners=3pt,
-          anchor=west,align=left,text width=2.95cm,inner sep=5pt,font=\small]
-          at (3.28,2.20)
-          {\textbf{Dynamic allocator}\\[2pt]
-           Insert, delete, or lookup freely, as long as load factor stays below \textcolor{CornellRed}{\textbf{95\%}}\textsuperscript{*}.};
-
-    \node[draw=Gold,fill=Gold!22,line width=2.0pt,rounded corners=6pt,
-          inner xsep=10pt,inner ysep=5pt,font=\large\bfseries,text=Ink,rotate=4]
-          at (4.55,-0.38) {Magic!};
+    % --- Which bin (green) and which slot (purple) ------------------------
+    \draw[flow,BlueGray] (api.south) .. controls (1.20,2.90) and (0.30,2.55) ..
+      node[pos=0.52,fill=white,inner sep=1.6pt,font=\normalsize\bfseries] {\(h_0(\text{A})\)}
+      (0.00,1.96);
+    \draw[flow,Green] (api.south) .. controls (2.20,2.85) and (3.55,2.05) ..
+      node[pos=0.52,fill=white,inner sep=1.6pt,font=\normalsize\bfseries] (h1) {\(h_1(\text{A})\)}
+      (4.40,1.64);
+    \draw[flow,Green] (h1.north east) to[out=22,in=-118] (dirbit.south);
+    \draw[flow,Purple] (slot) to[out=55,in=-115] (offsetbits.south);
   \end{tikzpicture}
-  \end{center}
-  \vspace{-0.16cm}
-  {\small\textsuperscript{*}No strict theoretical promise; empirically supports \(\mathrm{poly}(n)\) operations for \(n<2^{64}\).}
+  \end{column}
+
+  \begin{column}{0.28\textwidth}
+    \vspace{0.50cm}
+    \raggedright
+    {\Large\keyterm{Dynamic allocator}\par}
+    \vspace{0.14cm}
+    {\large Insert, delete, or look up freely, as long as the load factor stays
+     below \textcolor{CornellRed}{\textbf{95\%}}\textsuperscript{*}.\par}
+    \vspace{0.55cm}
+    \centering
+    \begin{tikzpicture}
+      \node[draw=Gold,fill=Gold!22,line width=2.4pt,rounded corners=7pt,
+            inner xsep=11pt,inner ysep=6pt,font=\LARGE\bfseries,text=Ink,rotate=4] {Magic!};
+    \end{tikzpicture}
+  \end{column}
+  \end{columns}
+
+  \vspace{0.10cm}
+  {\footnotesize\textsuperscript{*}No strict theoretical promise; empirically supports \(\mathrm{poly}(n)\) operations for \(n<2^{64}\).}
 \end{frame}
 
 \begin{frame}{Ingredient 2: Quotienting}
   \vspace{0.05cm}
   {\Large \keyterm{Quotienting} reduces the bits needed to represent a \textbf{key set} by \textbf{partitioning} it.}
 
-  \vspace{0.08cm}
+  \vspace{0.26cm}
   {\Large Insight: the \textbf{location of a partition} already encodes part of the information.}
 
-  \vspace{0.06cm}
-  \begin{center}
-  \begin{tikzpicture}[x=1cm,y=1cm,>=Latex,every node/.style={font=\normalsize}]
-    \node[anchor=west,font=\large\bfseries] at (-5.68,1.28) {6-bit key};
+  \vspace{0.16cm}
+  \begin{columns}[T,onlytextwidth]
+  \begin{column}{0.72\textwidth}
+  \centering
+  \begin{tikzpicture}[x=1cm,y=1cm,every node/.style={font=\normalsize},
+      flow/.style={-{Latex[length=2.4mm,width=1.7mm]},line width=1.0pt},
+      fieldbrace/.style={decorate,decoration={brace,amplitude=3.5pt,raise=2.5pt},line width=0.7pt}]
 
+    % --- the 6-bit key, split into quotient and remainder -----------------
+    \node[anchor=east,align=right,font=\large\bfseries] at (-5.72,1.76) {6-bit\\key};
     \draw[CornellRed,line width=1.25pt,rounded corners=2pt,fill=CornellRed!12]
-      (-5.66,1.72) rectangle (-4.72,2.24);
-    \draw[BlueGray,line width=1.25pt,rounded corners=2pt,fill=BlueGray!10]
-      (-4.68,1.72) rectangle (-2.95,2.24);
-
-    \foreach \b/\x/\name in {1/-5.38/b0,0/-4.94/b1,1/-4.50/b2,1/-4.06/b3,0/-3.62/b4,1/-3.18/b5} {
-      \node[font=\large\bfseries\ttfamily,inner sep=1.0pt] (\name) at (\x,1.98) {\b};
+      (-5.60,1.72) rectangle (-4.66,2.24);
+    \draw[Purple,line width=1.25pt,rounded corners=2pt,fill=Purple!10]
+      (-4.62,1.72) rectangle (-2.89,2.24);
+    \foreach \b/\x in {1/-5.32,0/-4.88,1/-4.44,1/-4.00,0/-3.56,1/-3.12} {
+      \node[font=\large\bfseries\ttfamily,inner sep=1.0pt] at (\x,1.98) {\b};
     }
+    \draw[fieldbrace,CornellRed] (-5.60,2.24) -- (-4.66,2.24)
+      node[midway,above=8pt,xshift=-0.45cm,font=\normalsize\bfseries,text height=1.6ex,text depth=0.5ex,text=CornellRed] {quotient \(q\)};
+    \draw[fieldbrace,Purple] (-4.62,2.24) -- (-2.89,2.24)
+      node[midway,above=8pt,xshift=0.25cm,font=\normalsize\bfseries,text height=1.6ex,text depth=0.5ex,text=Purple] {remainder \(r\)};
 
-    \coordinate (qframe-bottom) at (-5.19,1.72);
-    \coordinate (rframe-east) at (-2.95,1.98);
-    \coordinate (qframe-north) at (-5.19,2.24);
-    \coordinate (rframe-north) at (-3.82,2.24);
-    \node[text=CornellRed,font=\large\bfseries] (qlabel) at (-5.50,3.08) {quotient \(q\)};
-    \node[text=BlueGray,font=\large\bfseries] (rlabel) at (-3.30,3.08) {remainder \(r\)};
-    \draw[-Latex,CornellRed,thick] (qlabel.south) -- (qframe-north);
-    \draw[-Latex,BlueGray,thick] (rlabel.south) -- (rframe-north);
-
-    \draw[Ink,line width=0.9pt,rounded corners=3pt,fill=CornellGray!60] (-1.95,-0.18) rectangle (2.18,2.92);
-    \node[anchor=north west,font=\large\bfseries] at (-1.80,2.82) {4 partitions};
+    % --- the partition array ---------------------------------------------
+    \draw[Ink,line width=0.9pt,rounded corners=3pt,fill=CornellGray!60] (-1.95,-0.18) rectangle (2.18,3.20);
+    \node[anchor=north west,font=\large\bfseries] at (-1.78,3.12) {4 partitions};
     \foreach \q/\y in {00/2.16,01/1.52,10/0.88,11/0.24} {
       \draw[BlueGray!50,line width=0.7pt,fill=white,rounded corners=1pt] (-1.73,\y-0.29) rectangle (1.95,\y+0.29);
       \node[anchor=west,font=\normalsize\bfseries,text=BlueGray] at (-1.52,\y) {partition \(\q\)};
     }
     \draw[CornellRed,line width=1.25pt,rounded corners=1pt] (-1.73,0.59) rectangle (1.95,1.17);
-    \node[font=\LARGE\bfseries,BlueGray] at (1.02,2.16) {\(\cdots\)};
-    \node[font=\LARGE\bfseries,BlueGray] at (1.02,1.52) {\(\cdots\)};
-    \node[font=\LARGE\bfseries,BlueGray] at (1.02,0.24) {\(\cdots\)};
-    \node[draw=BlueGray,fill=BlueGray!9,line width=1.0pt,rounded corners=2pt,text=BlueGray,
-          minimum width=1.05cm,minimum height=0.32cm,font=\large\bfseries] (stored) at (1.05,0.88) {1101};
+    \node[font=\LARGE\bfseries,BlueGray] at (1.22,2.16) {\(\cdots\)};
+    \node[font=\LARGE\bfseries,BlueGray] at (1.22,1.52) {\(\cdots\)};
+    \node[font=\LARGE\bfseries,BlueGray] at (1.22,0.24) {\(\cdots\)};
+    \node[draw=Purple,fill=Purple!9,line width=1.0pt,rounded corners=2pt,text=Purple,
+          minimum width=1.05cm,minimum height=0.32cm,font=\large\bfseries] (stored) at (1.22,0.88) {1101};
     \node[draw=Gold,fill=Gold!20,line width=1.0pt,rounded corners=3pt,
-          inner sep=3.5pt,font=\small\bfseries,rotate=-8] at (2.5,1.43) {only 4 bits!};
+          inner sep=3.5pt,font=\Large\bfseries,rotate=-8] at (1.05,-0.62) {only \textcolor{red}{4} bits stored!};
 
-    \draw[-Latex,CornellRed,very thick] (qframe-bottom) to[out=-75,in=170] (-1.74,0.88);
-    \draw[-Latex,BlueGray,very thick] (rframe-east) to[out=-10,in=165] (stored.north);
-
-    \node[anchor=west,align=left,text width=3.95cm,font=\normalsize]
-          at (3.65,1.32)
-          {For a \textbf{\(w\)-bit key} \(k\) and \textbf{\(2^\ell\) partitions},
-           \(\begin{aligned}
-             q&=\left\lfloor\frac{k}{2^{w-\ell}}\right\rfloor,\\
-             r&=k\bmod 2^{w-\ell},\\
-             k&=q\cdot 2^{w-\ell}+r,\\
-              &=q\circ r.
-           \end{aligned}\)};
+    % --- quotient selects the partition; remainder is what gets stored ----
+    \draw[flow,CornellRed] (-5.13,1.72) .. controls (-5.30,0.95) and (-3.70,0.62) .. (-1.98,0.88);
+    \draw[flow,Purple,rounded corners=10pt]
+      (-2.89,1.98) -- (-2.32,2.58) -- (0.80,2.58) -- (0.80,1.10);
   \end{tikzpicture}
-  \end{center}
+  \end{column}
+
+  \begin{column}{0.26\textwidth}
+    \raggedright\large 
+    {For a \textbf{\(w\)-bit key} \(k\) and \textbf{\(2^\ell\) partitions},\par}
+    \vspace{0.20cm}
+    \(\begin{aligned}
+       q&=\left\lfloor\frac{k}{2^{w-\ell}}\right\rfloor,\\
+       r&=k\bmod 2^{w-\ell},\\
+       k&=q\cdot 2^{w-\ell}+r,\\
+        &=q\circ r.
+     \end{aligned}\)
+  \end{column}
+  \end{columns}
   \note{For the talk track: We split the key into two parts. We call the prefix the quotient, and we call the remaining bits the remainder. Since the quotient decides which partition the key belongs to, the partition location itself already remembers those quotient bits; inside the partition we only store the remainder.}
 \end{frame}
 
