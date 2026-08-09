@@ -164,7 +164,7 @@
 
 \begin{frame}{What is a dictionary?}
   \vspace{0.10cm}
-  {\LARGE A \textbf{dictionary} stores \textcolor{BlueGray}{\textbf{key--value pairs}} and supports updates and lookups.}\par
+  {\LARGE A \textbf{dictionary} stores {\textbf{key--value pairs}} and supports updates and lookups.}\par
   \vspace{0.08cm}
   {\normalsize\color{BlueGray} Abstractly: entries are \((k,v)\in K\times V\), and lookup is a partial function \(f:K\to V\cup\{\bot\}\).}\par
   \vspace{0.22cm}
@@ -291,9 +291,9 @@
     \column{0.58\textwidth}
       \vspace{0.02cm}
       {\large\raggedright
-        \textcolor{CornellRed}{\LARGE\textbf{Throughput}}: $\displaystyle\frac{\text{\# operations}}{\text{time}}$\par
+        {\LARGE\textbf{Throughput}}: $\displaystyle\frac{\text{\# operations}}{\text{time}}$\par
         \vspace{0.06cm}
-        \textcolor{CornellRed}{\LARGE\textbf{Space efficiency}}: $\displaystyle\frac{\text{data size}}{\text{memory footprint}}$
+        {\LARGE\textbf{Space efficiency}}: $\displaystyle\frac{\text{data size}}{\text{memory footprint}}$
       }\par
       \vspace{0.04cm}
       \begin{center}
@@ -597,7 +597,7 @@
 
 \begin{frame}{Chained-TPHT}
   \vspace{0.04cm}
-  {\Large Let's construct a \keyterm{chained hash table} with our ingredients!}
+  {\LARGE Let's construct a \keyterm{chained hash table} with our ingredients!}
 
   \vspace{0.02cm}
   \begin{center}
@@ -733,20 +733,20 @@
       \vspace{0.20cm}
       \begin{enumerate}\large
         \item \textbf{Heads stay in cache}\\[-1pt]
-          {\normalsize the head array is
+          {\large the head array is
            \textcolor{CornellRed}{\textbf{\(8\times\)}} smaller}
           \vspace{0.18cm}
         \item \textbf{Smaller key storage}\\[-1pt]
-          {\normalsize we keep only the remainder \(r\)}
+          {\large we keep only the remainder \(r\)}
           \vspace{0.18cm}
         \item \textbf{Shorter chains}\\[-1pt]
-          {\normalsize cheap heads buy more buckets}
+          {\large cheap heads buy more buckets}
       \end{enumerate}
       \vspace{0.34cm}
       \centering
       \begin{tikzpicture}
         \node[draw=Gold,fill=Gold!22,line width=2.0pt,rounded corners=6pt,
-              inner xsep=9pt,inner ysep=5pt,font=\large\bfseries,text=Ink,rotate=-4]
+              inner xsep=9pt,inner ysep=5pt,font=\Large\bfseries,text=Ink,rotate=-4]
               {Still not fast enough!};
       \end{tikzpicture}
 
@@ -756,85 +756,88 @@
       \begin{itemize}\Large
         \item \textbf{First Pointer Indirection}
       \end{itemize}
+      \vspace{-0.16cm}
       \begin{center}
       \begin{tikzpicture}[x=1cm,y=1cm,
-          flow/.style={-{Latex[length=2.6mm,width=1.8mm]},line width=1.1pt},
-          mline/.style={line width=1.7pt,Ink!62},
-          merge/.style={-{Latex[length=3.4mm,width=2.8mm]},line width=1.7pt,Ink!62},
+          flow/.style={-{Latex[length=2.4mm,width=1.7mm]},line width=1.0pt},
+          mline/.style={line width=1.5pt,Ink!62},
+          merge/.style={-{Latex[length=3.0mm,width=2.5mm]},line width=1.5pt,Ink!62},
           box/.style={rounded corners=2pt,line width=1.0pt},
           beforepanel/.style={rounded corners=4pt,draw=none,fill=CornellRed!6},
           afterpanel/.style={rounded corners=4pt,draw=none,fill=Green!8},
           beforetag/.style={fill=CornellRed,text=white,rounded corners=2pt,
-                           inner xsep=7pt,inner ysep=3pt,font=\large\bfseries},
+                           inner xsep=5pt,inner ysep=3pt,font=\normalsize\bfseries},
           aftertag/.style={fill=Green!88!black,text=white,rounded corners=2pt,
-                          inner xsep=7pt,inner ysep=3pt,font=\large\bfseries},
+                          inner xsep=5pt,inner ysep=3pt,font=\normalsize\bfseries},
           div/.style={Ink!35,line width=0.7pt},
-          fld/.style={font=\large\bfseries},
+          fld/.style={font=\normalsize\bfseries},
           tag/.style={anchor=north west,font=\normalsize,text=BlueGray}]
 
         % ===================== BEFORE =====================================
-        \node[anchor=east,font=\small,text=BlueGray] at (3.15,2.10)
-          {one chain in the hash table};
-        \draw[beforepanel] (-3.15,0.08) rectangle (3.15,1.84);
-        \node[beforetag,anchor=west] at (-3.05,2.24) {Before};
+        \node[anchor=east,font=\small,text=BlueGray] at (3.00,1.98)
+          {A chain in the hash table};
+        \draw[beforepanel] (-2.95,0.16) rectangle (3.00,1.80);
+        \node[beforetag] at (-2.70,1.05) {Before};
 
-        \node[anchor=south,font=\large\bfseries,text=CornellRed] at (-1.47,1.32)
-          {inevitable hop};
+        \node[anchor=south,font=\normalsize\bfseries,text=CornellRed] at (-0.77,1.34)
+          {cache miss};
 
-        \draw[box,Green,fill=Green!20] (-3.01,0.76) rectangle (-2.31,1.30);
-        \node[fld] at (-2.66,1.03) {\(p\)};
-        \node[tag] at (-3.01,0.66) {head array};
+        \draw[box,Green,fill=Green!20] (-1.85,0.80) rectangle (-1.26,1.30);
+        \node[fld] at (-1.555,1.05) {\(p\)};
+        \node[anchor=north,font=\normalsize,text=BlueGray] at (-1.555,0.72) {head array};
 
-        \draw[flow,CornellRed] (-2.31,1.03) -- (-0.63,1.03);
+        \draw[flow,CornellRed] (-1.26,1.05) -- (-0.28,1.05);
 
-        \fill[Purple!20] (-0.63,0.76) rectangle (0.47,1.30);
-        \draw[box,Ink!75] (-0.63,0.76) rectangle (1.02,1.30);
-        \draw[div] (-0.08,0.76) -- (-0.08,1.30);
-        \draw[div] (0.47,0.76) -- (0.47,1.30);
-        \node[fld] at (-0.355,1.03) {\(r\)};
-        \node[fld] at (0.195,1.03) {\(v\)};
-        \node[fld] at (0.745,1.03) {\(p'\)};
-        \node[tag] at (-0.63,0.66) {first tuple};
+        \fill[white,rounded corners=2pt] (-0.28,0.80) rectangle (1.13,1.30);
+        \fill[Purple!20] (-0.28,0.80) rectangle (0.66,1.30);
+        \draw[box,Ink!75] (-0.28,0.80) rectangle (1.13,1.30);
+        \draw[div] (0.19,0.80) -- (0.19,1.30);
+        \draw[div] (0.66,0.80) -- (0.66,1.30);
+        \node[fld] at (-0.045,1.05) {\(r\)};
+        \node[fld] at (0.425,1.05) {\(v\)};
+        \node[fld] at (0.895,1.05) {\(p'\)};
+        \node[anchor=north,font=\normalsize,text=BlueGray] at (0.425,0.72) {first tuple};
 
-        \draw[flow,Ink] (1.02,1.03) -- (1.36,1.03);
-        \draw[box,Ink!75,fill=white] (1.36,0.76) rectangle (3.01,1.30);
-        \draw[div] (1.91,0.76) -- (1.91,1.30);
-        \draw[div] (2.46,0.76) -- (2.46,1.30);
-        \node[fld] at (1.635,1.03) {\(r'\)};
-        \node[fld] at (2.185,1.03) {\(v'\)};
-        \node[fld] at (2.735,1.03) {\(\bot\)};
+        \draw[flow,Ink] (1.13,1.05) -- (1.45,1.05);
+        \draw[box,Ink!75,fill=white] (1.45,0.80) rectangle (2.86,1.30);
+        \draw[div] (1.92,0.80) -- (1.92,1.30);
+        \draw[div] (2.39,0.80) -- (2.39,1.30);
+        \node[fld] at (1.685,1.05) {\(r'\)};
+        \node[fld] at (2.155,1.05) {\(v'\)};
+        \node[fld] at (2.625,1.05) {\(\bot\)};
 
         % ===================== the merge ==================================
-        \draw[mline] (-2.66,0.04) to[out=-80,in=158] (-1.40,-0.30);
-        \draw[mline] (-0.08,0.04) to[out=-100,in=22] (-1.40,-0.30);
-        \draw[merge] (-1.40,-0.30) -- (-1.40,-0.90);
-        \node[anchor=west,font=\large\bfseries,text=Ink] at (-1.26,-0.40) {merge};
+        \draw[mline] (-1.555,0.12) to[out=-80,in=162] (-1.145,-0.22);
+        \draw[mline] (0.19,0.12) to[out=-100,in=18] (-1.145,-0.22);
+        \draw[merge] (-1.145,-0.22) -- (-1.145,-0.80);
+        \node[anchor=west,font=\large\bfseries,text=Ink] at (-1.00,-0.36) {merge};
 
         % ===================== AFTER ======================================
-        \draw[afterpanel] (-3.15,-2.16) rectangle (3.15,-0.98);
-        \node[aftertag,anchor=west] at (-3.05,-0.80) {After};
+        \draw[afterpanel] (-2.95,-1.98) rectangle (3.00,-0.88);
+        \node[aftertag] at (-2.84,-1.35) {After};
 
-        \fill[Purple!20] (-3.01,-1.62) rectangle (-1.91,-1.08);
-        \draw[box,Green] (-3.01,-1.62) rectangle (-1.36,-1.08);
-        \draw[div] (-2.46,-1.62) -- (-2.46,-1.08);
-        \draw[div] (-1.91,-1.62) -- (-1.91,-1.08);
-        \node[fld] at (-2.735,-1.35) {\(r\)};
-        \node[fld] at (-2.185,-1.35) {\(v\)};
-        \node[fld] at (-1.635,-1.35) {\(p'\)};
-        \node[tag] at (-3.01,-1.72) {head array};
+        \fill[white,rounded corners=2pt] (-1.85,-1.60) rectangle (-0.44,-1.10);
+        \fill[Purple!20] (-1.85,-1.60) rectangle (-0.91,-1.10);
+        \draw[box,Green] (-1.85,-1.60) rectangle (-0.44,-1.10);
+        \draw[div] (-1.38,-1.60) -- (-1.38,-1.10);
+        \draw[div] (-0.91,-1.60) -- (-0.91,-1.10);
+        \node[fld] at (-1.615,-1.35) {\(r\)};
+        \node[fld] at (-1.145,-1.35) {\(v\)};
+        \node[fld] at (-0.675,-1.35) {\(p'\)};
+        \node[anchor=north,font=\normalsize,text=BlueGray] at (-1.145,-1.68) {head array};
 
-        \draw[flow,Ink] (-1.36,-1.35) -- (-1.02,-1.35);
-        \draw[box,Ink!75,fill=white] (-1.02,-1.62) rectangle (0.63,-1.08);
-        \draw[div] (-0.47,-1.62) -- (-0.47,-1.08);
-        \draw[div] (0.08,-1.62) -- (0.08,-1.08);
-        \node[fld] at (-0.745,-1.35) {\(r'\)};
-        \node[fld] at (-0.195,-1.35) {\(v'\)};
-        \node[fld] at (0.355,-1.35) {\(\bot\)};
+        \draw[flow,Ink] (-0.44,-1.35) -- (0.44,-1.35);
+        \draw[box,Ink!75,fill=white] (0.44,-1.60) rectangle (1.85,-1.10);
+        \draw[div] (0.91,-1.60) -- (0.91,-1.10);
+        \draw[div] (1.38,-1.60) -- (1.38,-1.10);
+        \node[fld] at (0.675,-1.35) {\(r'\)};
+        \node[fld] at (1.145,-1.35) {\(v'\)};
+        \node[fld] at (1.615,-1.35) {\(\bot\)};
 
         % ===================== payoff =====================================
-        \node[draw=Gold,fill=Gold!22,line width=2.0pt,rounded corners=6pt,
-              inner xsep=9pt,inner ysep=5pt,font=\large\bfseries,text=Ink,rotate=-3]
-              at (0,-2.74) {One fewer cache miss!};
+        \node[draw=Gold,fill=Gold!22,line width=1.8pt,rounded corners=6pt,
+              inner xsep=8pt,inner ysep=4pt,font=\Large\bfseries,text=Ink,rotate=-3]
+              at (0,-2.64) {One fewer cache miss!};
       \end{tikzpicture}
       \end{center}
   \end{columns}
