@@ -1030,7 +1030,7 @@
         obrace/.style={decorate,decoration={brace,amplitude=4pt,raise=2pt},line width=0.7pt}]
 
       % ---- the same cache line, four times -----------------------------
-      \foreach \y in {4.55,3.30,2.05,0.80} {
+      \foreach \y in {4.55,3.42,2.29,0.80} {
         \draw[block] (-4.10,\y-0.25) rectangle (0.06,\y+0.25);
         \draw[cell,Gold!85!Ink,fill=Gold!18] (-4.10,\y-0.25) rectangle (-3.22,\y+0.25);
         \node[font=\normalsize,text=Gold!55!Ink] at (-3.66,\y) {meta};
@@ -1046,25 +1046,30 @@
       \node[anchor=south,font=\normalsize,text=Ink!70] at (-0.40,5.04) {free};
 
       % insert k -> stored in place
-      \draw[ins,CornellRed] (-3.45,4.26) -- (-3.45,3.61);
-      \node[anchor=west,font=\large\bf,text=CornellRed] at (-3.27,3.94) {\apiop{Insert}{k,v}};
-      \draw[cell,CornellRed!70,fill=CornellRed!16] (-1.60,3.11) rectangle (-0.50,3.49);
-      \node[font=\normalsize,text=CornellRed] at (-1.05,3.30) {\(k,v\)};
+      \draw[ins,CornellRed] (-3.45,4.24) -- (-3.45,3.73);
+      \node[anchor=west,font=\large\bf,text=CornellRed] at (-3.27,3.99) {\apiop{Insert}{k,v}};
+      \draw[cell,CornellRed!70,fill=CornellRed!16] (-1.60,3.23) rectangle (-0.50,3.61);
+      \node[font=\normalsize,text=CornellRed] at (-1.05,3.42) {\(k,v\)};
 
       % insert k' -> tuple slots full, spend one pointer
-      \draw[ins,blue!58!black] (-3.45,3.01) -- (-3.45,2.36);
-      \node[anchor=west,font=\large\bf,text=blue!58!black] at (-3.27,2.69) {\apiop{Insert}{k',v'}};
-      \draw[cell,CornellRed!70,fill=CornellRed!16] (-1.60,1.86) rectangle (-0.50,2.24);
-      \node[font=\normalsize,text=CornellRed] at (-1.05,2.05) {\(k,v\)};
-      \draw[cell,blue!58!black,fill=blue!58!black!16] (-0.44,1.86) rectangle (-0.06,2.24);
-      \node[font=\small,text=blue!58!black] at (-0.25,2.05) {\(p'\)};
+      \draw[ins,blue!58!black] (-3.45,3.11) -- (-3.45,2.60);
+      \node[anchor=west,font=\large\bf,text=blue!58!black] at (-3.27,2.86) {\apiop{Insert}{k',v'}};
+      \draw[cell,CornellRed!70,fill=CornellRed!16] (-1.60,2.10) rectangle (-0.50,2.48);
+      \node[font=\normalsize,text=CornellRed] at (-1.05,2.29) {\(k,v\)};
+      \draw[cell,blue!58!black,fill=blue!58!black!16] (-0.44,2.10) rectangle (-0.06,2.48);
+      \node[font=\small,text=blue!58!black] at (-0.25,2.29) {\(p'\)};
 
       % insert k-dagger -> evict k,v; pointers gather at the end of the line
-      \draw[ins,Green!70!black] (-3.45,1.76) -- (-3.45,1.11);
-      \node[anchor=west,font=\large\bf,text=Green!70!black] at (-3.27,1.44)
+      \draw[ins,Green!70!black] (-3.45,1.98) -- (-3.45,1.11);
+      \node[anchor=west,font=\large\bf,text=Green!70!black] at (-3.27,1.55)
         {\apiop{Insert}{k^{\dagger},v^{\dagger}}};
       \draw[cell,CornellRed!70,fill=CornellRed!16] (-1.30,0.61) rectangle (-0.92,0.99);
       \node[font=\small,text=CornellRed] at (-1.11,0.80) {\(p\)};
+      % what k,v left behind: the freed bytes plus the pointer that replaced it
+      \draw[CornellRed!65,dash pattern=on 2.2pt off 1.8pt,line width=0.9pt,rounded corners=2pt]
+        (-1.60,0.58) rectangle (-0.48,1.02);
+      \node[anchor=north east,font=\normalsize,text=CornellRed] at (-0.68,0.55)
+        {\(k,v\) migrated};
       \draw[cell,Green!75,fill=Green!20] (-0.87,0.61) rectangle (-0.49,0.99);
       \node[font=\small,text=Green!55!black] at (-0.68,0.80) {\(p^{\dagger}\)};
       \draw[cell,blue!58!black,fill=blue!58!black!16] (-0.44,0.61) rectangle (-0.06,0.99);
@@ -1090,7 +1095,7 @@
       }
 
       % each arrow leaves the pointer cell it belongs to
-      \draw[flow,blue!58!black] (-0.06,2.05) to[out=30,in=205] (1.11,3.42);
+      \draw[flow,blue!58!black] (-0.06,2.29) to[out=30,in=205] (1.11,3.42);
       \draw[flow,Green!70!black]
         (-0.68,0.59) .. controls (-0.68,0.32) and (2.75,0.28) .. (2.75,1.78);
       \draw[flow,CornellRed]
