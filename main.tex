@@ -101,7 +101,7 @@
     \centering
     \parbox[t][0.72cm][t]{\linewidth}{\centering
       {\small\bfseries #1}\par
-      {\small\color{white!84}#2}\par
+      {\scriptsize\color{white!84}#2}\par
     }
     \vspace{0.12cm}
     \authorphoto{#3}{#4}{#5}{#6}{#7}\par
@@ -571,7 +571,7 @@
     \node[draw=Purple,fill=Purple!9,line width=1.0pt,rounded corners=2pt,text=Purple,
           minimum width=1.05cm,minimum height=0.32cm,font=\large\bfseries] (stored) at (1.22,0.88) {1101};
     \node[draw=Gold,fill=Gold!20,line width=1.0pt,rounded corners=3pt,
-          inner sep=3.5pt,font=\Large\bfseries,rotate=-8] at (1.05,-0.62) {only \textcolor{red}{4} bits stored!};
+          inner sep=3.5pt,font=\Large\bfseries,rotate=4] at (1.05,-0.62) {only \textcolor{red}{4} bits stored!};
 
     % --- quotient selects the partition; remainder is what gets stored ----
     \draw[flow,CornellRed] (-5.13,1.72) .. controls (-5.30,0.95) and (-3.70,0.62) .. (-1.98,0.88);
@@ -746,7 +746,7 @@
       \centering
       \begin{tikzpicture}
         \node[draw=Gold,fill=Gold!22,line width=2.0pt,rounded corners=6pt,
-              inner xsep=9pt,inner ysep=5pt,font=\Large\bfseries,text=Ink,rotate=-4]
+              inner xsep=9pt,inner ysep=5pt,font=\Large\bfseries,text=Ink,rotate=4]
               {Still not fast enough!};
       \end{tikzpicture}
 
@@ -836,7 +836,7 @@
 
         % ===================== payoff =====================================
         \node[draw=Gold,fill=Gold!22,line width=1.8pt,rounded corners=6pt,
-              inner xsep=8pt,inner ysep=4pt,font=\Large\bfseries,text=Ink,rotate=-3]
+              inner xsep=8pt,inner ysep=4pt,font=\Large\bfseries,text=Ink,rotate=4]
               at (0,-2.64) {One fewer cache miss!};
       \end{tikzpicture}
       \end{center}
@@ -1004,7 +1004,7 @@
   \end{center}
   \begin{tikzpicture}[remember picture,overlay]
     \node[draw=Gold,fill=Gold!22,line width=2.4pt,rounded corners=7pt,
-          inner xsep=15pt,inner ysep=9pt,font=\huge\bfseries,text=Ink,rotate=-4]
+          inner xsep=15pt,inner ysep=9pt,font=\huge\bfseries,text=Ink,rotate=4]
           at ($(current page.center)+(0,-0.25cm)$)
           {We don't love chains anymore!};
   \end{tikzpicture}
@@ -1015,7 +1015,7 @@
   \vspace{0.04cm}
   \begin{columns}[T,onlytextwidth]
   \column{0.63\textwidth}
-    {\Large Fill the \keyterm{home block} first; whatever overflows costs \keyterm{one hop}.}
+    {\LARGE Whatever operation costs at most \keyterm{one hop}.}
 
     \vspace{-0.10cm}
     \begin{center}
