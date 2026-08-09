@@ -74,7 +74,7 @@
       {\small Succinct and Fast Tiny Pointer Hash Tables}
     \end{beamercolorbox}
     \begin{beamercolorbox}[wd=.30\paperwidth,ht=2.4ex,dp=1.1ex,rightskip=0.55cm plus 1fil]{normal text}
-      \hfill {\scriptsize \insertframenumber/\inserttotalframenumber}
+      \hfill {\small \insertframenumber/\inserttotalframenumber}
     \end{beamercolorbox}
   }
 }
@@ -101,7 +101,7 @@
     \centering
     \parbox[t][0.72cm][t]{\linewidth}{\centering
       {\small\bfseries #1}\par
-      {\scriptsize\color{white!84}#2}\par
+      {\small\color{white!84}#2}\par
     }
     \vspace{0.12cm}
     \authorphoto{#3}{#4}{#5}{#6}{#7}\par
@@ -210,17 +210,17 @@
     \column{0.54\textwidth}
     \begin{center}
     \begin{tikzpicture}[x=1cm,y=1cm,>={Latex[length=1.55mm,width=1.0mm]},every node/.style={font=\large}]
-      \node[font=\large\bfseries] at (-3.78,1.80) {keys};
+      \node[font=\large\bfseries] at (-3.78,1.80) {Keys};
       \node[draw=CornellRed,fill=CornellRed!8,rounded corners=2pt,minimum width=1.35cm,minimum height=0.48cm] (alicekey) at (-3.78,1.02) {Alice};
       \node[draw=Green,fill=Green!8,rounded corners=2pt,minimum width=1.35cm,minimum height=0.48cm] (bobkey) at (-3.78,0.10) {Bob};
       \node[draw=Purple,fill=Purple!8,rounded corners=2pt,minimum width=1.35cm,minimum height=0.48cm] (carolkey) at (-3.78,-0.82) {Carol};
 
-      \node[font=\large\bfseries,align=center] at (-1.48,0.94) {hash\\function};
+      \node[font=\large\bfseries,align=center] at (-1.48,0.94) {Hash\\Function};
       \node[font=\large\bfseries] (hash) at (-1.48,0.10) {\(h(k)\)};
       \coordinate (hashL) at (-1.88,0.10);
       \coordinate (hashR) at (-1.08,0.10);
 
-      \node[font=\large\bfseries] at (1.32,1.80) {hash table};
+      \node[font=\large\bfseries] at (1.32,1.80) {Hash Table};
       \draw[draw=Ink,rounded corners=2pt,fill=CornellGray,line width=0.75pt] (-0.12,-1.28) rectangle (2.76,1.42);
       \foreach \j in {1,...,5} {
         \draw[BlueGray!45,line width=0.45pt] (-0.12,{1.42-0.45*\j}) -- (2.76,{1.42-0.45*\j});
@@ -552,14 +552,14 @@
     \foreach \b/\x in {1/-5.32,0/-4.88,1/-4.44,1/-4.00,0/-3.56,1/-3.12} {
       \node[font=\large\bfseries\ttfamily,inner sep=1.0pt] at (\x,1.98) {\b};
     }
-    \draw[fieldbrace,CornellRed] (-5.60,2.24) -- (-4.66,2.24)
-      node[midway,above=8pt,xshift=-0.45cm,font=\normalsize\bfseries,text height=1.6ex,text depth=0.5ex,text=CornellRed] {quotient \(q\)};
+    \draw[fieldbrace,CornellRed] (-5.90,2.24) -- (-4.66,2.24)
+      node[midway,above=8pt,xshift=-0.45cm,font=\large\bfseries,text height=1.6ex,text depth=0.5ex,text=CornellRed] {quotient \(q\)};
     \draw[fieldbrace,Purple] (-4.62,2.24) -- (-2.89,2.24)
-      node[midway,above=8pt,xshift=0.25cm,font=\normalsize\bfseries,text height=1.6ex,text depth=0.5ex,text=Purple] {remainder \(r\)};
+      node[midway,above=8pt,xshift=0.25cm,font=\large\bfseries,text height=1.6ex,text depth=0.5ex,text=Purple] {remainder \(r\)};
 
     % --- the partition array ---------------------------------------------
     \draw[Ink,line width=0.9pt,rounded corners=3pt,fill=CornellGray!60] (-1.95,-0.18) rectangle (2.18,3.20);
-    \node[anchor=north west,font=\large\bfseries] at (-1.78,3.12) {4 partitions};
+    \node[anchor=north west,font=\large\bfseries] at (-1.78,3.12) {4 Partitions};
     \foreach \q/\y in {00/2.16,01/1.52,10/0.88,11/0.24} {
       \draw[BlueGray!50,line width=0.7pt,fill=white,rounded corners=1pt] (-1.73,\y-0.29) rectangle (1.95,\y+0.29);
       \node[anchor=west,font=\normalsize\bfseries,text=BlueGray] at (-1.52,\y) {partition \(\q\)};
@@ -599,134 +599,245 @@
   \vspace{0.04cm}
   {\Large Let's construct a \keyterm{chained hash table} with our ingredients!}
 
-  \vspace{0.06cm}
+  \vspace{0.02cm}
   \begin{center}
-  \begin{tikzpicture}[x=1cm,y=1cm,>=Latex,every node/.style={font=\normalsize}]
+  \begin{tikzpicture}[x=1cm,y=1cm,every node/.style={font=\normalsize},
+      flow/.style={-{Latex[length=2.4mm,width=1.7mm]},line width=1.0pt},
+      thinflow/.style={-{Latex[length=2.0mm,width=1.4mm]},line width=0.9pt},
+      zoomline/.style={Ink!45,line width=0.6pt,dashed,dash pattern=on 2.2pt off 1.8pt},
+      tag/.style={line width=0.6pt},
+      argbrace/.style={decorate,decoration={brace,mirror,amplitude=3pt,raise=2pt},line width=0.6pt}]
+
+    % =========== left column: insert, key split, head array ===============
     \node[draw=CornellRed,fill=CornellRed!7,rounded corners=2pt,line width=1.0pt,
-          minimum width=2.10cm,minimum height=0.50cm,font=\normalsize\bfseries] (insert) at (-5.10,2.55)
-          {\apiop{Insert}{k,v}};
+          minimum width=2.05cm,minimum height=0.52cm,font=\Large\bfseries]
+          (insert) at (-4.95,4.79) {\apiop{Insert}{k,v}};
+    \draw[flow,Ink] (-4.95,4.53) -- (-4.95,4.10);
 
-    \node[draw=Ink,fill=white,line width=0.9pt,rounded corners=3pt,
-          minimum width=2.15cm,minimum height=0.50cm,font=\normalsize\bfseries] (split) at (-2.92,2.55)
-          {split \(k=q\circ r\)};
-    \draw[-Latex,thick] (insert.east) -- (split.west);
+    \node[inner sep=0pt,font=\Large\bfseries] at (-6.25,3.85) {\(k\)};
+    \node[inner sep=0pt,font=\Large\bfseries] at (-5.88,3.85) {\(=\)};
+    \draw[CornellRed,line width=1.15pt,rounded corners=2pt,fill=CornellRed!12]
+      (-5.58,3.59) rectangle (-4.78,4.11);
+    \node[font=\Large\bfseries,text=CornellRed] at (-5.18,3.85) {\(q\)};
+    \draw[Purple,line width=1.15pt,rounded corners=2pt,fill=Purple!10]
+      (-4.78,3.59) rectangle (-3.48,4.11);
+    \node[font=\Large\bfseries,text=Purple] at (-4.13,3.85) {\(r\)};
 
-    \node[draw=CornellRed,fill=CornellRed!9,line width=1.0pt,rounded corners=2pt,
-          minimum width=0.70cm,minimum height=0.44cm,font=\large\bfseries,text=CornellRed] (qbits) at (-1.45,2.55) {\(q\)};
-    \node[draw=BlueGray,fill=BlueGray!8,line width=1.0pt,rounded corners=2pt,
-          minimum width=1.05cm,minimum height=0.44cm,font=\large\bfseries,text=BlueGray] (rbits) at (0.02,2.55) {\(r\)};
-    \draw[-Latex,thick] (split.east) -- (qbits.west);
-    \node[anchor=north,font=\tiny,text=CornellRed] at (-1.18,2.27) {bucket id};
-    \node[anchor=north,font=\scriptsize,text=BlueGray] at (0.02,2.27) {stored key bits};
-
-    \draw[Ink,line width=0.9pt,rounded corners=4pt,fill=CornellGray!55] (-5.92,-1.42) rectangle (-2.10,1.50);
-    \node[anchor=north west,font=\large\bfseries] at (-5.72,1.34) {head array};
-    \node[anchor=north west,font=\tiny,text=BlueGray] at (-5.72,0.94) {one tiny pointer per quotient group};
-    \foreach \idx/\val/\y in {0/\(p_0\)/0.39,1/\(p_1\)/0.03,q/\(p_q\)/-0.33,\ldots/\(\cdots\)/-0.69} {
-      \draw[BlueGray!55,line width=0.65pt,fill=white] (-5.45,\y-0.15) rectangle (-3.05,\y+0.15);
-      \node[font=\small,text=BlueGray] at (-5.18,\y) {\(\idx\)};
-      \node[font=\small\bfseries] at (-4.20,\y) {\val};
+    \draw[Ink,line width=0.9pt,rounded corners=4pt,fill=CornellGray!55]
+      (-6.60,1.35) rectangle (-3.30,2.65);
+    \node[anchor=north west,inner sep=0pt,font=\large\bfseries] at (-6.52,2.58) {Head Array};
+    \foreach \p/\c in {p_0/-6.07,p_1/-5.51,{\cdots}/-4.95,{\cdots}/-3.83} {
+      \draw[BlueGray!55,line width=0.7pt,fill=white,rounded corners=1pt]
+        (\c-0.25,1.55) rectangle (\c+0.25,2.10);
+      \node[font=\normalsize\bfseries,text=Green] at (\c,1.825) {\(\p\)};
     }
-    \draw[CornellRed,line width=1.15pt,rounded corners=1pt] (-5.45,-0.48) rectangle (-3.05,-0.18);
-    \node[font=\small,text=CornellRed,anchor=west] (owner) at (-5.72,-1.14) {owner \(A_q\)};
-    \coordinate (headslot) at (-4.20,-0.33);
-    \draw[-Latex,CornellRed,very thick,rounded corners=4pt] (qbits.south)
-      -- (-1.81,2.05) -- (-1.81,-0.33) -- (headslot);
+    \draw[CornellRed,line width=1.15pt,fill=CornellRed!8,rounded corners=1pt]
+      (-4.64,1.55) rectangle (-4.14,2.10);
+    \node[font=\normalsize\bfseries,text=Green] at (-4.39,1.825) {\(p_{\textcolor{CornellRed}{q}}\)};
+    \node[anchor=north west,align=left,inner sep=0pt,font=\small,text=BlueGray] at (-6.60,1.18)
+      {one pointer\\[-2pt]per chain};
+    % address tag: corner flag inside the cell, then an axis-aligned leader
+    \fill[BlueGray] (-4.14,1.55) -- (-4.32,1.55) -- (-4.14,1.70) -- cycle;
+    \draw[tag,BlueGray] (-4.14,1.55) -- (-4.14,1.18) -- (-3.06,1.18);
+    \node[anchor=west,font=\small,text=BlueGray] at (-3.02,1.18) {address \(A_{\textcolor{CornellRed}{q}}\)};
+    % the quotienting arrow is drawn last on the left so the frame cannot clip it
+    \draw[flow,CornellRed] (-5.18,3.59)
+      .. controls (-5.08,3.20) and (-3.78,3.16) .. (-3.78,2.66)
+      .. controls (-3.78,2.37) and (-4.16,2.30) .. (-4.28,2.14);
+    \node[fill=white,inner sep=1.8pt,font=\large,text=CornellRed] at (-4.86,3.10)
+      {quotienting\textsuperscript{\dag}};
 
-    \draw[Ink,line width=0.9pt,rounded corners=4pt,fill=CornellGray!55] (-1.52,-1.42) rectangle (5.82,1.50);
-    \node[anchor=north west,font=\large\bfseries] at (-1.30,1.34) {dereference table};
-    \node[anchor=north west,font=\scriptsize,text=BlueGray] at (-1.30,0.94) {all chain nodes live in one compact pool};
-
-    \foreach \x/\lab in {-0.80/\(\cdots\),0.05/\(\mathrm{bin}\),0.90/\(\cdots\)} {
-      \draw[Ink,line width=0.65pt,rounded corners=1pt,fill=white] (\x-0.30,-1.08) rectangle (\x+0.30,0.30);
-      \node[font=\small,text=BlueGray,rotate=90] at (\x,-0.40) {\lab};
+    % =========== right column, top: the dereference table =================
+    \draw[Ink,line width=0.9pt,rounded corners=4pt,fill=CornellGray!55]
+      (0.20,2.55) rectangle (5.40,5.05);
+    \node[anchor=north west,font=\large\bfseries] at (0.35,5.00) {Dereference Table};
+    \foreach \c in {0.90,1.90,3.70,4.70} {
+      \draw[Ink,line width=0.75pt,rounded corners=1pt,fill=white] (\c-0.40,2.68) rectangle (\c+0.40,4.48);
     }
-    \draw[CornellRed,line width=1.15pt,rounded corners=1pt,fill=white] (-0.25,-1.08) rectangle (0.35,0.30);
-    \coordinate (slot) at (0.05,-0.40);
-    \fill[CornellRed] (slot) circle (3.0pt);
-    \node[anchor=south,font=\scriptsize\bfseries,text=CornellRed] at (0.05,0.34) {decoded slot};
-    \draw[-Latex,CornellRed,very thick] (headslot) to[out=-10,in=170] (slot);
-    \node[font=\scriptsize\bfseries,text=CornellRed] at (-3.20,-1.15)
-      {TinyDeref\((A_q,p_q)\)};
+    \node[font=\LARGE\bfseries,BlueGray] at (2.80,3.64) {\(\cdots\)};
+    \foreach \c/\a/\b/\d/\e/\f in {0.90/1/0/1/0/1, 1.90/0/1/1/0/0, 3.70/1/1/0/1/0, 4.70/0/1/1/0/1} {
+      \slotball{\c}{4.30}{\a}
+      \slotball{\c}{4.07}{\b}
+      \slotball{\c}{3.84}{\d}
+      \node[font=\large\bfseries] at (\c,3.58) {\(\vdots\)};
+      \slotball{\c}{3.10}{\e}
+      \slotball{\c}{2.84}{\f}
+    }
+    \node[anchor=west,align=left,font=\small,text=BlueGray] at (5.55,3.65)
+      {each\\column\\is a bin};
+    % the occupied slot we reach, and the free slot the insert takes
+    \fill[Ink] (0.90,3.84) circle (2.35pt);
+    \draw[Green,line width=1.1pt] (0.90,3.84) circle (4.4pt);
+    \draw[CornellRed,line width=1.1pt,fill=CornellRed!18] (1.90,3.10) circle (3.15pt);
+    \draw[thinflow,CornellRed] (1.05,3.80) to[out=10,in=120] (1.76,3.21);
 
-    \node[draw=Ink,fill=white,line width=0.9pt,rounded corners=2pt,
-          minimum width=1.56cm,minimum height=0.48cm,font=\small\bfseries] (oldnode) at (2.20,-0.40)
-          {\(r_\ell,v_\ell\;|\;p_\ell\)};
-    \node[draw=CornellRed,fill=CornellRed!7,line width=1.0pt,rounded corners=2pt,
-          minimum width=1.42cm,minimum height=0.48cm,font=\small\bfseries,text=CornellRed] (newnode) at (4.08,-0.40)
-          {\(r,v\;|\;\bot\)};
-    \draw[-Latex,Ink,thick] (slot) -- (oldnode.west);
-    \draw[-Latex,CornellRed,thick] (oldnode.east) -- (newnode.west);
-    \node[anchor=south,font=\small\bfseries,text=BlueGray] at (3.08,-0.06)
-      {chain for quotient \(q\)};
+    % =========== the dereference call rides on its own arrow ==============
+    \draw[flow,Green] (-4.14,1.825)
+      .. controls (-3.52,1.825) and (-3.52,3.84) .. (-2.90,3.84)
+      -- (0.75,3.84);
+    \tikzset{callpart/.style={anchor=west,inner xsep=0pt,inner ysep=3pt,fill=white,
+        text height=1.95ex,text depth=1.0ex,font=\Large\bfseries}}
+    \node[callpart,text=Green] (dpre) at (-2.90,3.84) {{\ttfamily Deref}(};
+    \node[callpart,text=BlueGray] (darg) at ([xshift=-0.3pt]dpre.east) {\(A_{\textcolor{CornellRed}{q}}\)};
+    \node[callpart,text=Green] (dpost) at ([xshift=-0.3pt]darg.east) {\(,p_{\textcolor{CornellRed}{q}}\))};
+    \draw[argbrace,BlueGray] (darg.south west) -- (darg.south east);
+    \node[anchor=north,align=center,font=\small\bf,text=BlueGray] at ($(darg.south)+(0,-0.14)$)
+      {owner:\\the cell's\\address};
 
-    \draw[-Latex,BlueGray,very thick] (rbits.south)
-      .. controls (5.28,2.08) and (5.25,0.32) .. (newnode.north);
-    \node[draw=Gold,fill=Gold!20,line width=1.0pt,rounded corners=3pt,
-          inner sep=3.5pt,font=\small\bfseries,rotate=-5] at (4.26,-1.08)
-          {store \(r\), not \(q\)};
+    % =========== right column, bottom: zoom on the two slots ==============
+    \draw[zoomline] (0.84,3.76) -- (-0.30,1.70);
+    \draw[zoomline] (0.96,3.76) -- (1.80,1.70);
+    \draw[zoomline] (1.84,3.02) -- (4.55,1.70);
+    \draw[zoomline] (1.96,3.02) -- (6.40,1.70);
+
+    \draw[Ink!75,line width=1.0pt,rounded corners=2pt,fill=white]
+      (-0.30,1.10) rectangle (1.80,1.70);
+    \draw[Ink!35,line width=0.7pt] (0.40,1.10) -- (0.40,1.70);
+    % the pointer field is the part the insert just wrote, so it is dashed
+    \draw[CornellRed,dashed,dash pattern=on 2.2pt off 1.8pt,line width=1.0pt,rounded corners=2pt,
+          fill=CornellRed!7] (1.10,1.10) rectangle (1.80,1.70);
+    \node[font=\normalsize\bfseries] at (0.05,1.40) {\(r_{*}\)};
+    \node[font=\normalsize\bfseries] at (0.75,1.40) {\(v_{*}\)};
+    \node[font=\normalsize\bfseries,text=CornellRed] at (1.45,1.40) {\(p\)};
+    \node[anchor=north west,inner sep=0pt,font=\small\bfseries] at (-0.30,0.99) {first hop};
+    \fill[BlueGray] (1.80,1.10) -- (1.62,1.10) -- (1.80,1.25) -- cycle;
+    \draw[tag,BlueGray] (1.80,1.10) -- (1.80,0.72) -- (2.12,0.72);
+    \node[anchor=west,font=\small,text=BlueGray] at (2.16,0.72) {address \(A_{*}\)};
+    %
+
+    \fill[Purple!16,rounded corners=2pt] (4.57,1.12) rectangle (5.15,1.68);
+    \draw[Ink!75,line width=1.0pt,dashed,dash pattern=on 2.6pt off 2.0pt,rounded corners=2pt]
+      (4.55,1.10) rectangle (6.40,1.70);
+    \draw[Ink!35,line width=0.7pt] (5.17,1.10) -- (5.17,1.70);
+    \draw[Ink!35,line width=0.7pt] (5.78,1.10) -- (5.78,1.70);
+    \node[font=\normalsize\bfseries,text=Purple] at (4.86,1.40) {\(r\)};
+    \node[font=\normalsize\bfseries] at (5.475,1.40) {\(v\)};
+    \node[font=\normalsize\bfseries,text=BlueGray!75] at (6.09,1.40) {\(\bot\)};
+    \node[anchor=north west,inner sep=0pt,font=\small\bfseries] at (4.55,0.99) {new node};
+
+    \draw[flow,CornellRed] (1.80,1.40) -- (4.51,1.40);
+    \node[fill=white,inner sep=1.8pt,font=\Large\bfseries,text=CornellRed]
+      at (3.175,1.8) {\apiop{Alloc}{A_{*}}};
   \end{tikzpicture}
   \end{center}
-  \note{This slide moves from the quotienting ingredient to the first full design. Insert splits the key into quotient q and remainder r. The quotient indexes the head array. The head cell stores a tiny pointer, whose owner is the address of that head cell. Dereferencing finds the chain node in the monolithic dereference table. The chain stores only remainders and values, because the quotient is already represented by the head-array location.}
+  \vspace{0.06cm}
+  {\footnotesize\textsuperscript{\dag}One-round Feistel permutation, which composes quotienting and hashing together.}
+  \note{Insert splits the key into quotient q and remainder r. Quotienting sends q to the head array; the address of that cell is the owner id of the tiny pointer it holds, which is what Deref needs. Dereferencing lands on a slot inside a bin of the dereference table, and the node lives in that slot. Zooming in on that first hop: the insert allocates a free slot, using the address of that pointer field as the owner id, and writes the returned tiny pointer into it. The new slot holds the remainder, the value, and NULL. The quotient is never stored, because the head-array location already represents it.}
 \end{frame}
 
 \begin{frame}{Making TPHT Fast}
-  \vspace{0.04cm}
-  {\Large \Chained is already \keyterm{more cache-friendly} than normal chaining.}
-
   \vspace{0.10cm}
-  \begin{center}
-  \begin{tikzpicture}[x=1cm,y=1cm,>=Latex,every node/.style={font=\large}]
-    \node[align=center,text=CornellRed,font=\LARGE\bfseries] at (-3.95,1.48)
-      {8\(\times\) smaller};
-    \node[align=center,text=CornellRed,font=\small\bfseries] at (-3.95,1.18)
-      {head array};
-    \node[align=center,text=BlueGray,font=\LARGE\bfseries] at (0,1.48)
-      {store \(r\)};
-    \node[align=center,text=BlueGray,font=\small\bfseries] at (0,1.18)
-      {not the full key};
-    \node[align=center,text=Gold!85!Ink,font=\LARGE\bfseries] at (3.95,1.48)
-      {more buckets};
-    \node[align=center,text=Gold!85!Ink,font=\small\bfseries] at (3.95,1.18)
-      {shorter chains};
-    \node[align=center,font=\small,text=BlueGray] at (-3.95,0.88)
-      {cache-resident heads};
-    \node[align=center,font=\small,text=BlueGray] at (0,0.88)
-      {compact tuples};
-    \node[align=center,font=\small,text=BlueGray] at (3.95,0.88)
-      {lower chain load};
-    \draw[BlueGray!35,line width=0.7pt] (-5.35,0.69) -- (5.35,0.69);
-    \node[font=\LARGE\bfseries,text=CornellRed] at (0,0.34)
-      {Next: remove the first indirection miss};
+  \begin{columns}[T,onlytextwidth]
+    \column{0.47\textwidth}
+      {\Large \Chained is already \keyterm{more cache-friendly} than chaining:}\par
+      \vspace{0.20cm}
+      \begin{enumerate}\large
+        \item \textbf{Heads stay in cache}\\[-1pt]
+          {\normalsize the head array is
+           \textcolor{CornellRed}{\textbf{\(8\times\)}} smaller}
+          \vspace{0.18cm}
+        \item \textbf{Smaller key storage}\\[-1pt]
+          {\normalsize we keep only the remainder \(r\)}
+          \vspace{0.18cm}
+        \item \textbf{Shorter chains}\\[-1pt]
+          {\normalsize cheap heads buy more buckets}
+      \end{enumerate}
+      \vspace{0.34cm}
+      \centering
+      \begin{tikzpicture}
+        \node[draw=Gold,fill=Gold!22,line width=2.0pt,rounded corners=6pt,
+              inner xsep=9pt,inner ysep=5pt,font=\large\bfseries,text=Ink,rotate=-4]
+              {Still not fast enough!};
+      \end{tikzpicture}
 
-    \node[anchor=west,font=\small\bfseries,text=BlueGray] at (-4.85,-0.08) {before};
-    \draw[BlueGray!55,line width=0.7pt,fill=CornellGray!60,rounded corners=2pt]
-      (-3.72,-0.36) rectangle (-2.22,0.32);
-    \node[font=\large\bfseries] (oldhead) at (-2.97,-0.02) {\(p_q\)};
-    \node[draw=Ink,fill=white,line width=0.8pt,rounded corners=2pt,
-          minimum width=2.15cm,minimum height=0.58cm,font=\large\bfseries] (oldnode) at (1.62,-0.02)
-      {\(r_1,v_1\mid p_2\)};
-    \draw[-Latex,CornellRed,thick] (oldhead.east) --
-      node[pos=0.52,fill=white,inner sep=1pt,font=\small\bfseries,text=CornellRed] {extra miss} (oldnode.west);
-    \draw[CornellRed,line width=1.1pt] (-0.58,0.34) -- (-0.03,-0.38);
-    \draw[CornellRed,line width=1.1pt] (-0.58,-0.38) -- (-0.03,0.34);
+    \column{0.50\textwidth}
+      {\LARGE\bfseries Opportunity 1:}\par
+      \vspace{-0.06cm}
+      \begin{itemize}\Large
+        \item \textbf{First Pointer Indirection}
+      \end{itemize}
+      \begin{center}
+      \begin{tikzpicture}[x=1cm,y=1cm,
+          flow/.style={-{Latex[length=2.6mm,width=1.8mm]},line width=1.1pt},
+          mline/.style={line width=1.7pt,Ink!62},
+          merge/.style={-{Latex[length=3.4mm,width=2.8mm]},line width=1.7pt,Ink!62},
+          box/.style={rounded corners=2pt,line width=1.0pt},
+          beforepanel/.style={rounded corners=4pt,draw=none,fill=CornellRed!6},
+          afterpanel/.style={rounded corners=4pt,draw=none,fill=Green!8},
+          beforetag/.style={fill=CornellRed,text=white,rounded corners=2pt,
+                           inner xsep=7pt,inner ysep=3pt,font=\large\bfseries},
+          aftertag/.style={fill=Green!88!black,text=white,rounded corners=2pt,
+                          inner xsep=7pt,inner ysep=3pt,font=\large\bfseries},
+          div/.style={Ink!35,line width=0.7pt},
+          fld/.style={font=\large\bfseries},
+          tag/.style={anchor=north west,font=\normalsize,text=BlueGray}]
 
-    \node[anchor=west,font=\small\bfseries,text=BlueGray] at (-4.85,-1.28) {after};
-    \draw[CornellRed,line width=1.05pt,fill=CornellRed!7,rounded corners=2pt]
-      (-3.72,-1.72) rectangle (-0.72,-0.90);
-    \draw[BlueGray!50,line width=0.6pt] (-1.92,-1.72) -- (-1.92,-0.90);
-    \node[font=\large\bfseries,text=CornellRed] at (-2.84,-1.31) {\(r_1,v_1\)};
-    \node[font=\large\bfseries] (nextp) at (-1.32,-1.31) {\(p_2\)};
-    \node[draw=Ink,fill=white,line width=0.8pt,rounded corners=2pt,
-          minimum width=1.52cm,minimum height=0.52cm,font=\large\bfseries] (nextnode) at (1.05,-1.31)
-      {\(r_2,v_2\)};
-    \draw[-Latex,Ink,thick] (nextp.east) -- (nextnode.west);
-    \node[font=\small\bfseries,text=Gold!85!Ink] at (-1.28,-2.12)
-      {first tuple lives in the head entry};
-    \node[align=center,font=\small,text=BlueGray] at (3.18,-1.30)
-      {overflow tuples\\still chain};
-  \end{tikzpicture}
-  \end{center}
+        % ===================== BEFORE =====================================
+        \node[anchor=east,font=\small,text=BlueGray] at (3.15,2.10)
+          {one chain in the hash table};
+        \draw[beforepanel] (-3.15,0.08) rectangle (3.15,1.84);
+        \node[beforetag,anchor=west] at (-3.05,2.24) {Before};
+
+        \node[anchor=south,font=\large\bfseries,text=CornellRed] at (-1.47,1.32)
+          {inevitable hop};
+
+        \draw[box,Green,fill=Green!20] (-3.01,0.76) rectangle (-2.31,1.30);
+        \node[fld] at (-2.66,1.03) {\(p\)};
+        \node[tag] at (-3.01,0.66) {head array};
+
+        \draw[flow,CornellRed] (-2.31,1.03) -- (-0.63,1.03);
+
+        \fill[Purple!20] (-0.63,0.76) rectangle (0.47,1.30);
+        \draw[box,Ink!75] (-0.63,0.76) rectangle (1.02,1.30);
+        \draw[div] (-0.08,0.76) -- (-0.08,1.30);
+        \draw[div] (0.47,0.76) -- (0.47,1.30);
+        \node[fld] at (-0.355,1.03) {\(r\)};
+        \node[fld] at (0.195,1.03) {\(v\)};
+        \node[fld] at (0.745,1.03) {\(p'\)};
+        \node[tag] at (-0.63,0.66) {first tuple};
+
+        \draw[flow,Ink] (1.02,1.03) -- (1.36,1.03);
+        \draw[box,Ink!75,fill=white] (1.36,0.76) rectangle (3.01,1.30);
+        \draw[div] (1.91,0.76) -- (1.91,1.30);
+        \draw[div] (2.46,0.76) -- (2.46,1.30);
+        \node[fld] at (1.635,1.03) {\(r'\)};
+        \node[fld] at (2.185,1.03) {\(v'\)};
+        \node[fld] at (2.735,1.03) {\(\bot\)};
+
+        % ===================== the merge ==================================
+        \draw[mline] (-2.66,0.04) to[out=-80,in=158] (-1.40,-0.30);
+        \draw[mline] (-0.08,0.04) to[out=-100,in=22] (-1.40,-0.30);
+        \draw[merge] (-1.40,-0.30) -- (-1.40,-0.90);
+        \node[anchor=west,font=\large\bfseries,text=Ink] at (-1.26,-0.40) {merge};
+
+        % ===================== AFTER ======================================
+        \draw[afterpanel] (-3.15,-2.16) rectangle (3.15,-0.98);
+        \node[aftertag,anchor=west] at (-3.05,-0.80) {After};
+
+        \fill[Purple!20] (-3.01,-1.62) rectangle (-1.91,-1.08);
+        \draw[box,Green] (-3.01,-1.62) rectangle (-1.36,-1.08);
+        \draw[div] (-2.46,-1.62) -- (-2.46,-1.08);
+        \draw[div] (-1.91,-1.62) -- (-1.91,-1.08);
+        \node[fld] at (-2.735,-1.35) {\(r\)};
+        \node[fld] at (-2.185,-1.35) {\(v\)};
+        \node[fld] at (-1.635,-1.35) {\(p'\)};
+        \node[tag] at (-3.01,-1.72) {head array};
+
+        \draw[flow,Ink] (-1.36,-1.35) -- (-1.02,-1.35);
+        \draw[box,Ink!75,fill=white] (-1.02,-1.62) rectangle (0.63,-1.08);
+        \draw[div] (-0.47,-1.62) -- (-0.47,-1.08);
+        \draw[div] (0.08,-1.62) -- (0.08,-1.08);
+        \node[fld] at (-0.745,-1.35) {\(r'\)};
+        \node[fld] at (-0.195,-1.35) {\(v'\)};
+        \node[fld] at (0.355,-1.35) {\(\bot\)};
+
+        % ===================== payoff =====================================
+        \node[draw=Gold,fill=Gold!22,line width=2.0pt,rounded corners=6pt,
+              inner xsep=9pt,inner ysep=5pt,font=\large\bfseries,text=Ink,rotate=-3]
+              at (0,-2.74) {One fewer cache miss!};
+      \end{tikzpicture}
+      \end{center}
+  \end{columns}
   \note{This slide transitions from the space story to the speed story. The main message is that Chained-TPHT is not merely smaller than a normal chained hash table; it is also more cache-friendly. Tiny pointers shrink the head array by a factor of eight, so the head array is much more likely to be cache-resident. Quotienting stores only the remainder r rather than the full key, so each tuple is smaller. Since head entries are cheap, we can also afford more quotient groups, which lowers the average chain length. Then emphasize the remaining problem: a head lookup still gives a pointer to the first chain node, and that first dereference can be an extra cache miss. The intermediate optimization is to inline the first tuple into the head entry. In the common case, the lookup obtains the first key-value candidate directly from the cache line holding the head entry; only later overflow tuples continue through pointers.}
 \end{frame}
 
@@ -734,69 +845,62 @@
   \vspace{0.04cm}
   {\Large \keyterm{Opportunity 2:} reduce chain walks without wasting cache lines.}
 
-  \vspace{0.10cm}
+  \vspace{0.14cm}
   \begin{center}
-  \begin{tikzpicture}[x=1cm,y=1cm,>=Latex,every node/.style={font=\large}]
-    \node[font=\large\bfseries,text=BlueGray] at (-3.85,1.40) {naive extension};
-    \node[font=\large\bfseries,text=BlueGray] at (2.30,1.40) {shared cache-line block};
+  \begin{tikzpicture}[x=1cm,y=1cm,
+      cell/.style={rounded corners=1.5pt,line width=0.65pt},
+      brace/.style={decorate,decoration={brace,mirror,amplitude=4pt,raise=2pt},line width=0.7pt}]
 
-    \foreach \y/\lab/\used in {0.92/q/2,0.46/{q{+}1}/1,0.00/{q{+}2}/2,-0.46/{q{+}3}/0} {
-      \node[anchor=east,font=\small\bfseries,text=BlueGray] at (-5.55,\y) {\(\lab\)};
-      \draw[Ink,line width=0.75pt,fill=CornellGray!35,rounded corners=1.5pt]
-        (-5.38,\y-0.14) rectangle (-2.56,\y+0.14);
+    % =========== naive: one cache line per chain ==========================
+    \node[font=\large\bfseries,text=BlueGray] at (-3.65,3.22)
+      {naive: one line per chain};
+    \foreach \y/\lab/\used in {2.60/q/2, 2.06/{q{+}1}/1, 1.52/{q{+}2}/2, 0.98/{q{+}3}/0} {
+      \node[anchor=east,font=\normalsize,text=BlueGray] at (-6.56,\y) {\(\lab\)};
+      \draw[Ink!70,line width=0.8pt,fill=CornellGray!45,rounded corners=2pt]
+        (-6.40,\y-0.22) rectangle (-0.90,\y+0.22);
       \ifnum\used>0
         \foreach \i in {1,...,\used} {
-          \draw[CornellRed!75,fill=CornellRed!10,line width=0.55pt]
-            ({-5.26+0.42*(\i-1)},\y-0.10) rectangle ({-4.90+0.42*(\i-1)},\y+0.10);
+          \draw[cell,CornellRed!70,fill=CornellRed!14]
+            ({-6.30+0.82*(\i-1)},\y-0.16) rectangle ({-5.58+0.82*(\i-1)},\y+0.16);
         }
       \fi
     }
-    \draw[CornellRed,line width=1.15pt] (-4.92,-0.78) -- (-3.05,1.20);
-    \draw[CornellRed,line width=1.15pt] (-4.92,1.20) -- (-3.05,-0.78);
-    \node[align=center,font=\small\bfseries,text=CornellRed] at (-3.95,-1.18)
-      {one line per chain\\wastes space};
-    \node[align=center,font=\small,text=BlueGray] at (-3.95,-1.66)
-      {short chains leave empty bytes};
+    \draw[CornellRed,line width=1.3pt] (-5.75,0.76) -- (-1.60,2.82);
+    \draw[CornellRed,line width=1.3pt] (-5.75,2.82) -- (-1.60,0.76);
+    \node[align=center,font=\normalsize\bfseries,text=CornellRed] at (-3.65,0.24)
+      {short chains leave\\most of every line empty};
 
-    \foreach \y/\q/\items in {0.88/q/2,0.48/{q{+}1}/1,0.08/{q{+}2}/2,-0.32/{q{+}3}/0} {
-      \node[anchor=east,font=\small\bfseries,text=BlueGray] at (-0.90,\y) {\(\q\)};
-      \draw[BlueGray!45,line width=0.6pt,fill=white] (-0.74,\y-0.12) rectangle (0.05,\y+0.12);
-      \ifnum\items>0
-        \foreach \i in {1,...,\items} {
-          \fill[CornellRed!75] ({-0.58+0.22*(\i-1)},\y) circle (1.8pt);
-        }
-      \fi
+    \draw[BlueGray!30,line width=0.7pt] (0.00,0.60) -- (0.00,3.05);
+
+    % =========== shared: several groups per cache line ====================
+    \node[font=\large\bfseries,text=CornellRed] at (3.65,3.22)
+      {shared: one line, many groups};
+    \draw[Ink,line width=0.9pt,fill=CornellGray!45,rounded corners=2pt]
+      (0.90,1.70) rectangle (6.40,2.70);
+    \draw[Gold!85!Ink,line width=0.8pt,fill=Gold!18] (0.90,1.70) rectangle (1.50,2.70);
+    \node[font=\small\bfseries,rotate=90,text=Gold!60!Ink] at (1.20,2.20) {meta};
+    \foreach \x in {3.08,3.87,5.45} {
+      \draw[BlueGray!45,line width=0.6pt] (\x,1.70) -- (\x,2.70);
     }
-    \draw[-Latex,CornellRed,thick] (0.24,0.26) --
-      node[pos=0.48,fill=white,inner sep=1pt,font=\small\bfseries,text=CornellRed] {pack} (1.08,0.26);
-    \node[align=center,font=\small,text=BlueGray] at (-0.30,-0.78)
-      {adjacent groups\\fit together};
-
-    \node[draw=CornellRed,fill=CornellRed!7,line width=0.9pt,rounded corners=2pt,
-          minimum width=1.34cm,minimum height=0.50cm,font=\small\bfseries] (hash) at (1.55,1.00)
-      {hash \(k\)};
-
-    \draw[Ink,line width=1.05pt,fill=CornellGray!55,rounded corners=2pt]
-      (2.24,-0.52) rectangle (5.78,0.66);
-    \draw[Gold!85!Ink,line width=0.85pt,fill=Gold!18]
-      (2.24,-0.52) rectangle (2.76,0.66);
-    \node[font=\small\bfseries,rotate=90] at (2.50,0.07) {meta};
-    \foreach \xa/\xb/\lab/\col in {2.76/3.48/\(q\)/CornellRed,3.48/4.18/\(q{+}1\)/BlueGray,4.18/4.90/\(q{+}2\)/BlueGray,4.90/5.78/\(q{+}3\)/BlueGray} {
-      \draw[\col!65,line width=0.7pt,fill=white] (\xa,-0.52) rectangle (\xb,0.66);
-      \node[font=\small\bfseries,text=\col] at ({(\xa+\xb)/2},0.43) {\lab};
+    \node[font=\small\bfseries,text=CornellRed] at (2.29,2.50) {\(q\)};
+    \node[font=\small\bfseries,text=BlueGray]   at (3.475,2.50) {\(q{+}1\)};
+    \node[font=\small\bfseries,text=BlueGray]   at (4.66,2.50) {\(q{+}2\)};
+    \node[font=\small\bfseries,text=BlueGray]   at (5.925,2.50) {\(q{+}3\)};
+    \foreach \a/\b in {1.545/2.245, 2.335/3.035, 3.125/3.825, 3.905/4.605, 4.695/5.395} {
+      \draw[cell,CornellRed!70,fill=CornellRed!14] (\a,1.82) rectangle (\b,2.28);
+      \node[font=\small] at ({(\a+\b)/2},2.05) {\(r,v\)};
     }
-    \node[font=\small] at (3.12,0.02) {\(r,v\)};
-    \node[font=\small] at (3.82,0.02) {\(r,v\)};
-    \node[font=\small] at (4.54,0.02) {\(r,v\)};
-    \node[font=\small] at (5.34,0.02) {free};
-    \draw[-Latex,CornellRed,thick] (hash.east) --
-      node[pos=0.55,fill=white,inner sep=1pt,font=\small\bfseries,text=CornellRed] {one cache line} (2.24,0.35);
+    \node[font=\small,text=BlueGray] at (5.925,2.05) {free};
+    \draw[brace,Ink!65] (0.90,1.70) -- (6.40,1.70);
+    \node[font=\normalsize,text=Ink] at (3.65,1.26) {one 64\,B cache line};
+    \node[align=center,font=\normalsize\bfseries,text=Gold!85!Ink] at (3.65,0.70)
+      {metadata records each group's\\offset and count};
+    \node[font=\normalsize,text=BlueGray] at (3.65,0.04)
+      {adjacent groups are short too};
 
-    \draw[-Latex,Gold!85!Ink,thick] (2.50,-0.59) to[out=-90,in=180] (3.52,-1.20);
-    \node[anchor=west,align=left,text width=2.90cm,font=\small\bfseries,text=Gold!85!Ink] at (3.58,-1.20)
-      {offsets + counts\\find the chain};
-    \node[align=center,font=\small\bfseries,text=BlueGray] at (1.45,-2.03)
-      {intermediate design: share one line; metadata jumps inside it};
+    \draw[BlueGray!30,line width=0.7pt] (-6.40,-0.32) -- (6.40,-0.32);
+    \node[font=\large] at (0,-0.78)
+      {\keyterm{Still intermediate:} one shared line; metadata jumps inside it};
   \end{tikzpicture}
   \end{center}
   \note{This slide explains the second locality opportunity. After the first tuple is moved into the head entry, the next natural question is whether we should move even more chain tuples next to the head. The naive version reserves a full cache line for every quotient chain. This would reduce chain walks, but it wastes memory badly because most chains are short; many cache lines would contain only one or two tuples and a lot of empty space. The key observation is that neighboring quotient groups are also short on average, so several adjacent groups can share one assigned cache line. The small metadata region records offsets and counts for the groups in that line. A lookup hashes to the shared line, then uses the quotient group and metadata to locate the local chain almost for free. Make clear that this is still an intermediate design idea: we are introducing the cache-line sharing intuition before the final flattened TPHT layout, not yet presenting the final home-block structure.}
@@ -804,63 +908,59 @@
 
 \begin{frame}{After Opportunity 2: What Remains?}
   \vspace{0.04cm}
-  {\Large Shared cache lines help locality, but the \keyterm{overflow table can still chain}.}
+  {\Large We fixed locality, but the \keyterm{overflow table still chains}.}
 
-  \vspace{0.10cm}
+  \vspace{0.16cm}
   \begin{center}
-  \begin{tikzpicture}[x=1cm,y=1cm,>=Latex,every node/.style={font=\large}]
-    \node[font=\LARGE\bfseries,text=Ink] at (-2.85,1.72)
-      {Opportunity 2 solution};
-    \node[align=center,font=\small,text=BlueGray] at (-2.85,1.36)
-      {pack adjacent quotient groups\\into the same cache line};
+  \begin{tikzpicture}[x=1cm,y=1cm,
+      flow/.style={-{Latex[length=2.6mm,width=1.8mm]},line width=1.1pt},
+      cell/.style={rounded corners=1.5pt,line width=0.65pt}]
 
-    \draw[Ink,line width=1.05pt,fill=CornellGray!55,rounded corners=2pt]
-      (-5.78,0.04) rectangle (-0.14,0.94);
-    \draw[Gold!85!Ink,line width=0.85pt,fill=Gold!18]
-      (-5.78,0.04) rectangle (-5.08,0.94);
-    \node[font=\small\bfseries,rotate=90] at (-5.43,0.49) {meta};
-    \foreach \xa/\xb/\lab/\col in {-5.08/-3.86/\(q\)/CornellRed,-3.86/-2.72/\(q{+}1\)/BlueGray,-2.72/-1.58/\(q{+}2\)/BlueGray,-1.58/-0.14/\(q{+}3\)/BlueGray} {
-      \draw[\col!65,line width=0.7pt,fill=white] (\xa,0.04) rectangle (\xb,0.94);
-      \node[font=\small\bfseries,text=\col] at ({(\xa+\xb)/2},0.72) {\lab};
+    % =========== what opportunity 2 bought us =============================
+    \node[font=\large\bfseries,text=BlueGray] at (-3.76,3.42) {what we gained};
+    \draw[Ink,line width=0.9pt,fill=CornellGray!45,rounded corners=2pt]
+      (-6.66,1.90) rectangle (-0.86,2.90);
+    \draw[Gold!85!Ink,line width=0.8pt,fill=Gold!18] (-6.66,1.90) rectangle (-6.03,2.90);
+    \node[font=\small\bfseries,rotate=90,text=Gold!60!Ink] at (-6.345,2.40) {meta};
+    \foreach \x in {-4.35,-3.51,-1.83} {
+      \draw[BlueGray!45,line width=0.6pt] (\x,1.90) -- (\x,2.90);
     }
-    \node[font=\small\bfseries] at (-4.47,0.30) {\(r,v\)};
-    \node[font=\small\bfseries] at (-3.29,0.30) {\(r,v\)};
-    \node[font=\small\bfseries] at (-2.15,0.30) {\(r,v\)};
-    \node[font=\small\bfseries,text=BlueGray] at (-0.84,0.30) {free};
-    \node[align=center,font=\small\bfseries,text=Gold!85!Ink] at (-2.96,-0.34)
-      {metadata locates the group};
+    \node[font=\small\bfseries,text=CornellRed] at (-5.19,2.70) {\(q\)};
+    \node[font=\small\bfseries,text=BlueGray]   at (-3.93,2.70) {\(q{+}1\)};
+    \node[font=\small\bfseries,text=BlueGray]   at (-2.67,2.70) {\(q{+}2\)};
+    \node[font=\small\bfseries,text=BlueGray]   at (-1.34,2.70) {\(q{+}3\)};
+    \foreach \a/\b in {-5.98/-5.24, -5.19/-4.45, -4.30/-3.56, -3.46/-2.72, -2.67/-1.93} {
+      \draw[cell,CornellRed!70,fill=CornellRed!14] (\a,2.02) rectangle (\b,2.48);
+      \node[font=\small] at ({(\a+\b)/2},2.25) {\(r,v\)};
+    }
+    \node[font=\small,text=BlueGray] at (-1.34,2.25) {free};
+    \node[font=\normalsize,text=BlueGray] at (-3.76,1.44)
+      {one cache line holds several groups};
 
-    \node[font=\LARGE\bfseries,text=CornellRed] at (2.90,1.72)
-      {Still left to solve};
-    \node[align=center,font=\small,text=BlueGray] at (2.90,1.36)
-      {if the tuple is not in the line,\\we jump into the overflow table};
+    % =========== what it does not fix =====================================
+    \node[font=\large\bfseries,text=CornellRed] at (3.80,3.42) {what it does not fix};
+    \draw[Ink,line width=0.95pt,fill=CornellGray!35,rounded corners=3pt]
+      (0.94,1.66) rectangle (6.66,3.02);
+    \node[anchor=north west,font=\normalsize\bfseries,text=Ink] at (1.06,2.98) {overflow table};
+    \draw[cell,Ink!75,fill=white,line width=0.9pt] (1.20,1.82) rectangle (2.35,2.40);
+    \node[font=\normalsize\bfseries] at (1.775,2.11) {node};
+    \draw[cell,Ink!75,fill=white,line width=0.9pt] (3.05,1.82) rectangle (4.20,2.40);
+    \node[font=\normalsize\bfseries] at (3.625,2.11) {node};
+    \draw[cell,CornellRed,fill=CornellRed!10,line width=1.0pt] (4.90,1.82) rectangle (6.40,2.40);
+    \node[font=\normalsize\bfseries,text=CornellRed] at (5.65,2.11) {target};
+    \draw[flow,CornellRed] (2.35,2.11) -- (3.00,2.11);
+    \draw[flow,CornellRed] (4.20,2.11) -- (4.85,2.11);
+    \draw[flow,CornellRed] (-0.86,2.11) -- (0.89,2.11);
+    \node[anchor=south,align=center,font=\small\bfseries,text=CornellRed] at (0.015,2.20)
+      {not in\\the line?};
+    \node[font=\normalsize\bfseries,text=CornellRed] at (3.80,1.44)
+      {every hop is another cache miss};
 
-    \node[draw=CornellRed,fill=CornellRed!7,line width=0.9pt,rounded corners=2pt,
-          minimum width=1.35cm,minimum height=0.48cm,font=\small\bfseries] (home) at (0.82,0.49)
-      {home line};
-    \draw[Ink,line width=0.95pt,fill=CornellGray!45,rounded corners=3pt]
-      (2.02,-0.42) rectangle (5.94,0.92);
-    \node[anchor=west,font=\small\bfseries,text=Ink] at (2.12,0.78) {overflow table};
-    \node[draw=Ink,fill=white,line width=0.75pt,rounded corners=2pt,
-          minimum width=1.02cm,minimum height=0.40cm,font=\small\bfseries] (o1) at (2.70,0.08)
-      {node 1};
-    \node[draw=Ink,fill=white,line width=0.75pt,rounded corners=2pt,
-          minimum width=1.02cm,minimum height=0.40cm,font=\small\bfseries] (o2) at (3.88,0.08)
-      {node 2};
-    \node[draw=CornellRed,fill=CornellRed!9,line width=1.0pt,rounded corners=2pt,
-          minimum width=1.06cm,minimum height=0.40cm,font=\small\bfseries,text=CornellRed] (target) at (5.10,0.08)
-      {target};
-    \draw[-Latex,CornellRed,thick] (home.east) -- node[pos=0.55,fill=white,inner sep=1pt,font=\small\bfseries,text=CornellRed] {enter} (2.02,0.27);
-    \draw[-Latex,CornellRed,thick] (o1.east) -- node[pos=0.50,fill=white,inner sep=1pt,font=\small\bfseries,text=CornellRed] {hop} (o2.west);
-    \draw[-Latex,CornellRed,thick] (o2.east) -- node[pos=0.50,fill=white,inner sep=1pt,font=\small\bfseries,text=CornellRed] {hop} (target.west);
-    \node[align=center,font=\small,text=BlueGray] at (3.85,-0.78)
-      {the expensive hops happen\\inside the overflow table};
-
-    \draw[BlueGray!35,line width=0.7pt] (-5.55,-1.15) -- (5.70,-1.15);
-    \node[font=\LARGE\bfseries,text=CornellRed] at (0,-1.45)
+    \draw[BlueGray!30,line width=0.7pt] (-6.66,0.76) -- (6.66,0.76);
+    \node[font=\LARGE\bfseries,text=CornellRed] at (0,0.06)
       {We don't love chains anymore!};
-    \node[align=center,font=\small,text=BlueGray] at (0,-1.86)
-      {Next goal: keep the cache-line locality, but make overflow one-hop instead of iterative.};
+    \node[font=\large,text=BlueGray] at (0,-0.66)
+      {Next: keep the cache-line locality, but make overflow \keyterm{one hop}.};
   \end{tikzpicture}
   \end{center}
   \note{This slide is the breakup with chaining. First elaborate opportunity 2: rather than reserving a private cache line for every short chain, we pack adjacent quotient groups into a shared cache line and use small metadata to locate the right group. But even with this optimization, chains are still there. If the desired tuple is not in the shared line, we may still walk through overflow nodes, and every hop can cost another cache miss. Chained hash table, we had a good time. I don't love you anymore. Mark the turning point clearly: we don't love chains anymore! The next design should preserve the good cache-line packing idea, but remove iterative pointer chasing.}
@@ -868,98 +968,81 @@
 
 \begin{frame}{Flattened-TPHT: One-Hop Overflow}
   \vspace{0.04cm}
-  {\Large The flattened design is a \keyterm{procedure}: fill home, then use one-hop overflow.}
+  {\Large Fill the \keyterm{home block} first; whatever overflows costs \keyterm{one hop}.}
 
-  \vspace{0.08cm}
+  \vspace{0.12cm}
   \begin{center}
-  \resizebox{0.96\textwidth}{!}{%
-  \begin{tikzpicture}[x=1cm,y=1cm,>=Latex,every node/.style={font=\large}]
-    \node[font=\LARGE\bfseries,text=CornellRed] at (-3.45,2.05)
-      {home block = one cache line for one bucket};
-    \node[draw=Gold,fill=Gold!20,line width=0.9pt,rounded corners=3pt,
-          align=center,font=\small\bfseries,text=Ink] at (3.10,2.05)
-      {quotienting shaved bytes,\\so this fits};
+  \begin{tikzpicture}[x=1cm,y=1cm,
+      flow/.style={-{Latex[length=2.6mm,width=1.8mm]},line width=1.1pt},
+      thinflow/.style={-{Latex[length=2.2mm,width=1.5mm]},line width=0.9pt},
+      cell/.style={rounded corners=1.5pt,line width=0.7pt},
+      stepnote/.style={anchor=north west,align=left,text width=3.70cm,inner sep=0pt}]
 
-    \node[font=\small\bfseries,text=BlueGray] at (-5.20,1.42) {1. append locally};
-    \draw[CornellRed,line width=1.0pt,rounded corners=2pt]
-      (-5.88,0.62) rectangle (-1.42,1.26);
-    \draw[Gold!85!Ink,line width=0.85pt,fill=Gold!18]
-      (-5.88,0.62) rectangle (-5.32,1.26);
-    \node[font=\small\bfseries,rotate=90] at (-5.60,0.94) {meta};
-    \foreach \xa/\xb/\lab/\col in {-5.20/-4.40/{\(r_1,v\)}/CornellRed,-4.28/-3.48/{\(r_2,v\)}/CornellRed,-3.36/-2.56/{\(r_3,v\)}/CornellRed,-2.44/-1.57/{free}/BlueGray} {
-      \draw[Ink!72,line width=0.65pt] (\xa,0.70) rectangle (\xb,1.18);
-      \node[font=\small\bfseries,text=\col] at ({(\xa+\xb)/2},0.94) {\lab};
+    % ---- three home-block states, one per insertion case -----------------
+    % row 1: there is still a free tuple slot
+    \node[stepnote,font=\normalsize\bfseries,text=Ink] at (-6.70,3.06) {1.\; Free tuple slot?};
+    \node[stepnote,font=\small,text=BlueGray]          at (-6.70,2.62) {store the tuple in place};
+    \draw[CornellRed,line width=1.0pt,rounded corners=2pt] (-2.85,2.44) rectangle (3.00,3.06);
+    \draw[Gold!85!Ink,line width=0.8pt,fill=Gold!18] (-2.85,2.44) rectangle (-2.30,3.06);
+    \node[font=\scriptsize\bfseries,rotate=90,text=Gold!60!Ink] at (-2.575,2.75) {meta};
+    \foreach \a/\b/\lab in {-2.20/-1.15/{\(r_1,v\)}, -1.10/-0.05/{\(r_2,v\)}, 0.00/1.05/{\(r_3,v\)}} {
+      \draw[cell,CornellRed!70,fill=CornellRed!14] (\a,2.52) rectangle (\b,2.98);
+      \node[font=\small,text=CornellRed] at ({(\a+\b)/2},2.75) {\lab};
     }
-    \node[draw=CornellRed,fill=CornellRed!10,line width=0.8pt,rounded corners=2pt,
-          font=\small\bfseries] (newtuple) at (-0.92,0.94) {new};
-    \draw[-Latex,CornellRed,thick] (newtuple.west) -- (-1.42,0.94);
+    \draw[cell,BlueGray!45,fill=white] (1.10,2.52) rectangle (2.15,2.98);
+    \node[font=\small,text=BlueGray] at (1.625,2.75) {free};
+    \draw[cell,Gold!70!Ink,fill=white,dash pattern=on 1.8pt off 1.6pt] (2.25,2.52) rectangle (2.92,2.98);
+    \node[font=\scriptsize,text=Gold!60!Ink] at (2.585,2.75) {tp};
+    \draw[flow,CornellRed] (1.62,3.42) -- (1.62,3.04);
+    \node[anchor=south,font=\small\bfseries,text=CornellRed] at (1.62,3.46) {new tuple};
 
-    \node[font=\small\bfseries,text=BlueGray] at (1.10,1.42) {2. full tuple area: use one tiny pointer};
-    \draw[CornellRed,line width=1.0pt,rounded corners=2pt]
-      (-0.30,0.62) rectangle (4.70,1.26);
-    \draw[Gold!85!Ink,line width=0.85pt,fill=Gold!18]
-      (-0.30,0.62) rectangle (0.26,1.26);
-    \node[font=\small\bfseries,rotate=90] at (-0.02,0.94) {meta};
-    \foreach \xa/\xb/\lab/\col in {0.38/1.10/{\(r_1,v\)}/CornellRed,1.22/1.94/{\(r_2,v\)}/CornellRed,2.06/2.78/{\(r_3,v\)}/CornellRed,2.90/3.62/{\(r_4,v\)}/CornellRed,3.74/4.55/{tp}/Gold!85!Ink} {
-      \draw[Ink!72,line width=0.65pt] (\xa,0.70) rectangle (\xb,1.18);
-      \node[font=\small\bfseries,text=\col] at ({(\xa+\xb)/2},0.94) {\lab};
+    % row 2: tuple slots full, spend a tiny pointer
+    \node[stepnote,font=\normalsize\bfseries,text=Ink] at (-6.70,1.66) {2.\; Tuple slots full?};
+    \node[stepnote,font=\small,text=BlueGray]          at (-6.70,1.22) {spend one tiny pointer};
+    \draw[CornellRed,line width=1.0pt,rounded corners=2pt] (-2.85,1.04) rectangle (3.00,1.66);
+    \draw[Gold!85!Ink,line width=0.8pt,fill=Gold!18] (-2.85,1.04) rectangle (-2.30,1.66);
+    \node[font=\scriptsize\bfseries,rotate=90,text=Gold!60!Ink] at (-2.575,1.35) {meta};
+    \foreach \a/\b/\lab in {-2.20/-1.15/{\(r_1,v\)}, -1.10/-0.05/{\(r_2,v\)}, 0.00/1.05/{\(r_3,v\)}, 1.10/2.15/{\(r_4,v\)}} {
+      \draw[cell,CornellRed!70,fill=CornellRed!14] (\a,1.12) rectangle (\b,1.58);
+      \node[font=\small,text=CornellRed] at ({(\a+\b)/2},1.35) {\lab};
     }
-    \draw[Ink,line width=0.85pt,fill=CornellGray!40,rounded corners=2pt]
-      (4.98,0.48) rectangle (6.05,1.28);
-    \node[font=\small\bfseries] at (5.52,1.10) {overflow};
-    \draw[BlueGray!65,line width=0.6pt,fill=white] (5.18,0.62) rectangle (5.86,0.92);
-    \node[font=\small\bfseries] at (5.52,0.77) {\(r_5,v\)};
-    \draw[-Latex,Gold!85!Ink,thick] (4.16,0.62) to[out=-50,in=180] (5.18,0.77);
+    \draw[cell,Gold!85!Ink,fill=Gold!25] (2.25,1.12) rectangle (2.92,1.58);
+    \node[font=\scriptsize\bfseries,text=Gold!60!Ink] at (2.585,1.35) {tp};
 
-    \node[font=\small\bfseries,text=BlueGray] at (-4.70,-0.06) {3. need more home space: push one tuple out};
-    \draw[CornellRed,line width=1.0pt,rounded corners=2pt]
-      (-5.88,-0.92) rectangle (-0.82,-0.26);
-    \draw[Gold!85!Ink,line width=0.85pt,fill=Gold!18]
-      (-5.88,-0.92) rectangle (-5.32,-0.26);
-    \node[font=\small\bfseries,rotate=90] at (-5.60,-0.59) {meta};
-    \foreach \xa/\xb/\lab/\col in {-5.20/-4.48/{\(r_1,v\)}/CornellRed,-4.36/-3.64/{\(r_2,v\)}/CornellRed,-3.52/-2.80/{\(r_3,v\)}/CornellRed,-2.68/-1.96/{\(r_4,v\)}/CornellRed,-1.84/-0.97/{tp}/Gold!85!Ink} {
-      \draw[Ink!72,line width=0.65pt] (\xa,-0.84) rectangle (\xb,-0.34);
-      \node[font=\small\bfseries,text=\col] at ({(\xa+\xb)/2},-0.59) {\lab};
+    % row 3: pointer space full, migrate a home tuple out
+    \node[stepnote,font=\normalsize\bfseries,text=Ink] at (-6.70,0.26) {3.\; No room at all?};
+    \node[stepnote,font=\small,text=BlueGray]          at (-6.70,-0.18) {migrate a home tuple out};
+    \draw[CornellRed,line width=1.0pt,rounded corners=2pt] (-2.85,-0.36) rectangle (3.00,0.26);
+    \draw[Gold!85!Ink,line width=0.8pt,fill=Gold!18] (-2.85,-0.36) rectangle (-2.30,0.26);
+    \node[font=\scriptsize\bfseries,rotate=90,text=Gold!60!Ink] at (-2.575,-0.05) {meta};
+    \foreach \a/\b/\lab in {-2.20/-1.15/{\(r_1,v\)}, -1.10/-0.05/{\(r_2,v\)}, 0.00/1.05/{\(r_3,v\)}} {
+      \draw[cell,CornellRed!70,fill=CornellRed!14] (\a,-0.28) rectangle (\b,0.18);
+      \node[font=\small,text=CornellRed] at ({(\a+\b)/2},-0.05) {\lab};
     }
-    \node[draw=CornellRed,fill=CornellRed!10,line width=0.8pt,rounded corners=2pt,
-          font=\small\bfseries] (incoming) at (-0.28,-0.59) {incoming};
-    \draw[-Latex,CornellRed,thick] (incoming.west) -- (-0.82,-0.59);
-    \draw[Ink,line width=0.85pt,fill=CornellGray!40,rounded corners=2pt]
-      (-5.15,-1.95) rectangle (-2.70,-1.16);
-    \node[font=\small\bfseries] at (-3.92,-1.32) {overflow table};
-    \draw[BlueGray!65,line width=0.6pt,fill=white] (-4.92,-1.82) rectangle (-4.12,-1.52);
-    \draw[BlueGray!65,line width=0.6pt,fill=white] (-3.92,-1.82) rectangle (-3.12,-1.52);
-    \node[font=\small\bfseries] at (-4.52,-1.67) {old};
-    \node[font=\small\bfseries] at (-3.52,-1.67) {new};
-    \draw[-Latex,CornellRed,thick] (-3.22,-0.92) to[out=-90,in=90] (-4.52,-1.52);
-    \node[align=center,font=\small\bfseries,text=CornellRed] at (-1.52,-1.55)
-      {convert a home tuple\\into a tiny pointer};
+    \draw[cell,Gold!85!Ink,fill=Gold!25] (1.10,-0.28) rectangle (2.15,0.18);
+    \node[font=\scriptsize\bfseries,text=Gold!60!Ink] at (1.625,-0.05) {tp\;\;tp};
+    \draw[cell,Gold!85!Ink,fill=Gold!25] (2.25,-0.28) rectangle (2.92,0.18);
+    \node[font=\scriptsize\bfseries,text=Gold!60!Ink] at (2.585,-0.05) {tp};
 
-    \node[font=\small\bfseries,text=BlueGray] at (2.65,-0.06) {4. resulting lookup shape};
-    \draw[CornellRed,line width=1.0pt,rounded corners=2pt]
-      (0.38,-0.92) rectangle (4.70,-0.26);
-    \draw[Gold!85!Ink,line width=0.85pt,fill=Gold!18]
-      (0.38,-0.92) rectangle (0.94,-0.26);
-    \node[font=\small\bfseries,rotate=90] at (0.66,-0.59) {meta};
-    \foreach \xa/\xb/\lab/\col in {1.06/1.78/{\(r_1,v\)}/CornellRed,1.90/2.62/{\(r_2,v\)}/CornellRed,2.74/3.46/{tp}/Gold!85!Ink,3.58/4.43/{tp}/Gold!85!Ink} {
-      \draw[Ink!72,line width=0.65pt] (\xa,-0.84) rectangle (\xb,-0.34);
-      \node[font=\small\bfseries,text=\col] at ({(\xa+\xb)/2},-0.59) {\lab};
+    % ---- the dereference table every tiny pointer lands in ---------------
+    \node[align=center,font=\normalsize\bfseries,text=Ink] at (5.30,3.30) {dereference\\table};
+    \draw[Ink,line width=0.9pt,fill=CornellGray!45,rounded corners=3pt]
+      (4.15,-0.42) rectangle (6.45,2.66);
+    \foreach \y/\lab in {2.32/{\(r,v\)}, 1.88/{}, 1.44/{\(r,v\)}, 1.00/{}, 0.56/{}, 0.12/{\(r,v\)}} {
+      \draw[cell,BlueGray!50,fill=white] (4.35,\y-0.17) rectangle (6.25,\y+0.17);
+      \node[font=\small,text=BlueGray] at (5.30,\y) {\lab};
     }
-    \draw[Ink,line width=0.85pt,fill=CornellGray!40,rounded corners=2pt]
-      (4.98,-1.95) rectangle (6.10,-0.98);
-    \node[font=\small\bfseries] at (5.54,-1.16) {overflow};
-    \draw[BlueGray!65,line width=0.6pt,fill=white] (5.18,-1.82) rectangle (5.90,-1.52);
-    \node[font=\small\bfseries] at (5.54,-1.67) {tuple};
-    \draw[-Latex,Gold!85!Ink,thick] (3.04,-0.92) to[out=-80,in=180] (5.18,-1.67);
-    \draw[-Latex,Gold!85!Ink,thick] (4.08,-0.92) to[out=-70,in=170] (5.18,-1.52);
-    \node[align=center,font=\small\bfseries,text=CornellRed] at (2.65,-2.03)
-      {tiny pointer targets one tuple;\\no iterative overflow chain};
+    \draw[flow,Gold!85!Ink] (2.92,1.35) to[out=0,in=180] (4.30,1.44);
+    \draw[flow,CornellRed] (1.62,-0.30) to[out=-40,in=180] (4.30,0.12);
+    \node[anchor=north,font=\small\bfseries,text=CornellRed] at (3.10,-0.36) {evicted tuple};
 
-    \node[draw=CornellRed,fill=white,line width=0.9pt,rounded corners=3pt,
-          align=center,text width=5.65cm,font=\small,inner sep=3pt] at (-1.25,-2.37)
-      {Safety story: \textbf{64B block}, \textbf{4 home tuple slots + 2 tiny-pointer slots}; overflow capacity is analyzed; queries average about \textbf{1.25 cache misses}.};
+    % ---- payoff ----------------------------------------------------------
+    \draw[BlueGray!30,line width=0.7pt] (-6.70,-0.92) -- (6.70,-0.92);
+    \node[font=\large] at (0,-1.34)
+      {One home block, then \keyterm{at most one} dereference --- never a chain.};
+    \node[font=\normalsize,text=BlueGray] at (0,-1.82)
+      {64\,B block \(\cdot\) up to 4 home tuples \(\cdot\) quotienting freed the bytes \(\cdot\) \(\approx1.25\) misses/query};
   \end{tikzpicture}
-  }
   \end{center}
   \note{This slide introduces Flattened-TPHT in a simplified way for the audience. We do not need to exactly follow every construction detail from the paper. The story is: each key bucket owns a cache-line home block. We append quotient-compressed tuples into the home block first. If we cannot append a full tuple, we store a tiny pointer to one tuple in the overflow table. Stress that this is not a linked list: the overflow tuple does not iteratively point to more overflow tuples. If more room is needed in the home block, we can push one existing tuple to the overflow table and replace it by a tiny pointer, which creates more space for new home-resident tuples or more tiny pointers. This works because quotienting shaved bytes off the stored keys. If the audience asks whether four home slots, two pointer slots, and the overflow table are enough, say that the paper analyzes these capacity questions and sizes the overflow pool using the spill tail; the slide gives the key numbers and the measured result that queries average about 1.25 cache misses.}
 \end{frame}
