@@ -1017,7 +1017,7 @@
   \column{0.63\textwidth}
     {\LARGE Whatever operation costs at most \keyterm{one hop}.}
 
-    \vspace{-0.10cm}
+    \vspace{-0.48cm}
     \begin{center}
     \begin{tikzpicture}[x=1cm,y=1cm,
         flow/.style={-{Latex[length=2.4mm,width=1.7mm]},line width=1.0pt},
@@ -1117,14 +1117,23 @@
     \end{center}
 
   \column{0.34\textwidth}
-    \vspace{1.30cm}
-    {\large One home block, then \keyterm{at most one} dereference --- never a chain.\par}
-    \vspace{0.34cm}
-    {\normalsize\color{BlueGray}
-      64\,B block\par
-      up to 4 home tuples\par
-      quotienting freed the bytes\par
-      \(\approx1.25\) misses/query\par}
+    \vspace{0.50cm}
+    {\Large\bfseries No pointer chasing\par}
+    \vspace{0.10cm}
+    {\large \textcolor{CornellRed}{\textbf{1.25}} memory accesses
+      per operation.\par}
+
+    \vspace{0.50cm}
+    {\Large\bfseries Migration is rare\par}
+    \vspace{0.10cm}
+    {\large A tuple migrates out with probability
+      \textcolor{CornellRed}{\textbf{5.1\%}}.\par}
+
+    \vspace{0.50cm}
+    {\Large\bfseries No hard overflow\par}
+    \vspace{0.10cm}
+    {\large Room for \textcolor{CornellRed}{\textbf{31}} pointers,
+      max load \textcolor{CornellRed}{\textbf{24}} w.h.p.\par}
   \end{columns}
   \note{This slide introduces Flattened-TPHT in a simplified way for the audience. We do not need to exactly follow every construction detail from the paper. The story is: each key bucket owns a cache-line home block. We append quotient-compressed tuples into the home block first. If we cannot append a full tuple, we store a tiny pointer to one tuple in the overflow table. Stress that this is not a linked list: the overflow tuple does not iteratively point to more overflow tuples. If more room is needed in the home block, we can push one existing tuple to the overflow table and replace it by a tiny pointer, which creates more space for new home-resident tuples or more tiny pointers. This works because quotienting shaved bytes off the stored keys. If the audience asks whether four home slots, two pointer slots, and the overflow table are enough, say that the paper analyzes these capacity questions and sizes the overflow pool using the spill tail; the slide gives the key numbers and the measured result that queries average about 1.25 cache misses.}
 \end{frame}
