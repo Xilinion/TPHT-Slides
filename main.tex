@@ -1213,8 +1213,8 @@
   \begin{columns}[T,onlytextwidth]
     \column{0.42\textwidth}
       \raggedright
-      {\Large\textbf{Throughput} \(=\)}\hspace{0.3em}%
-      {\normalsize\(\displaystyle\frac{\text{\# operations}}{\text{time}}\)}\par
+      \mbox{{\large\textbf{Throughput} \(=\)}\hspace{0.3em}%
+      {\footnotesize\(\displaystyle\frac{\text{\# operations}}{\text{time}}\)}}\par
       \vspace{0.24cm}
       \goalplot{\goalregionThroughput}\par
       \vspace{0.24cm}
@@ -1225,7 +1225,7 @@
       \raggedright
       {\Large \Flat is \keyterm{2.0\(\times\)} the fastest\par
         baseline on load, \keyterm{2.3\(\times\)} on run.\par}
-      \vspace{0.06cm}
+      \vspace{0.16cm}
       {\large \Chained stays competitive.\par}
 
       \vspace{0.10cm}
@@ -1234,14 +1234,14 @@
         \begin{axis}[
           ybar,
           width=\linewidth,
-          height=0.58\textheight,
+          height=0.50\textheight,
           ymin=0,
           ymax=545,
           ylabel={\textbf{Throughput} (M ops/s)},
           ylabel style={font=\large},
           symbolic x coords={Cuckoo,Iceberg,Junction,TBB,Chained,Flattened},
           xtick={Cuckoo,Iceberg,Junction,TBB,Chained,Flattened},
-          x tick label style={rotate=28,anchor=east,font=\normalsize},
+          x tick label style={rotate=28,anchor=center,xshift=-0.29cm,yshift=-0.55cm,font=\normalsize},
           y tick label style={font=\normalsize},
           legend style={draw=none,fill=none,at={(0.50,1.02)},anchor=south,legend columns=2,font=\large},
           bar width=10pt,
@@ -1282,8 +1282,8 @@
   \begin{columns}[T,onlytextwidth]
     \column{0.42\textwidth}
       \raggedright
-      {\Large\textbf{Space efficiency} \(=\)}\hspace{0.3em}%
-      {\normalsize\(\displaystyle\frac{\text{data size}}{\text{memory footprint}}\)}\par
+      \mbox{{\large\textbf{Space efficiency} \(=\)}\hspace{0.3em}%
+      {\footnotesize\(\displaystyle\frac{\text{data size}}{\text{memory footprint}}\)}}\par
       \vspace{0.24cm}
       \goalplot{\goalregionSpace}\par
       \vspace{0.24cm}
@@ -1302,14 +1302,14 @@
         \begin{axis}[
           ybar,
           width=\linewidth,
-          height=0.58\textheight,
+          height=0.54\textheight,
           ymin=0,
           ymax=132,
           ylabel={\textbf{Max Space}\\\textbf{Efficiency} (\%)},
           ylabel style={font=\large,align=center},
           symbolic x coords={TBB,Cuckoo,Junction,IcebergHT,Flattened,Chained},
           xtick={TBB,Cuckoo,Junction,IcebergHT,Flattened,Chained},
-          x tick label style={rotate=28,anchor=east,font=\normalsize},
+          x tick label style={rotate=28,anchor=center,xshift=-0.29cm,yshift=-0.55cm,font=\normalsize},
           y tick label style={font=\normalsize},
           nodes near coords={\pgfmathprintnumber[fixed,zerofill,precision=1]{\pgfplotspointmeta}},
           nodes near coords style={font=\large,anchor=south,inner sep=2pt},
@@ -1392,81 +1392,71 @@
 \end{frame}
 
 \begin{frame}{Summary}
-  \vspace{0.55cm}
   \begin{center}
-    {\LARGE\bfseries Tiny pointers buy space without costing speed.}
+  \begin{tikzpicture}[x=1cm,y=1cm]
+    \node[anchor=west,font=\LARGE\bfseries,text=CornellRed] at (0,0.46)  {Tiny pointers};
+    \node[anchor=west,font=\LARGE\bfseries,text=CornellRed] at (0,-0.46) {Quotienting};
+    \draw[decorate,decoration={brace,amplitude=8pt},line width=1pt,Ink]
+      (3.95,0.98) -- (3.95,-0.98);
+    \node[anchor=west,font=\LARGE] at (4.60,0)
+      {engineered into real hash tables.};
+  \end{tikzpicture}
   \end{center}
 
-  \vspace{0.85cm}
   \begin{columns}[T,onlytextwidth]
-    \column{0.33\textwidth}
-      \centering
-      {\Huge\color{CornellRed}\textbf{105.4\%}}\par
+    \column{0.49\textwidth}
+      {\LARGE\bfseries\Chained\par}
       \vspace{0.22cm}
-      {\large space efficiency\par}
-      \vspace{0.10cm}
-      {\large\bfseries\Chained\par}
-    \column{0.33\textwidth}
-      \centering
-      {\Huge\color{CornellRed}\textbf{2.3\(\times\)}}\par
+      {\Large first practical \keyterm{succinct} table\par
+        \vspace{0.12cm}
+        smaller than the raw data\par
+        \vspace{0.12cm}
+        \keyterm{constant-time} operations\par}
+    \column{0.49\textwidth}
+      {\LARGE\bfseries\Flat\par}
       \vspace{0.22cm}
-      {\large vs.\ fastest baseline\par}
-      \vspace{0.10cm}
-      {\large\bfseries\Flat\par}
-    \column{0.33\textwidth}
-      \centering
-      {\Huge\color{CornellRed}\textbf{83.4\%}}\par
-      \vspace{0.22cm}
-      {\large space efficiency\par}
-      \vspace{0.10cm}
-      {\large\bfseries\Flat\par}
+      {\Large cache-aware layout\par
+        \vspace{0.12cm}
+        typically \keyterm{one memory access}\par
+        \vspace{0.12cm}
+        beats every baseline on speed/space trade-offs\par}
   \end{columns}
-
-  \vspace{1.05cm}
-  \centering
-  {\large Succinct hashing ideas, engineered into practical concurrent hash tables.}
-  \note{Close the loop. One sentence: tiny pointers shrink the pointer, quotienting shrinks the key, and a cache-friendly layout keeps the operations cheap --- so we buy space without paying for it in speed. Then the three numbers: Chained-TPHT reaches 105.4 percent space efficiency, meaning it stores more payload than the memory it allocates; Flattened-TPHT is 2.3 times the fastest baseline on the YCSB run phases; and it does that while still at 83.4 percent space efficiency, higher than any baseline. The broader lesson for the room is that succinct data structure theory is not just theory --- it can be engineered into a concurrent hash table people can actually drop into their systems.}
+  \note{This is the paper's conclusion in one slide. Lead with the thesis: tiny pointers and key quotienting are two ideas that lived in the theory literature, and the contribution is engineering them into hash tables people can actually ship. Then the two designs and what each one is for. Chained-TPHT is, to our knowledge, the first practical succinct hash table --- it uses less space than the data itself while keeping constant-time operations, which is the part a theory audience will care about. Flattened-TPHT is the one to reach for if latency matters: the cache-aware layout keeps the common case to a single memory access, and it is still more space-efficient than every baseline we compared against. On the last line, spell out what ready for real systems means: both variants support deletions, they resize online without any stop-the-world pause, and they integrate cleanly with plain 64-bit keys and values. That is what makes this usable rather than a paper artifact. Numbers are on the previous slides if anyone asks.}
 \end{frame}
 
 \begin{frame}[plain]
   \titleband
-  \vspace{0.72cm}
-  \begin{center}
-    {\color{white}\Huge\bfseries Thank you.}\par
-    \vspace{0.14cm}
-    {\color{white}\Large Questions?}
-  \end{center}
+  \vspace{1.05cm}
+  \begin{columns}[c,onlytextwidth]
+    \column{0.58\textwidth}
+      \hspace{0.45cm}%
+      \begin{minipage}{\dimexpr\linewidth-0.45cm\relax}
+        {\color{white}\Huge\bfseries Thank you.}\par
+        \vspace{0.16cm}
+        {\color{white}\Large Questions?}\par
 
-  \vspace{0.42cm}
-  \begin{columns}[T,onlytextwidth]
-    \column{0.5\textwidth}
+        \vspace{0.85cm}
+        {\color{white}\large\bfseries Xilin Tang}\par
+        \vspace{0.08cm}
+        {\color{white}\normalsize Cornell University}\par
+        \vspace{0.08cm}
+        {\color{white}\normalsize\href{mailto:xilin@cs.cornell.edu}{\color{white}\texttt{xilin@cs.cornell.edu}}}\par
+        \vspace{0.30cm}
+        {\color{white}\normalsize Artifact:
+          \href{https://github.com/Xilinion/TinyPtr}{\color{white}\texttt{github.com/Xilinion/TinyPtr}}}
+      \end{minipage}
+
+    \column{0.42\textwidth}
       \centering
       \begin{tikzpicture}
-        \node[fill=white,rounded corners=4pt,inner sep=6pt]
-          {\href{https://github.com/Xilinion/TPHT}{\qrcode[height=2.25cm]{https://github.com/Xilinion/TPHT}}};
+        \node[fill=white,rounded corners=4pt,inner sep=7pt]
+          {\href{https://github.com/Xilinion/TPHT}{\qrcode[height=2.65cm]{https://github.com/Xilinion/TPHT}}};
       \end{tikzpicture}\par
-      \vspace{0.20cm}
-      {\color{white}\large\bfseries Library}\par
-      {\color{white}\normalsize drop-in hash table\par
-        \vspace{0.06cm}
-        \href{https://github.com/Xilinion/TPHT}{\color{white}\texttt{github.com/Xilinion/TPHT}}}
-    \column{0.5\textwidth}
-      \centering
-      \begin{tikzpicture}
-        \node[fill=white,rounded corners=4pt,inner sep=6pt]
-          {\href{https://github.com/Xilinion/TinyPtr}{\qrcode[height=2.25cm]{https://github.com/Xilinion/TinyPtr}}};
-      \end{tikzpicture}\par
-      \vspace{0.20cm}
-      {\color{white}\large\bfseries Artifact}\par
-      {\color{white}\normalsize code and experiments\par
-        \vspace{0.06cm}
-        \href{https://github.com/Xilinion/TinyPtr}{\color{white}\texttt{github.com/Xilinion/TinyPtr}}}
+      \vspace{0.24cm}
+      {\color{white}\large\bfseries Use the library}\par
+      \vspace{0.06cm}
+      {\color{white}\normalsize\href{https://github.com/Xilinion/TPHT}{\color{white}\texttt{github.com/Xilinion/TPHT}}}
   \end{columns}
-
-  \vspace{0.42cm}
-  \begin{center}
-    {\color{white}\normalsize Xilin Tang \quad Cornell University}
-  \end{center}
 \end{frame}
 
 \end{document}
