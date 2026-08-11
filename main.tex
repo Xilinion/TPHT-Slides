@@ -1,5 +1,28 @@
 \pdfminorversion=6
-\documentclass[aspectratio=169,10pt]{beamer}
+
+% =====================================================================
+%  COMPILATION MODE
+%
+%  Animated deck (overlays revealed step by step) -- this is the default.
+%
+%  Flat deck (every overlay collapsed, one page per slide) -- either
+%  comment out the \animateddeck line just below, or leave it alone and
+%  compile with
+%      pdflatex "\def\flatdeck{}\input{main}"
+%      latexmk -pdf -pdflatex="pdflatex %O \"\def\flatdeck{}\input{%S}\"" main
+%  (see `make flat` in the Makefile).
+%
+%  Either way the slide numbers in the footer stay 1/18 ... 18/18,
+%  because beamer counts frames rather than PDF pages.
+% =====================================================================
+\def\animateddeck{}
+\ifdefined\flatdeck\let\animateddeck\undefined\fi
+
+\ifdefined\animateddeck
+  \documentclass[aspectratio=169,10pt]{beamer}
+\else
+  \documentclass[handout,aspectratio=169,10pt]{beamer}
+\fi
 
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
@@ -12,6 +35,7 @@
 \usepackage{pgfplots}
 \usepackage{xspace}
 \usetikzlibrary{arrows.meta,calc,positioning,fit,decorations.pathreplacing,patterns}
+\usetikzlibrary{overlay-beamer-styles}   % gives `visible on=<...>` inside tikzpicture
 \pgfplotsset{compat=1.18}
 
 \definecolor{CornellRed}{HTML}{B31B1B}
@@ -204,17 +228,17 @@
     \node[draw=BlueGray,fill=white,rounded corners=2pt,minimum width=2.70cm,minimum height=0.42cm,font=\large] (bob) at (0,0.25) {\(\text{Bob}\mapsto 24\)};
     \node[draw=BlueGray,fill=white,rounded corners=2pt,minimum width=2.70cm,minimum height=0.42cm,font=\large] (carol) at (0,-0.32) {\(\text{Carol}\mapsto 42\)};
     \node[font=\LARGE\bfseries\color{BlueGray}] at (0,-0.78) {\(\cdots\)};
-    \node[draw=CornellRed,dashed,fill=white,rounded corners=2pt,minimum width=2.70cm,minimum height=0.42cm,font=\large] (dave) at (0,-1.20) {\(\text{Dave}\mapsto 19\)};
+    \node[draw=CornellRed,dashed,fill=white,rounded corners=2pt,minimum width=2.70cm,minimum height=0.42cm,font=\large,visible on=<2->] (dave) at (0,-1.20) {\(\text{Dave}\mapsto 19\)};
 
-    \node[draw=CornellRed,fill=CornellRed!7,rounded corners=2pt,minimum width=2.75cm,minimum height=0.55cm,font=\large] (insert) at (-6.15,1.22) {\apiop{\textbf{Insert}}{\text{Dave}, 19}};
-    \node[draw=Green,fill=Green!8,rounded corners=2pt,minimum width=2.75cm,minimum height=0.55cm,font=\large] (lookup) at (-6.15,0.05) {\apiop{\textbf{Lookup}}{\text{Bob}}};
-    \node[font=\Large\bfseries,Green!65!black] at (-6.15,-0.55) {return \(24\)};
-    \node[draw=Purple,fill=Purple!8,rounded corners=2pt,minimum width=2.75cm,minimum height=0.55cm,font=\large] (delete) at (-6.15,-1.36) {\apiop{\textbf{Delete}}{\text{Carol}}};
+    \node[draw=CornellRed,fill=CornellRed!7,rounded corners=2pt,minimum width=2.75cm,minimum height=0.55cm,font=\large,visible on=<2->] (insert) at (-6.15,1.22) {\apiop{\textbf{Insert}}{\text{Dave}, 19}};
+    \node[draw=Green,fill=Green!8,rounded corners=2pt,minimum width=2.75cm,minimum height=0.55cm,font=\large,visible on=<3->] (lookup) at (-6.15,0.05) {\apiop{\textbf{Lookup}}{\text{Bob}}};
+    \node[font=\Large\bfseries,Green!65!black,visible on=<3->] at (-6.15,-0.55) {return \(24\)};
+    \node[draw=Purple,fill=Purple!8,rounded corners=2pt,minimum width=2.75cm,minimum height=0.55cm,font=\large,visible on=<4->] (delete) at (-6.15,-1.36) {\apiop{\textbf{Delete}}{\text{Carol}}};
 
-    \draw[-Latex,CornellRed,line width=1.05pt] (insert.east) to[out=0,in=180] (dave.west);
-    \draw[-Latex,Green,line width=1.05pt] (lookup.east) to[out=0,in=180] (bob.west);
-    \draw[-Latex,Purple,line width=1.05pt] (delete.east) to[out=0,in=180] (carol.west);
-    \node[Purple,font=\LARGE\bfseries] at (1.55,-0.32) {\(\times\)};
+    \draw[-Latex,CornellRed,line width=1.05pt,visible on=<2->] (insert.east) to[out=0,in=180] (dave.west);
+    \draw[-Latex,Green,line width=1.05pt,visible on=<3->] (lookup.east) to[out=0,in=180] (bob.west);
+    \draw[-Latex,Purple,line width=1.05pt,visible on=<4->] (delete.east) to[out=0,in=180] (carol.west);
+    \node[Purple,font=\LARGE\bfseries,visible on=<4->] at (1.55,-0.32) {\(\times\)};
 
   \end{tikzpicture}
   \end{center}
@@ -284,6 +308,7 @@
     \vspace{-0.22cm}
     \begin{minipage}{\linewidth}
     \raggedright
+    \uncover<2->{%
     {\normalsize\bfseries Hashing dates to \keyterm{1953}}\par
     % \vspace{0.10cm}
     {\normalsize Expected \(O(1)\) operations}\par
@@ -294,11 +319,11 @@
     \(\left\{\begin{array}{l}
       \text{\textbf{speed}}\\[-1pt]
       \text{\textbf{space}}
-    \end{array}\right.\)}
+    \end{array}\right.\)}}
     \end{minipage}
 
     \vspace{0.38cm}
-    \noindent\begin{tikzpicture}[x=1cm,y=1cm]
+    \noindent\begin{tikzpicture}[x=1cm,y=1cm,visible on=<3->]
       \node[anchor=west,align=left,font=\LARGE\bfseries,inner sep=0pt] (theme) at (0,0.92)
         {Practical hash tables\\can still be even};
       \draw[decorate,decoration={brace,amplitude=5pt},line width=1pt,Ink]
@@ -326,37 +351,39 @@
       \vspace{0.04cm}
       \begin{center}
         \begin{tikzpicture}[x=0.58cm,y=0.52cm]
-          \fill[CornellRed!8] (6.95,0) rectangle (8.35,5.15);
-          \fill[CornellRed!8] (0,4.15) rectangle (8.35,5.15);
-          \fill[CornellRed!8]
+          \fill[CornellRed!8,visible on=<2->] (0,4.15) rectangle (8.35,5.15);
+          \fill[CornellRed!8,visible on=<3->] (6.95,0) rectangle (8.35,5.15);
+          \fill[CornellRed!8,visible on=<4->]
             (0.85,4.15) -- (6.95,4.15) -- (6.95,1.22)
             -- (5.2,1.95) -- (3.6,2.72) -- (2.0,3.42) -- cycle;
           \draw[-Latex,line width=0.9pt] (0,0) -- (8.45,0);
           \node[font=\large,anchor=north] at (4.22,-0.32) {space efficiency};
           \draw[-Latex,line width=0.9pt] (0,0) -- (0,5.25) node[above,font=\large] {throughput};
-          \draw[CornellRed,dashed,line width=0.9pt] (6.95,0) -- (6.95,5.05);
-          \draw[CornellRed,dashed,line width=0.9pt] (0,4.15) -- (8.25,4.15);
+          \draw[CornellRed,dashed,line width=0.9pt,visible on=<3->] (6.95,0) -- (6.95,5.05);
+          \draw[CornellRed,dashed,line width=0.9pt,visible on=<2->] (0,4.15) -- (8.25,4.15);
           \draw[BlueGray,line width=1.5pt] plot[smooth] coordinates {(0.85,4.15) (2.0,3.42) (3.6,2.72) (5.2,1.95) (6.95,1.22)};
           \node[BlueGray,anchor=west,font=\large] at (0.15,4.50) {fast, huge};
           \node[BlueGray,anchor=west,font=\large] at (4.08,0.92) {small, slow};
+          \begin{scope}[visible on=<5->]
           \fill[CornellRed] (7.25,4.1) circle (4.3pt);
           \node[align=left,anchor=west,font=\large] at (7.55,4.1) {\textbf{TPHT target}\\fast and small};
           \draw[CornellRed,very thick,-Latex] (5.15,2.7) -- (7.02,3.95);
+          \end{scope}
         \end{tikzpicture}
       \end{center}
 
     \column{0.39\textwidth}
       \vspace{0.08cm}
-      {\LARGE\bfseries Secret sauce:}\par
+      \uncover<6->{{\LARGE\bfseries Secret sauce:}\par}
       \vspace{0.12cm}
       \begin{enumerate}\Large
-        \item \keyterm{Tiny pointers}\\[-1pt]
+        \item<6-> \keyterm{Tiny pointers}\\[-1pt]
           {\Large compress the \textbf{pointer}}
           \vspace{0.12cm}
-        \item \keyterm{Quotienting}\\[-1pt]
+        \item<6-> \keyterm{Quotienting}\\[-1pt]
           {\Large compress the \textbf{key}}
           \vspace{0.12cm}
-        \item \keyterm{Cache-friendly layout}\\[-1pt]
+        \item<6-> \keyterm{Cache-friendly layout}\\[-1pt]
           {\Large compress the \textbf{execution time}}
       \end{enumerate}
   \end{columns}
@@ -376,17 +403,17 @@
     % Keep the diagram independent of the prose column.
     \path[use as bounding box] (-6.08,-1.40) rectangle (1.80,2.38);
 
-    \node[anchor=south west,align=left,inner sep=0pt,font=\small,text=BlueGray]
+    \node[anchor=south west,align=left,inner sep=0pt,font=\small,text=BlueGray,visible on=<2->]
       at (-5.96,1.92) {Bob: owner\\Carol: object};
-    \node[draw=CornellRed,fill=CornellRed!7,rounded corners=2pt,
+    \node[draw=CornellRed,fill=CornellRed!7,rounded corners=2pt,visible on=<2->,
           anchor=west,minimum width=3.25cm,minimum height=0.52cm,font=\normalsize\bfseries] (alloc) at (-6.00,1.55)
       {\apiop{Alloc}{\text{Bob}, \text{Carol}}};
-    \node[font=\large\bfseries,CornellRed] at (-4.37,0.90) {return \(p_2\)};
-    \node[draw=Green,fill=Green!8,rounded corners=2pt,
+    \node[font=\large\bfseries,CornellRed,visible on=<2->] at (-4.37,0.90) {return \(p_2\)};
+    \node[draw=Green,fill=Green!8,rounded corners=2pt,visible on=<3->,
           anchor=west,minimum width=3.25cm,minimum height=0.52cm,font=\normalsize\bfseries] (deref) at (-6.00,0.25)
       {\apiop{Deref}{\text{Alice}, p_1}};
-    \node[font=\large\bfseries,Green!65!black] at (-4.37,-0.40) {return Bob};
-    \node[draw=Purple,fill=Purple!8,rounded corners=2pt,
+    \node[font=\large\bfseries,Green!65!black,visible on=<3->] at (-4.37,-0.40) {return Bob};
+    \node[draw=Purple,fill=Purple!8,rounded corners=2pt,visible on=<4->,
           anchor=west,minimum width=3.25cm,minimum height=0.52cm,font=\normalsize\bfseries] (free) at (-6.00,-1.05)
       {\apiop{Free}{\text{owner}, p}};
 
@@ -394,45 +421,55 @@
       (-1.25,-1.02) rectangle (1.75,2.15);
     \node[anchor=north west,font=\large\bfseries] at (-1.05,2.02) {Linked list};
 
-    \draw[Green,line width=0.9pt,rounded corners=2pt,fill=Green!6]
+    % Alice's node: plain until Deref walks through it
+    \draw[line width=0.9pt,rounded corners=2pt,
+          alt=<3->{Green,fill=Green!6}{Ink!55,fill=white}]
       (-0.90,0.97) rectangle (1.40,1.43);
-    \draw[Green,line width=0.7pt] (0.60,0.97) -- (0.60,1.43);
-    \node[Green,font=\normalsize\bfseries] (aobj) at (-0.15,1.20) {Alice};
-    \node[Green,font=\normalsize\bfseries] (aptr) at (1.00,1.20) {\(p_1\)};
+    \draw[line width=0.7pt,alt=<3->{Green}{Ink!55}] (0.60,0.97) -- (0.60,1.43);
+    \node[font=\normalsize\bfseries,alt=<3->{text=Green}{text=Ink}] (aobj) at (-0.15,1.20) {Alice};
+    \node[font=\normalsize\bfseries,alt=<3->{text=Green}{text=Ink}] (aptr) at (1.00,1.20) {\(p_1\)};
 
-    \draw[Ink,line width=0.9pt,rounded corners=2pt,fill=Green!8]
+    % Bob's node: the pointer field starts as a NULL placeholder, and Alloc
+    % is what turns it into p_2
+    \draw[line width=0.9pt,rounded corners=2pt,
+          alt=<3->{Ink,fill=Green!8}{Ink!55,fill=white}]
       (-0.90,0.05) rectangle (0.60,0.51);
-    \draw[CornellRed,dashed,line width=0.9pt,rounded corners=2pt,fill=CornellRed!7]
+    \draw[line width=0.9pt,rounded corners=2pt,
+          alt=<2->{CornellRed,dashed,fill=CornellRed!7}{Ink!55,fill=white}]
       (0.60,0.05) rectangle (1.40,0.51);
-    \node[Green,font=\normalsize\bfseries] (bobj) at (-0.15,0.28) {Bob};
-    \node[CornellRed,font=\normalsize\bfseries] (bptr) at (1.00,0.28) {\(p_2\)};
+    \node[font=\normalsize\bfseries,alt=<3->{text=Green}{text=Ink}] (bobj) at (-0.15,0.28) {Bob};
+    \node[font=\normalsize\bfseries,alt=<2->{text=CornellRed}{text=BlueGray!75}] (bptr) at (1.00,0.28)
+      {\alt<2->{\(p_2\)}{\(\bot\)}};
 
+    \begin{scope}[visible on=<2->]
     \draw[CornellRed,dashed,line width=0.9pt,rounded corners=2pt,fill=CornellRed!7]
       (-0.90,-0.87) rectangle (1.40,-0.41);
     \draw[CornellRed,dashed,line width=0.7pt] (0.60,-0.87) -- (0.60,-0.41);
     \node[CornellRed,font=\normalsize\bfseries] (cobj) at (-0.15,-0.64) {Carol};
     \node[CornellRed,font=\normalsize\bfseries] (cptr) at (1.00,-0.64) {\(\bot\)};
+    \end{scope}
 
-    \draw[-{Latex[length=2.15mm,width=1.55mm]},Green,line width=0.95pt]
+    \draw[-{Latex[length=2.15mm,width=1.55mm]},line width=0.95pt,
+          alt=<3->{Green}{Ink!55}]
       (1.00,0.97) -- (1.00,0.53);
-    \draw[-{Latex[length=2.15mm,width=1.55mm]},CornellRed,dashed,line width=0.95pt]
+    \draw[-{Latex[length=2.15mm,width=1.55mm]},CornellRed,dashed,line width=0.95pt,visible on=<2->]
       (1.00,0.05) -- (1.00,-0.39);
 
     \coordinate (bobwest) at (-0.90,0.28);
     \coordinate (carolwest) at (-0.90,-0.64);
-    \draw[-Latex,Green,line width=1.0pt] (deref.east) to[out=0,in=180] (bobwest);
-    \draw[-Latex,CornellRed,line width=1.0pt] (alloc.east) to[out=0,in=180] (carolwest);
+    \draw[-Latex,Green,line width=1.0pt,visible on=<3->] (deref.east) to[out=0,in=180] (bobwest);
+    \draw[-Latex,CornellRed,line width=1.0pt,visible on=<2->] (alloc.east) to[out=0,in=180] (carolwest);
   \end{tikzpicture}
   \end{column}
   \begin{column}{0.36\textwidth}
     \vspace{0.27cm}
     \raggedright
-    {\normalsize
-      \(p_1\) and \(p_2\) may store the \textbf{same} bits; different owners decode different targets.\par}
+    \uncover<4->{{\normalsize
+      \(p_1\) and \(p_2\) may store the \textbf{same} bits; different owners decode different targets.\par}}
 
     \vspace{0.44cm}
-    {\Large\color{CornellRed}
-      Pointers can be \textbf{shorter}, because the \textbf{owner} supplies the missing context.\par}
+    \uncover<5->{{\Large\color{CornellRed}
+      Pointers can be \textbf{shorter}, because the \textbf{owner} supplies the missing context.\par}}
   \end{column}
   \end{columns}
 \end{frame}
@@ -449,30 +486,43 @@
       flow/.style={-{Latex[length=2.4mm,width=1.7mm]},line width=1.0pt},
       fieldbrace/.style={decorate,decoration={brace,amplitude=3.5pt,raise=2.5pt},line width=0.7pt}]
 
-    % --- API call and the tiny pointer it returns -------------------------
+    % --- step 1: the API call, step 2: the tiny pointer it returns --------
+    \begin{scope}[visible on=<1->]
     \node[anchor=east,align=left,inner sep=0pt,font=\small,text=BlueGray]
       at (0.02,3.40) {A: owner\\B: object};
     \node[draw=CornellRed,fill=CornellRed!7,rounded corners=2pt,
           anchor=west,minimum width=2.75cm,minimum height=0.52cm,font=\large\bfseries]
           (api) at (0.20,3.40) {\apiop{Alloc}{\text{A}, \text{B}}};
-    \node[font=\large\bfseries,CornellRed,anchor=west] at (3.15,3.40) {return \(p\)};
+    \end{scope}
+    \node[font=\large\bfseries,CornellRed,anchor=west,visible on=<2->] at (3.15,3.40) {return \(p\)};
+    % step 5: the direction bit -------------------------------------------
+    \begin{scope}[visible on=<5->]
     \node[draw=Green,fill=Green!10,line width=1.0pt,rounded corners=2pt,
           minimum width=0.70cm,minimum height=0.50cm,font=\normalsize\bfseries,text=Green]
           (dirbit) at (5.40,3.40) {1};
+    \draw[fieldbrace,Green] (dirbit.north west) -- (dirbit.north east)
+      node[midway,above=8pt,xshift=-0.78cm,align=center,font=\small\bfseries,text=Green] {direction bit};
+    \end{scope}
+    % step 6: the offset field ---------------------------------------------
+    \begin{scope}[visible on=<6->]
     \node[draw=Purple,fill=Purple!10,line width=1.0pt,rounded corners=2pt,
           minimum width=2.00cm,minimum height=0.50cm,font=\normalsize\bfseries,text=Purple]
           (offsetbits) at (6.85,3.40) {00000010};
-    \draw[fieldbrace,Green] (dirbit.north west) -- (dirbit.north east)
-      node[midway,above=8pt,xshift=-0.78cm,align=center,font=\small\bfseries,text=Green] {direction bit};
     \draw[fieldbrace,Purple] (offsetbits.north west) -- (offsetbits.north east)
       node[midway,above=8pt,align=center,font=\small\bfseries,text=Purple] {7-bit offset};
+    \end{scope}
 
-    % --- Bins -------------------------------------------------------------
+    % --- Bins: appear plain on step 3, get coloured on step 4 -------------
+    \begin{scope}[visible on=<3->]
     \foreach \x in {1.15,2.30,5.95,7.10} {
       \draw[Ink,line width=0.75pt,rounded corners=1pt,fill=white] ({\x-0.37},-0.50) rectangle +(0.74,2.40);
     }
-    \draw[BlueGray,line width=0.95pt,rounded corners=1pt,fill=BlueGray!5] (-0.37,-0.50) rectangle +(0.74,2.40);
-    \draw[Green,line width=1.05pt,rounded corners=1pt,fill=Green!4] (4.43,-0.50) rectangle +(0.74,2.40);
+    \draw[rounded corners=1pt,alt=<4->{BlueGray,line width=0.95pt,fill=BlueGray!5}%
+                                       {Ink,line width=0.75pt,fill=white}]
+      (-0.37,-0.50) rectangle +(0.74,2.40);
+    \draw[rounded corners=1pt,alt=<4->{Green,line width=1.05pt,fill=Green!4}%
+                                       {Ink,line width=0.75pt,fill=white}]
+      (4.43,-0.50) rectangle +(0.74,2.40);
 
     \slotball{0.00}{1.62}{1}
     \slotball{0.00}{1.34}{1}
@@ -496,7 +546,8 @@
     \slotball{2.30}{-0.22}{0}
 
     \slotball{4.80}{1.62}{0}
-    \draw[Purple,line width=1.0pt,fill=Purple!18] (4.80,1.34) circle (3.15pt);
+    \begin{scope}[visible on=<3-5>]\slotball{4.80}{1.34}{0}\end{scope}
+    \draw[Purple,line width=1.0pt,fill=Purple!18,visible on=<6->] (4.80,1.34) circle (3.15pt);
     \coordinate (slot) at (4.80,1.34);
     \slotball{4.80}{1.06}{1}
     \node[font=\LARGE\bfseries] at (4.80,0.56) {\(\vdots\)};
@@ -518,42 +569,46 @@
     \slotball{7.10}{-0.22}{0}
 
     \node[font=\LARGE\bfseries,BlueGray] at (3.55,1.50) {\(\cdots\)};
-    \node[anchor=east,align=right,font=\small\bf,text=Green] at (4.34,0.42) {fewer\\occupied\\bin};
 
     \draw[decorate,decoration={brace,mirror,amplitude=4pt},Ink!60,line width=0.8pt]
       (-0.56,1.90) -- (-0.56,-0.50);
     \node[anchor=east,align=right,font=\small,text=Ink!60] at (-0.72,0.70) {128\\slots\\per bin};
+    \end{scope}
+    \node[anchor=east,align=right,font=\small\bf,text=Green,visible on=<5->]
+      at (4.34,0.42) {fewer\\occupied\\bin};
 
-    % --- Which bin (green) and which slot (purple) ------------------------
+    % --- step 4: the two hash functions pick the bin and the slot ---------
+    \begin{scope}[visible on=<4->]
     \draw[flow,BlueGray] (api.south) .. controls (1.20,2.90) and (0.30,2.55) ..
       node[pos=0.52,fill=white,inner sep=1.6pt,font=\normalsize\bfseries] {\(h_0(\text{A})\)}
       (0.00,1.96);
     \draw[flow,Green] (api.south) .. controls (2.20,2.85) and (3.55,2.05) ..
       node[pos=0.52,fill=white,inner sep=1.6pt,font=\normalsize\bfseries] (h1) {\(h_1(\text{A})\)}
       (4.40,1.64);
-    \draw[flow,Green] (h1.north east) to[out=22,in=-118] (dirbit.south);
-    \draw[flow,Purple] (slot) to[out=55,in=-115] (offsetbits.south);
+    \end{scope}
+    \draw[flow,Green,visible on=<5->] (h1.north east) to[out=22,in=-118] (dirbit.south);
+    \draw[flow,Purple,visible on=<6->] (slot) to[out=55,in=-115] (offsetbits.south);
   \end{tikzpicture}
   \end{column}
 
   \begin{column}{0.28\textwidth}
     \vspace{0.50cm}
     \raggedright
-    {\Large\keyterm{Dynamic allocator}\par}
+    \uncover<7->{{\Large\keyterm{Dynamic allocator}\par}
     \vspace{0.14cm}
     {\large Insert, delete, or look up freely, as long as the load factor stays
-     below \textcolor{CornellRed}{\textbf{95\%}}\textsuperscript{*}.\par}
+     below \textcolor{CornellRed}{\textbf{95\%}}\textsuperscript{*}.\par}}
     \vspace{0.55cm}
     \centering
-    \begin{tikzpicture}
+    \uncover<8->{\begin{tikzpicture}
       \node[draw=Gold,fill=Gold!22,line width=2.4pt,rounded corners=7pt,
             inner xsep=11pt,inner ysep=6pt,font=\LARGE\bfseries,text=Ink,rotate=4] {Magic!};
-    \end{tikzpicture}
+    \end{tikzpicture}}
   \end{column}
   \end{columns}
 
   \vspace{0.10cm}
-  {\footnotesize\textsuperscript{*}No strict theoretical promise; empirically supports \(\mathrm{poly}(n)\) operations for \(n<2^{64}\).}
+  \uncover<7->{\footnotesize\textsuperscript{*}No strict theoretical promise; empirically supports \(\mathrm{poly}(n)\) operations for \(n<2^{64}\).}
 \end{frame}
 
 \begin{frame}{Ingredient 2: Quotienting}
@@ -561,7 +616,7 @@
   {\Large \keyterm{Quotienting} reduces the bits needed to represent a \textbf{key set} by \textbf{partitioning} it.}
 
   \vspace{0.26cm}
-  {\Large Insight: the \textbf{location of a partition} already encodes part of the information.}
+  \uncover<3->{\Large Insight: the \textbf{location of a partition} already encodes part of the information.}
 
   \vspace{0.16cm}
   \begin{columns}[T,onlytextwidth]
@@ -573,43 +628,55 @@
 
     % --- the 6-bit key, split into quotient and remainder -----------------
     \node[anchor=east,align=right,font=\large\bfseries] at (-5.72,1.76) {6-bit\\key};
+    % step 1: just a key.  step 2: split into quotient and remainder.
+    \draw[Ink!60,line width=1.25pt,rounded corners=2pt,fill=white,visible on=<1>]
+      (-5.60,1.72) rectangle (-2.89,2.24);
+    \begin{scope}[visible on=<2->]
     \draw[CornellRed,line width=1.25pt,rounded corners=2pt,fill=CornellRed!12]
       (-5.60,1.72) rectangle (-4.66,2.24);
     \draw[Purple,line width=1.25pt,rounded corners=2pt,fill=Purple!10]
       (-4.62,1.72) rectangle (-2.89,2.24);
+    \end{scope}
     \foreach \b/\x in {1/-5.32,0/-4.88,1/-4.44,1/-4.00,0/-3.56,1/-3.12} {
       \node[font=\large\bfseries\ttfamily,inner sep=1.0pt] at (\x,1.98) {\b};
     }
-    \draw[fieldbrace,CornellRed] (-5.90,2.24) -- (-4.66,2.24)
-      node[midway,above=8pt,xshift=-0.45cm,font=\large\bfseries,text height=1.6ex,text depth=0.5ex,text=CornellRed] {quotient \(q\)};
+    \begin{scope}[visible on=<2->]
+    \draw[fieldbrace,CornellRed] (-5.60,2.24) -- (-4.66,2.24)
+      node[midway,above=8pt,xshift=-0.60cm,font=\large\bfseries,text height=1.6ex,text depth=0.5ex,text=CornellRed] {quotient \(q\)};
     \draw[fieldbrace,Purple] (-4.62,2.24) -- (-2.89,2.24)
       node[midway,above=8pt,xshift=0.25cm,font=\large\bfseries,text height=1.6ex,text depth=0.5ex,text=Purple] {remainder \(r\)};
+    \end{scope}
 
     % --- the partition array ---------------------------------------------
+    \begin{scope}[visible on=<3->]
     \draw[Ink,line width=0.9pt,rounded corners=3pt,fill=CornellGray!60] (-1.95,-0.18) rectangle (2.18,3.20);
     \node[anchor=north west,font=\large\bfseries] at (-1.78,3.12) {4 Partitions};
     \foreach \q/\y in {00/2.16,01/1.52,10/0.88,11/0.24} {
       \draw[BlueGray!50,line width=0.7pt,fill=white,rounded corners=1pt] (-1.73,\y-0.29) rectangle (1.95,\y+0.29);
       \node[anchor=west,font=\normalsize\bfseries,text=BlueGray] at (-1.52,\y) {partition \(\q\)};
     }
-    \draw[CornellRed,line width=1.25pt,rounded corners=1pt] (-1.73,0.59) rectangle (1.95,1.17);
+    \end{scope}
+    \draw[CornellRed,line width=1.25pt,rounded corners=1pt,visible on=<4->] (-1.73,0.59) rectangle (1.95,1.17);
+    \begin{scope}[visible on=<3->]
     \node[font=\LARGE\bfseries,BlueGray] at (1.22,2.16) {\(\cdots\)};
     \node[font=\LARGE\bfseries,BlueGray] at (1.22,1.52) {\(\cdots\)};
     \node[font=\LARGE\bfseries,BlueGray] at (1.22,0.24) {\(\cdots\)};
-    \node[draw=Purple,fill=Purple!9,line width=1.0pt,rounded corners=2pt,text=Purple,
+    \end{scope}
+    \node[draw=Purple,fill=Purple!9,line width=1.0pt,rounded corners=2pt,text=Purple,visible on=<5->,
           minimum width=1.05cm,minimum height=0.32cm,font=\large\bfseries] (stored) at (1.22,0.88) {1101};
-    \node[draw=Gold,fill=Gold!20,line width=1.0pt,rounded corners=3pt,
+    \node[draw=Gold,fill=Gold!20,line width=1.0pt,rounded corners=3pt,visible on=<6->,
           inner sep=3.5pt,font=\Large\bfseries,rotate=4] at (1.05,-0.62) {only \textcolor{red}{4} bits stored!};
 
     % --- quotient selects the partition; remainder is what gets stored ----
-    \draw[flow,CornellRed] (-5.13,1.72) .. controls (-5.30,0.95) and (-3.70,0.62) .. (-1.98,0.88);
-    \draw[flow,Purple,rounded corners=10pt]
+    \draw[flow,CornellRed,visible on=<4->] (-5.13,1.72) .. controls (-5.30,0.95) and (-3.70,0.62) .. (-1.98,0.88);
+    \draw[flow,Purple,rounded corners=10pt,visible on=<5->]
       (-2.89,1.98) -- (-2.32,2.58) -- (0.80,2.58) -- (0.80,1.10);
   \end{tikzpicture}
   \end{column}
 
   \begin{column}{0.26\textwidth}
-    \raggedright\large 
+    \raggedright\large
+    \uncover<7->{%
     {For a \textbf{\(w\)-bit key} \(k\) and \textbf{\(2^\ell\) partitions},\par}
     \vspace{0.20cm}
     \(\begin{aligned}
@@ -617,7 +684,7 @@
        r&=k\bmod 2^{w-\ell},\\
        k&=q\cdot 2^{w-\ell}+r,\\
         &=q\circ r.
-     \end{aligned}\)
+     \end{aligned}\)}
   \end{column}
   \end{columns}
   \note{For the talk track: We split the key into two parts. We call the prefix the quotient, and we call the remaining bits the remainder. Since the quotient decides which partition the key belongs to, the partition location itself already remembers those quotient bits; inside the partition we only store the remainder.}
@@ -640,6 +707,8 @@
     \node[draw=CornellRed,fill=CornellRed!7,rounded corners=2pt,line width=1.0pt,
           minimum width=2.05cm,minimum height=0.52cm,font=\Large\bfseries]
           (insert) at (-4.95,4.79) {\apiop{Insert}{k,v}};
+    % the key split only shows up once the two arrays are on screen
+    \begin{scope}[visible on=<3->]
     \draw[flow,Ink] (-4.95,4.53) -- (-4.95,4.10);
 
     \node[inner sep=0pt,font=\Large\bfseries] at (-6.25,3.85) {\(k\)};
@@ -650,7 +719,9 @@
     \draw[Purple,line width=1.15pt,rounded corners=2pt,fill=Purple!10]
       (-4.78,3.59) rectangle (-3.48,4.11);
     \node[font=\Large\bfseries,text=Purple] at (-4.13,3.85) {\(r\)};
+    \end{scope}
 
+    \begin{scope}[visible on=<2->]
     \draw[Ink,line width=0.9pt,rounded corners=4pt,fill=CornellGray!55]
       (-6.60,1.35) rectangle (-3.30,2.65);
     \node[anchor=north west,inner sep=0pt,font=\large\bfseries] at (-6.52,2.58) {Head Array};
@@ -659,23 +730,35 @@
         (\c-0.25,1.55) rectangle (\c+0.25,2.10);
       \node[font=\normalsize\bfseries,text=Green] at (\c,1.825) {\(\p\)};
     }
+    \node[anchor=north west,align=left,inner sep=0pt,font=\small,text=BlueGray] at (-6.60,1.18)
+      {one pointer\\[-2pt]per chain};
+    \end{scope}
+    % the q-th cell is just another cell until quotienting singles it out
+    \begin{scope}[visible on=<2-3>]
+    \draw[BlueGray!55,line width=0.7pt,fill=white,rounded corners=1pt]
+      (-4.64,1.55) rectangle (-4.14,2.10);
+    \node[font=\normalsize\bfseries,text=Green] at (-4.39,1.825) {\(\cdots\)};
+    \end{scope}
+    \begin{scope}[visible on=<4->]
     \draw[CornellRed,line width=1.15pt,fill=CornellRed!8,rounded corners=1pt]
       (-4.64,1.55) rectangle (-4.14,2.10);
     \node[font=\normalsize\bfseries,text=Green] at (-4.39,1.825) {\(p_{\textcolor{CornellRed}{q}}\)};
-    \node[anchor=north west,align=left,inner sep=0pt,font=\small,text=BlueGray] at (-6.60,1.18)
-      {one pointer\\[-2pt]per chain};
-    % address tag: corner flag inside the cell, then an axis-aligned leader
-    \fill[BlueGray] (-4.14,1.55) -- (-4.32,1.55) -- (-4.14,1.70) -- cycle;
-    \draw[tag,BlueGray] (-4.14,1.55) -- (-4.14,1.18) -- (-3.06,1.18);
-    \node[anchor=west,font=\small,text=BlueGray] at (-3.02,1.18) {address \(A_{\textcolor{CornellRed}{q}}\)};
     % the quotienting arrow is drawn last on the left so the frame cannot clip it
     \draw[flow,CornellRed] (-5.18,3.59)
       .. controls (-5.08,3.20) and (-3.78,3.16) .. (-3.78,2.66)
       .. controls (-3.78,2.37) and (-4.16,2.30) .. (-4.28,2.14);
     \node[fill=white,inner sep=1.8pt,font=\large,text=CornellRed] at (-4.86,3.10)
       {quotienting\textsuperscript{\dag}};
+    \end{scope}
+    % the address marker is what Deref needs, so it arrives with the call
+    \begin{scope}[visible on=<5->]
+    \fill[BlueGray] (-4.14,1.55) -- (-4.32,1.55) -- (-4.14,1.70) -- cycle;
+    \draw[tag,BlueGray] (-4.14,1.55) -- (-4.14,1.18) -- (-3.06,1.18);
+    \node[anchor=west,font=\small,text=BlueGray] at (-3.02,1.18) {address \(A_{\textcolor{CornellRed}{q}}\)};
+    \end{scope}
 
     % =========== right column, top: the dereference table =================
+    \begin{scope}[visible on=<2->]
     \draw[Ink,line width=0.9pt,rounded corners=4pt,fill=CornellGray!55]
       (0.20,2.55) rectangle (5.40,5.05);
     \node[anchor=north west,font=\large\bfseries] at (0.35,5.00) {Dereference Table};
@@ -693,13 +776,19 @@
     }
     \node[anchor=west,align=left,font=\small,text=BlueGray] at (5.55,3.65)
       {each\\column\\is a bin};
+    \end{scope}
     % the occupied slot we reach, and the free slot the insert takes
+    \begin{scope}[visible on=<5->]
     \fill[Ink] (0.90,3.84) circle (2.35pt);
     \draw[Green,line width=1.1pt] (0.90,3.84) circle (4.4pt);
+    \end{scope}
+    \begin{scope}[visible on=<7->]
     \draw[CornellRed,line width=1.1pt,fill=CornellRed!18] (1.90,3.10) circle (3.15pt);
     \draw[thinflow,CornellRed] (1.05,3.80) to[out=10,in=120] (1.76,3.21);
+    \end{scope}
 
     % =========== the dereference call rides on its own arrow ==============
+    \begin{scope}[visible on=<5->]
     \draw[flow,Green] (-4.14,1.825)
       .. controls (-3.52,1.825) and (-3.52,3.84) .. (-2.90,3.84)
       -- (0.75,3.84);
@@ -711,23 +800,30 @@
     \draw[argbrace,BlueGray] (darg.south west) -- (darg.south east);
     \node[anchor=north,align=center,font=\small\bf,text=BlueGray] at ($(darg.south)+(0,-0.14)$)
       {owner:\\the cell's\\address};
+    \end{scope}
 
     % =========== right column, bottom: zoom on the two slots ==============
+    % the first hop, whose pointer field is still NULL
+    \begin{scope}[visible on=<6->]
     \draw[zoomline] (0.84,3.76) -- (-0.30,1.70);
     \draw[zoomline] (0.96,3.76) -- (1.80,1.70);
-    \draw[zoomline] (1.84,3.02) -- (4.55,1.70);
-    \draw[zoomline] (1.96,3.02) -- (6.40,1.70);
-
     \draw[Ink!75,line width=1.0pt,rounded corners=2pt,fill=white]
       (-0.30,1.10) rectangle (1.80,1.70);
     \draw[Ink!35,line width=0.7pt] (0.40,1.10) -- (0.40,1.70);
-    % the pointer field is the part the insert just wrote, so it is dashed
-    \draw[CornellRed,dashed,dash pattern=on 2.2pt off 1.8pt,line width=1.0pt,rounded corners=2pt,
-          fill=CornellRed!7] (1.10,1.10) rectangle (1.80,1.70);
     \node[font=\normalsize\bfseries] at (0.05,1.40) {\(r_{*}\)};
     \node[font=\normalsize\bfseries] at (0.75,1.40) {\(v_{*}\)};
-    \node[font=\normalsize\bfseries,text=CornellRed] at (1.45,1.40) {\(p\)};
     \node[anchor=north west,inner sep=0pt,font=\small\bfseries] at (-0.30,0.99) {first hop};
+    \end{scope}
+    % Alloc turns that NULL into the tiny pointer p
+    \draw[line width=1.0pt,rounded corners=2pt,visible on=<6->,
+          alt=<7->{CornellRed,dashed,dash pattern=on 2.2pt off 1.8pt,fill=CornellRed!7}%
+                  {Ink!45,fill=white}] (1.10,1.10) rectangle (1.80,1.70);
+    \node[font=\normalsize\bfseries,visible on=<6->,
+          alt=<7->{text=CornellRed}{text=BlueGray!75}] at (1.45,1.40)
+      {\alt<7->{\(p\)}{\(\bot\)}};
+    \begin{scope}[visible on=<7->]
+    \draw[zoomline] (1.84,3.02) -- (4.55,1.70);
+    \draw[zoomline] (1.96,3.02) -- (6.40,1.70);
     \fill[BlueGray] (1.80,1.10) -- (1.62,1.10) -- (1.80,1.25) -- cycle;
     \draw[tag,BlueGray] (1.80,1.10) -- (1.80,0.72) -- (2.12,0.72);
     \node[anchor=west,font=\small,text=BlueGray] at (2.16,0.72) {address \(A_{*}\)};
@@ -746,6 +842,7 @@
     \draw[flow,CornellRed] (1.80,1.40) -- (4.51,1.40);
     \node[fill=white,inner sep=1.8pt,font=\Large\bfseries,text=CornellRed]
       at (3.175,1.8) {\apiop{Alloc}{A_{*}}};
+    \end{scope}
   \end{tikzpicture}
   \end{center}
   \vspace{0.06cm}
@@ -772,17 +869,17 @@
       \end{enumerate}
       \vspace{0.34cm}
       \centering
-      \begin{tikzpicture}
+      \uncover<2->{\begin{tikzpicture}
         \node[draw=Gold,fill=Gold!22,line width=2.0pt,rounded corners=6pt,
               inner xsep=9pt,inner ysep=5pt,font=\Large\bfseries,text=Ink,rotate=4]
               {Still not fast enough!};
-      \end{tikzpicture}
+      \end{tikzpicture}}
 
     \column{0.50\textwidth}
-      {\LARGE\bfseries Opportunity 1:}\par
+      \uncover<3->{{\LARGE\bfseries Opportunity 1:}\par}
       \vspace{-0.06cm}
       \begin{itemize}\Large
-        \item \textbf{First Pointer Indirection}
+        \item<3-> \textbf{First Pointer Indirection}
       \end{itemize}
       \vspace{-0.16cm}
       \begin{center}
@@ -802,19 +899,20 @@
           tag/.style={anchor=north west,font=\normalsize,text=BlueGray}]
 
         % ===================== BEFORE =====================================
+        \begin{scope}[visible on=<3->]
         \node[anchor=east,font=\small,text=BlueGray] at (3.00,1.98)
           {A chain in the hash table};
         \draw[beforepanel] (-2.95,0.16) rectangle (3.00,1.80);
         \node[beforetag] at (-2.70,1.05) {Before};
 
-        \node[anchor=south,font=\normalsize\bfseries,text=CornellRed] at (-0.77,1.34)
+        \node[anchor=south,font=\normalsize\bfseries,text=CornellRed,visible on=<4->] at (-0.77,1.34)
           {cache miss};
 
         \draw[box,Green,fill=Green!20] (-1.85,0.80) rectangle (-1.26,1.30);
         \node[fld] at (-1.555,1.05) {\(p\)};
         \node[anchor=north,font=\normalsize,text=BlueGray] at (-1.555,0.72) {head array};
 
-        \draw[flow,CornellRed] (-1.26,1.05) -- (-0.28,1.05);
+        \draw[flow,alt=<4->{CornellRed}{Ink}] (-1.26,1.05) -- (-0.28,1.05);
 
         \fill[white,rounded corners=2pt] (-0.28,0.80) rectangle (1.13,1.30);
         \fill[Purple!20] (-0.28,0.80) rectangle (0.66,1.30);
@@ -833,8 +931,10 @@
         \node[fld] at (1.685,1.05) {\(r'\)};
         \node[fld] at (2.155,1.05) {\(v'\)};
         \node[fld] at (2.625,1.05) {\(\bot\)};
+        \end{scope}
 
         % ===================== the merge ==================================
+        \begin{scope}[visible on=<5->]
         \draw[mline] (-1.555,0.12) to[out=-80,in=162] (-1.145,-0.22);
         \draw[mline] (0.19,0.12) to[out=-100,in=18] (-1.145,-0.22);
         \draw[merge] (-1.145,-0.22) -- (-1.145,-0.80);
@@ -861,10 +961,12 @@
         \node[fld] at (0.675,-1.35) {\(r'\)};
         \node[fld] at (1.145,-1.35) {\(v'\)};
         \node[fld] at (1.615,-1.35) {\(\bot\)};
+        \end{scope}
 
         % ===================== payoff =====================================
         \node[draw=Gold,fill=Gold!22,line width=1.8pt,rounded corners=6pt,
-              inner xsep=8pt,inner ysep=4pt,font=\Large\bfseries,text=Ink,rotate=4]
+              inner xsep=8pt,inner ysep=4pt,font=\Large\bfseries,text=Ink,rotate=4,
+              visible on=<6->]
               at (0,-2.64) {One fewer cache miss!};
       \end{tikzpicture}
       \end{center}
@@ -935,12 +1037,13 @@
     \draw[hoparrow] (-3.58,1.26) to[out=172,in=8] (-5.99,1.53);
     \draw[hoparrow] (-6.07,1.37) to[out=-62,in=196] (-5.37,0.58);
 
-    \node[anchor=north,font=\large\bfseries,text=CornellRed] at (-4.78,0.06)
+    \node[anchor=north,font=\large\bfseries,text=CornellRed,visible on=<2->] at (-4.78,0.06)
       {Still many hops};
 
     % =================================================================
     % PART 2 -- Attempt: give every bucket a cache line of its own
     % =================================================================
+    \begin{scope}[visible on=<3->]
     \draw[rounded corners=4pt,draw=none,fill=Gold!10] (-2.58,-0.50) rectangle (0.47,4.25);
     \node[tagpill,fill=Gold!72!Ink] at (-1.60,4.25) {Attempt};
     \node[anchor=north west,align=left,font=\large,text=Ink] at (-2.45,3.96)
@@ -959,22 +1062,26 @@
     \draw[cell,Purple!70,fill=Purple!20] (-0.73,1.34) rectangle (-0.23,1.72);
     \draw[cell,Green!75,fill=Green!20] (-0.17,1.34) rectangle (0.17,1.72);
     \node[font=\normalsize] at (0.00,1.53) {\(p\)};
+    \begin{scope}[visible on=<4->]
     \draw[CornellRed!70,line width=1.0pt,dash pattern=on 2.2pt off 1.8pt,rounded corners=4pt]
       (-0.63,2.46) rectangle (0.21,2.92);
     \draw[CornellRed!70,line width=1.0pt,dash pattern=on 2.2pt off 1.8pt,rounded corners=4pt]
       (-1.19,1.88) rectangle (0.21,2.34);
+    \end{scope}
 
     \draw[dtbox] (-2.45,0.20) rectangle (-0.35,1.04);
     \node[align=center,font=\normalsize\bfseries,text=Ink] at (-1.40,0.62)
       {Dereference\\Table};
     \draw[flow,Green!70!black] (0.00,1.28) to[out=-95,in=22] (-0.42,1.00);
 
-    \node[anchor=north,font=\large\bfseries,text=Gold!62!Ink] at (-1.055,0.06)
+    \node[anchor=north,font=\large\bfseries,text=Gold!62!Ink,visible on=<4->] at (-1.055,0.06)
       {Mostly empty};
+    \end{scope}
 
     % =================================================================
     % PART 3 -- After: buckets stretch to fit; pointers only when needed
     % =================================================================
+    \begin{scope}[visible on=<5->]
     \draw[rounded corners=4pt,draw=none,fill=Green!8] (0.67,-0.50) rectangle (6.92,4.25);
     \node[tagpill,fill=Green!88!black] at (1.37,4.25) {After};
     \node[anchor=north west,align=left,font=\large,text=Ink] at (0.80,3.96)
@@ -989,11 +1096,13 @@
       \draw[cell,Purple!70,fill=Purple!20] (\x,2.14) rectangle (\x+0.38,2.56);
     }
     \draw[decorate,decoration={brace,amplitude=6pt,raise=2pt,aspect=0.215},
-          line width=0.8pt,Ink!65] (0.95,1.78) -- (2.30,1.78);
-    \node[anchor=north,font=\normalsize\bf,text=BlueGray] at (1.67,1.86) {\(q_0,\,q_1\)};
-    \node[anchor=north,font=\large\bf,text=BlueGray] at (1.67,1.44) {empty};
+          line width=0.8pt,Ink!65] (0.95,1.56) -- (2.30,1.56);
+    \node[anchor=north,font=\normalsize\bf,text=BlueGray] at (1.67,1.64) {\(q_0,\,q_1\)};
+    \node[anchor=north,font=\large\bf,text=BlueGray] at (1.67,1.22) {empty};
+    \end{scope}
 
     % ---- next line: q5 overflows, so it spends one tiny pointer ---------
+    \begin{scope}[visible on=<6->]
     \draw[line64] (4.06,2.06) rectangle (6.60,2.96);
     \draw[Gold!85!Ink,line width=0.8pt,fill=Gold!18] (4.06,2.06) rectangle (4.44,2.96);
     \node[font=\normalsize\bfseries,rotate=90,text=Gold!55!Ink] at (4.25,2.51) {meta};
@@ -1026,16 +1135,17 @@
     \draw[flow,Green!70!black] (6.40,2.04) to[out=-100,in=52] (6.30,1.22);
     \draw[hoparrow] (6.03,0.98) to[out=200,in=-14] (4.26,0.58);
 
-    \node[anchor=north,font=\large\bfseries,text=Green!70!black] at (3.80,0.06)
+    \end{scope}
+    \node[anchor=north,font=\large\bfseries,text=Green!70!black,visible on=<7->] at (3.80,0.06)
       {Multiple hops in worst case};
   \end{tikzpicture}
   \end{center}
-  \begin{tikzpicture}[remember picture,overlay]
+  \only<8->{\begin{tikzpicture}[remember picture,overlay]
     \node[draw=Gold,fill=Gold!22,line width=2.4pt,rounded corners=7pt,
           inner xsep=15pt,inner ysep=9pt,font=\huge\bfseries,text=Ink,rotate=4]
           at ($(current page.center)+(0,-0.25cm)$)
           {We don't love chains anymore!};
-  \end{tikzpicture}
+  \end{tikzpicture}}
   \note{This slide explains the second locality opportunity and then marks the breakup with chaining. After the first tuple is moved into the head entry, the next natural question is whether we should move even more chain tuples next to the head. The naive version reserves a full cache line for every quotient chain. This would reduce chain walks, but it wastes memory badly because most chains are short; many cache lines would contain only one or two tuples and a lot of empty space. The key observation is that neighboring quotient groups are also short on average, so several adjacent groups can share one assigned cache line. The small metadata region records offsets and counts for the groups in that line. A lookup hashes to the shared line, then uses the quotient group and metadata to locate the local chain almost for free. But even with this optimization, the overflow table still chains. If the desired tuple is not in the shared line, we may still walk through overflow nodes, and every hop can cost another cache miss. After explaining the three panels, reveal the callout: chained hash table, we had a good time, but we don't love you anymore. This is the turning point. The next design should preserve the good cache-line packing idea while removing iterative pointer chasing, so overflow costs at most one hop.}
 \end{frame}
 
@@ -1057,8 +1167,9 @@
         ph/.style={cell,Purple!60,fill=Purple!18},
         obrace/.style={decorate,decoration={brace,amplitude=4pt,raise=2pt},line width=0.7pt}]
 
-      % ---- the same cache line, four times -----------------------------
-      \foreach \y in {4.55,3.42,2.29,0.80} {
+      % ---- the same cache line, one copy per animation step -------------
+      \begin{scope}[visible on=<2->]
+      \foreach \y in {4.55} {
         \draw[block] (-4.10,\y-0.25) rectangle (0.06,\y+0.25);
         \draw[cell,Gold!85!Ink,fill=Gold!18] (-4.10,\y-0.25) rectangle (-3.22,\y+0.25);
         \node[font=\normalsize,text=Gold!55!Ink] at (-3.66,\y) {meta};
@@ -1066,28 +1177,66 @@
           \draw[ph] (\x,\y-0.19) rectangle (\x+0.46,\y+0.19);
         }
       }
-      \node[anchor=west,font=\large\bf] at (-4.30,5.38) {One cache line};
+      \end{scope}
+      \begin{scope}[visible on=<3->]
+      \foreach \y in {3.42} {
+        \draw[block] (-4.10,\y-0.25) rectangle (0.06,\y+0.25);
+        \draw[cell,Gold!85!Ink,fill=Gold!18] (-4.10,\y-0.25) rectangle (-3.22,\y+0.25);
+        \node[font=\normalsize,text=Gold!55!Ink] at (-3.66,\y) {meta};
+        \foreach \x in {-3.16,-2.64,-2.12} {
+          \draw[ph] (\x,\y-0.19) rectangle (\x+0.46,\y+0.19);
+        }
+      }
+      \end{scope}
+      \begin{scope}[visible on=<4->]
+      \foreach \y in {2.29} {
+        \draw[block] (-4.10,\y-0.25) rectangle (0.06,\y+0.25);
+        \draw[cell,Gold!85!Ink,fill=Gold!18] (-4.10,\y-0.25) rectangle (-3.22,\y+0.25);
+        \node[font=\normalsize,text=Gold!55!Ink] at (-3.66,\y) {meta};
+        \foreach \x in {-3.16,-2.64,-2.12} {
+          \draw[ph] (\x,\y-0.19) rectangle (\x+0.46,\y+0.19);
+        }
+      }
+      \end{scope}
+      \begin{scope}[visible on=<5->]
+      \foreach \y in {0.80} {
+        \draw[block] (-4.10,\y-0.25) rectangle (0.06,\y+0.25);
+        \draw[cell,Gold!85!Ink,fill=Gold!18] (-4.10,\y-0.25) rectangle (-3.22,\y+0.25);
+        \node[font=\normalsize,text=Gold!55!Ink] at (-3.66,\y) {meta};
+        \foreach \x in {-3.16,-2.64,-2.12} {
+          \draw[ph] (\x,\y-0.19) rectangle (\x+0.46,\y+0.19);
+        }
+      }
+      \end{scope}
+      \node[anchor=west,font=\large\bf,visible on=<2->] at (-4.30,5.38) {One cache line};
 
       % state 1: the rest of the line is free
+      \begin{scope}[visible on=<2->]
       \draw[decorate,decoration={brace,amplitude=4pt,raise=2pt,aspect=0.74},
             line width=0.7pt,Ink!60] (-1.60,4.88) -- (0.02,4.88);
       \node[anchor=south,font=\normalsize,text=Ink!70] at (-0.40,5.04) {free};
+      \end{scope}
 
       % insert k -> stored in place
+      \begin{scope}[visible on=<3->]
       \draw[ins,CornellRed] (-3.45,4.24) -- (-3.45,3.73);
       \node[anchor=west,font=\large\bf,text=CornellRed] at (-3.27,3.99) {\apiop{Insert}{k,v}};
       \draw[cell,CornellRed!70,fill=CornellRed!16] (-1.60,3.23) rectangle (-0.50,3.61);
       \node[font=\normalsize,text=CornellRed] at (-1.05,3.42) {\(k,v\)};
+      \end{scope}
 
       % insert k' -> tuple slots full, spend one pointer
+      \begin{scope}[visible on=<4->]
       \draw[ins,blue!58!black] (-3.45,3.11) -- (-3.45,2.60);
       \node[anchor=west,font=\large\bf,text=blue!58!black] at (-3.27,2.86) {\apiop{Insert}{k',v'}};
       \draw[cell,CornellRed!70,fill=CornellRed!16] (-1.60,2.10) rectangle (-0.50,2.48);
       \node[font=\normalsize,text=CornellRed] at (-1.05,2.29) {\(k,v\)};
       \draw[cell,blue!58!black,fill=blue!58!black!16] (-0.44,2.10) rectangle (-0.06,2.48);
       \node[font=\small,text=blue!58!black] at (-0.25,2.29) {\(p'\)};
+      \end{scope}
 
       % insert k-dagger -> evict k,v; pointers gather at the end of the line
+      \begin{scope}[visible on=<5->]
       \draw[ins,Green!70!black] (-3.45,1.98) -- (-3.45,1.11);
       \node[anchor=west,font=\large\bf,text=Green!70!black] at (-3.27,1.55)
         {\apiop{Insert}{k^{\dagger},v^{\dagger}}};
@@ -1103,7 +1252,10 @@
       \draw[cell,blue!58!black,fill=blue!58!black!16] (-0.44,0.61) rectangle (-0.06,0.99);
       \node[font=\small,text=blue!58!black] at (-0.25,0.80) {\(p'\)};
 
+      \end{scope}
+
       % ---- dereference table -------------------------------------------
+      \begin{scope}[visible on=<4->]
       \draw[dtbox] (0.80,0.58) rectangle (3.75,4.82);
       \node[anchor=north west,align=left,font=\large\bfseries,text=Ink] at (0.92,4.76)
         {Dereference\\Table};
@@ -1117,62 +1269,83 @@
       \slotball{1.79}{3.14}{0}\slotball{1.79}{2.80}{1}\slotball{1.79}{1.88}{1}\slotball{1.79}{1.54}{0}\slotball{1.79}{1.20}{1}
       \slotball{2.75}{3.14}{1}\slotball{2.75}{2.80}{0}
       \slotball{3.23}{3.14}{0}\slotball{3.23}{2.80}{1}\slotball{3.23}{1.54}{1}
-      \foreach \c/\y/\col in {1.31/3.48/{blue!58!black}, 2.75/1.88/{Green!70!black}, 3.23/1.20/CornellRed} {
+      \foreach \c/\y/\col in {1.31/3.48/{blue!58!black}} {
         \fill[Ink] (\c,\y) circle (2.2pt);
         \draw[\col,line width=1.1pt] (\c,\y) circle (4.0pt);
       }
+      \end{scope}
+      \begin{scope}[visible on=<5->]
+      \foreach \c/\y/\col in {2.75/1.88/{Green!70!black}, 3.23/1.20/CornellRed} {
+        \fill[Ink] (\c,\y) circle (2.2pt);
+        \draw[\col,line width=1.1pt] (\c,\y) circle (4.0pt);
+      }
+      \end{scope}
 
       % each arrow leaves the pointer cell it belongs to
-      \draw[flow,blue!58!black] (-0.06,2.29) to[out=30,in=205] (1.11,3.42);
+      \draw[flow,blue!58!black,visible on=<4->] (-0.06,2.29) to[out=30,in=205] (1.11,3.42);
+      \begin{scope}[visible on=<5->]
       \draw[flow,Green!70!black]
         (-0.68,0.59) .. controls (-0.68,0.32) and (2.75,0.28) .. (2.75,1.78);
       \draw[flow,CornellRed]
         (-1.11,0.59) .. controls (-1.11,0.10) and (3.23,0.04) .. (3.23,1.10);
+      \end{scope}
 
       % ---- zoom: every ball opens into the tuple it holds ---------------
-      \foreach \y/\col/\lk/\lv in {3.48/{blue!58!black}/{k'}/{v'},
-                                   1.88/{Green!70!black}/{k^{\dagger}}/{v^{\dagger}},
-                                   1.20/CornellRed/{k}/{v}} {
+      \begin{scope}[visible on=<4->]
+      \foreach \y/\col/\lk/\lv in {3.48/{blue!58!black}/{k'}/{v'}} {
         \draw[cell,\col,fill=\col!14] (3.90,\y-0.20) rectangle (4.68,\y+0.20);
         \draw[\col!45,line width=0.5pt] (4.29,\y-0.20) -- (4.29,\y+0.20);
         \node[font=\normalsize,text=\col] at (4.095,\y) {\(\lk\)};
         \node[font=\normalsize,text=\col] at (4.485,\y) {\(\lv\)};
       }
       \draw[zoomline,blue!58!black]  (1.49,3.48) -- (3.86,3.48);
+      \end{scope}
+      \begin{scope}[visible on=<5->]
+      \foreach \y/\col/\lk/\lv in {1.88/{Green!70!black}/{k^{\dagger}}/{v^{\dagger}},
+                                   1.20/CornellRed/{k}/{v}} {
+        \draw[cell,\col,fill=\col!14] (3.90,\y-0.20) rectangle (4.68,\y+0.20);
+        \draw[\col!45,line width=0.5pt] (4.29,\y-0.20) -- (4.29,\y+0.20);
+        \node[font=\normalsize,text=\col] at (4.095,\y) {\(\lk\)};
+        \node[font=\normalsize,text=\col] at (4.485,\y) {\(\lv\)};
+      }
       \draw[zoomline,Green!70!black] (2.93,1.88) -- (3.86,1.88);
       \draw[zoomline,CornellRed]     (3.41,1.20) -- (3.86,1.20);
+      \end{scope}
     \end{tikzpicture}
     \end{center}
 
   \column{0.34\textwidth}
     \vspace{0.50cm}
+    \uncover<6->{%
     {\Large\bfseries No pointer chasing\par}
     \vspace{0.10cm}
     {\large \textcolor{CornellRed}{\textbf{1.25}} memory accesses
-      per operation.\par}
+      per operation.\par}}
 
     \vspace{0.50cm}
+    \uncover<7->{%
     {\Large\bfseries Migration is rare\par}
     \vspace{0.10cm}
     {\large A tuple migrates out with probability
-      \textcolor{CornellRed}{\textbf{5.1\%}}.\par}
+      \textcolor{CornellRed}{\textbf{5.1\%}}.\par}}
 
     \vspace{0.50cm}
+    \uncover<8->{%
     {\Large\bfseries No hard overflow\par}
     \vspace{0.10cm}
     {\large Room for \textcolor{CornellRed}{\textbf{31}} pointers,
-      max load \textcolor{CornellRed}{\textbf{24}} w.h.p.\par}
+      max load \textcolor{CornellRed}{\textbf{24}} w.h.p.\par}}
   \end{columns}
   \note{This slide introduces Flattened-TPHT in a simplified way for the audience. We do not need to exactly follow every construction detail from the paper. The story is: each key bucket owns a cache-line home block. We append quotient-compressed tuples into the home block first. If we cannot append a full tuple, we store a tiny pointer to one tuple in the overflow table. Stress that this is not a linked list: the overflow tuple does not iteratively point to more overflow tuples. If more room is needed in the home block, we can push one existing tuple to the overflow table and replace it by a tiny pointer, which creates more space for new home-resident tuples or more tiny pointers. This works because quotienting shaved bytes off the stored keys. If the audience asks whether four home slots, two pointer slots, and the overflow table are enough, say that the paper analyzes these capacity questions and sizes the overflow pool using the spill tail; the slide gives the key numbers and the measured result that queries average about 1.25 cache misses.}
 \end{frame}
 
 \begin{frame}{Experimental Setup}
-  \vspace{0.55cm}
+  \vspace{0.35cm}
   \begin{center}
     {\LARGE\bfseries Are tiny pointer hash tables practically good?}
   \end{center}
 
-  \vspace{0.70cm}
+  \vspace{0.50cm}
   {\Large
   \begin{itemize}
     \setlength{\itemsep}{0.55cm}
@@ -1241,6 +1414,7 @@
           ylabel style={font=\large},
           symbolic x coords={Cuckoo,Iceberg,Junction,TBB,Chained,Flattened},
           xtick={Cuckoo,Iceberg,Junction,TBB,Chained,Flattened},
+          xmin=Cuckoo, xmax=Flattened,
           x tick label style={rotate=28,anchor=center,xshift=-0.29cm,yshift=-0.55cm,font=\normalsize},
           y tick label style={font=\normalsize},
           legend style={draw=none,fill=none,at={(0.50,1.02)},anchor=south,legend columns=2,font=\large},
@@ -1309,6 +1483,7 @@
           ylabel style={font=\large,align=center},
           symbolic x coords={TBB,Cuckoo,Junction,IcebergHT,Flattened,Chained},
           xtick={TBB,Cuckoo,Junction,IcebergHT,Flattened,Chained},
+          xmin=TBB, xmax=Chained,
           x tick label style={rotate=28,anchor=center,xshift=-0.29cm,yshift=-0.55cm,font=\normalsize},
           y tick label style={font=\normalsize},
           nodes near coords={\pgfmathprintnumber[fixed,zerofill,precision=1]{\pgfplotspointmeta}},
@@ -1375,12 +1550,19 @@
       legend cell align=left,
       every axis plot/.append style={line width=1.15pt,mark size=1.8pt},
     ]
-      \addplot[color=Ink!38,mark=o] coordinates {(4.4,11.3) (8.8,10.8) (13.2,10.4) (17.5,10.1) (21.9,9.8) (26.3,9.5) (30.7,9.3) (35.1,9.0) (39.5,8.7) (43.8,8.3) (48.2,7.9) (52.6,7.5) (57.0,7.0) (61.4,6.5) (65.8,6.0) (70.1,5.3)};
-      \addplot[color=Ink!55,mark=square*] coordinates {(4.1,15.2) (8.3,15.9) (12.4,16.3) (16.5,16.4) (20.6,16.2) (24.8,16.2) (28.9,16.1) (33.0,15.9) (37.1,15.8) (41.3,15.7) (45.4,15.5) (49.5,15.4) (53.6,15.2) (57.8,15.1) (61.9,14.9) (66.0,14.8) (70.1,14.6) (74.3,14.4) (78.4,14.3) (81.7,14.0)};
-      \addplot[color=BlueGray!85,mark=triangle*] coordinates {(5.0,19.1) (10.0,20.2) (15.0,20.0) (20.0,19.7) (25.0,19.5) (30.0,19.1) (35.0,18.8) (40.0,18.3) (45.0,18.0) (50.0,17.5) (55.0,17.1) (60.0,16.5) (65.0,15.9) (70.0,15.3) (75.0,14.6)};
-      \addplot[color=Ink!75,mark=diamond*] coordinates {(6.2,2.6) (10.0,2.6) (13.1,2.7) (15.6,2.7) (17.1,2.8) (19.9,2.8) (20.8,2.9) (22.3,2.9) (23.3,3.0) (24.7,3.0) (25.4,3.0) (27.1,3.1) (27.6,3.0) (28.6,3.1) (29.1,3.1) (29.3,3.2) (30.5,3.2) (30.9,3.2) (31.2,3.2) (32.3,3.2)};
-      \addplot[color=CornellRed!86!Ink,mark=*,line width=1.45pt] coordinates {(5.3,12.9) (10.6,13.0) (16.0,12.9) (21.3,12.7) (26.6,12.4) (31.9,12.1) (37.3,11.8) (42.6,11.4) (47.9,11.2) (53.2,10.9) (58.6,10.6) (63.9,10.3) (69.2,10.0) (74.5,9.8) (79.9,9.5) (85.2,9.3) (90.5,9.1) (95.8,8.9) (101.2,8.7) (105.4,8.5)};
-      \addplot[color=CornellRed,mark=pentagon*,densely dashed,line width=1.45pt] coordinates {(4.2,24.7) (8.4,24.5) (12.6,24.6) (16.8,24.5) (21.1,24.1) (25.3,23.9) (29.5,23.7) (33.7,23.5) (37.9,23.2) (42.1,22.8) (46.3,22.6) (50.5,22.2) (54.8,21.9) (59.0,21.5) (63.2,20.9) (67.4,20.7) (71.6,20.3) (75.8,19.9) (80.0,19.3) (83.4,19.0)};
+      % legend built from images so that revealing curves never reflows it
+      \addlegendimage{color=Ink!38,mark=o,line width=1.15pt,mark size=1.8pt}
+      \addlegendimage{color=Ink!55,mark=square*,line width=1.15pt,mark size=1.8pt}
+      \addlegendimage{color=BlueGray!85,mark=triangle*,line width=1.15pt,mark size=1.8pt}
+      \addlegendimage{color=Ink!75,mark=diamond*,line width=1.15pt,mark size=1.8pt}
+      \addlegendimage{color=CornellRed!86!Ink,mark=*,line width=1.45pt,mark size=1.8pt}
+      \addlegendimage{color=CornellRed,mark=pentagon*,densely dashed,line width=1.45pt,mark size=1.8pt}
+      \addplot[forget plot,color=Ink!38,mark=o] coordinates {(4.4,11.3) (8.8,10.8) (13.2,10.4) (17.5,10.1) (21.9,9.8) (26.3,9.5) (30.7,9.3) (35.1,9.0) (39.5,8.7) (43.8,8.3) (48.2,7.9) (52.6,7.5) (57.0,7.0) (61.4,6.5) (65.8,6.0) (70.1,5.3)};
+      \addplot[forget plot,color=Ink!55,mark=square*] coordinates {(4.1,15.2) (8.3,15.9) (12.4,16.3) (16.5,16.4) (20.6,16.2) (24.8,16.2) (28.9,16.1) (33.0,15.9) (37.1,15.8) (41.3,15.7) (45.4,15.5) (49.5,15.4) (53.6,15.2) (57.8,15.1) (61.9,14.9) (66.0,14.8) (70.1,14.6) (74.3,14.4) (78.4,14.3) (81.7,14.0)};
+      \addplot[forget plot,color=BlueGray!85,mark=triangle*] coordinates {(5.0,19.1) (10.0,20.2) (15.0,20.0) (20.0,19.7) (25.0,19.5) (30.0,19.1) (35.0,18.8) (40.0,18.3) (45.0,18.0) (50.0,17.5) (55.0,17.1) (60.0,16.5) (65.0,15.9) (70.0,15.3) (75.0,14.6)};
+      \addplot[forget plot,color=Ink!75,mark=diamond*] coordinates {(6.2,2.6) (10.0,2.6) (13.1,2.7) (15.6,2.7) (17.1,2.8) (19.9,2.8) (20.8,2.9) (22.3,2.9) (23.3,3.0) (24.7,3.0) (25.4,3.0) (27.1,3.1) (27.6,3.0) (28.6,3.1) (29.1,3.1) (29.3,3.2) (30.5,3.2) (30.9,3.2) (31.2,3.2) (32.3,3.2)};
+      \addplot[forget plot,color=CornellRed!86!Ink,mark=*,line width=1.45pt] coordinates {(5.3,12.9) (10.6,13.0) (16.0,12.9) (21.3,12.7) (26.6,12.4) (31.9,12.1) (37.3,11.8) (42.6,11.4) (47.9,11.2) (53.2,10.9) (58.6,10.6) (63.9,10.3) (69.2,10.0) (74.5,9.8) (79.9,9.5) (85.2,9.3) (90.5,9.1) (95.8,8.9) (101.2,8.7) (105.4,8.5)};
+      \addplot[forget plot,color=CornellRed,mark=pentagon*,densely dashed,line width=1.45pt] coordinates {(4.2,24.7) (8.4,24.5) (12.6,24.6) (16.8,24.5) (21.1,24.1) (25.3,23.9) (29.5,23.7) (33.7,23.5) (37.9,23.2) (42.1,22.8) (46.3,22.6) (50.5,22.2) (54.8,21.9) (59.0,21.5) (63.2,20.9) (67.4,20.7) (71.6,20.3) (75.8,19.9) (80.0,19.3) (83.4,19.0)};
       \draw[dashed,CornellRed!65,line width=0.9pt] (axis cs:100,0) -- (axis cs:100,28);
       \node[anchor=south east,font=\normalsize,text=CornellRed] at (axis cs:99.2,0.6) {100\% payload};
       \legend{Cuckoo, IcebergHT, Junction, TBB, Chained-TPHT, Flattened-TPHT}
