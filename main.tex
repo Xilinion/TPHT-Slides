@@ -200,14 +200,13 @@
    key--value stores, compilers, and network stacks.}
 
   \vspace{0.16cm}
-  \uncover<2->{{\LARGE Decades of tuning made them \textbf{fast}. They are still
-   \keyterm{memory hungry}.}}
+  {\LARGE Decades of tuning made them \textbf{fast}. They are still
+   \keyterm{memory hungry}.}
 
   \vspace{0.30cm}
   \begin{columns}[T,onlytextwidth]
-  \column{0.62\textwidth}
+  \column{\textwidth}
   \centering
-  \uncover<2->{%
   \begin{tikzpicture}[x=1cm,y=1cm,font=\normalsize,
       peakrule/.style={CornellRed!75,dashed,dash pattern=on 1.8pt off 1.4pt,line width=0.8pt}]
     % Every number here is read off our own load sweep (the speed--space slide):
@@ -227,34 +226,34 @@
     \node[anchor=south,font=\large\bfseries,text=Ink!60] at (4.50,1.78) {everything else};
 
     % where cuckoo actually runs
-    \begin{scope}[visible on=<3->]
+    \begin{scope}[visible on=<2->]
     \fill[CornellRed!72] (0,0.38) rectangle (1.86,0.94);
     \draw[Ink!45,line width=0.7pt] (0,0.38) rectangle (5.30,0.94);
     \node[anchor=west,font=\large\bfseries,text=white] at (0.13,0.66) {35.1\%};
     \end{scope}
 
     % and what the rest of that bar would cost
-    \begin{scope}[visible on=<4->]
+    \begin{scope}[visible on=<2->]
     \node[draw=Gold,fill=Gold!22,line width=1.5pt,rounded corners=5pt,
           inner xsep=7pt,inner ysep=4pt,font=\Large\bfseries,text=Ink,rotate=-8]
           (slowbadge) at (4.6,1.20) {\(1.7\times\) slower};
     \draw[-{Latex[length=2.8mm,width=2.1mm]},Gold!50!Ink,line width=1.7pt]
       (slowbadge.west) to[out=195,in=15] (2.02,0.99);
     \end{scope}
-  \end{tikzpicture}}
+  \end{tikzpicture}
 
-  \column{0.36\textwidth}
-    \uncover<5->{{\Large\bfseries Where the rest goes\par}
-    \vspace{0.12cm}
-    {\large
-    \begin{itemize}
-      \setlength{\itemsep}{0.12cm}
-      \item \textbf{pointers}
-      \item \textbf{head arrays} and node headers
-      \item \textbf{empty slots} kept for less collision
-      \item \textbf{metadata} and fingerprints
-      % \item the \textbf{full key}, written down again
-    \end{itemize}}}
+  % \column{0.36\textwidth}
+  %   \uncover<5->{{\Large\bfseries Where the rest goes\par}
+  %   \vspace{0.12cm}
+  %   {\large
+  %   \begin{itemize}
+  %     \setlength{\itemsep}{0.12cm}
+  %     \item \textbf{pointers}
+  %     \item \textbf{bucket arrays} and node headers
+  %     \item \textbf{empty slots} kept for less collision
+  %     \item \textbf{metadata} and fingerprints
+  %     % \item the \textbf{full key}, written down again
+  %   \end{itemize}}}
 \end{columns}
   \note{Build this slide in two beats. First the pale bars: this is the most data each table can hold, the last insert before it resizes or fails --- a third of memory for chaining, seventy and seventy-five percent for cuckoo and linear probing. Then the second beat, which is the honest part: nobody runs a table there, because filling it that far costs throughput. From half load to the peak, cuckoo loses forty-one percent of its insert throughput, nine million operations per second down to five point three, and linear probing loses twenty-one percent, eighteen point six down to fourteen point six. So the space you actually get is the solid bar, not the dashed line. And that is the whole motivation: you cannot fill your way out of the overhead, you need a table that is not paying it in the first place.
 
@@ -262,7 +261,7 @@ Numbers and their provenance, if anyone asks. All of it comes from the same load
 
 Two honest caveats to have ready. First, chaining is the exception to the throughput claim: it actually gains about seven percent going from half load to peak, which is why its row carries no percentage. The reason is that it allocates a node per item, so filling it does not crowd anything --- but it is also six times slower than the others in absolute terms, three million operations per second against eighteen, so it never had throughput to protect. Second, chaining is also why its two marks are close together: its footprint shrinks with the item count, so its space efficiency barely moves with load, whereas the fixed-array tables lose exactly half.
 
-Motivation. Hash tables are among the most used data structures and have been studied for seven decades, so it is fair to ask what is left to do. The answer is memory: even at its very best a deployed table hands you a third to three quarters of the memory it holds, and in practice well under that. The rest goes to pointers, head arrays, empty slots kept for speed, metadata and fingerprints, and the full key written down again even though the table already knows where it hashed.}
+Motivation. Hash tables are among the most used data structures and have been studied for seven decades, so it is fair to ask what is left to do. The answer is memory: even at its very best a deployed table hands you a third to three quarters of the memory it holds, and in practice well under that. The rest goes to pointers, bucket arrays, empty slots kept for speed, metadata and fingerprints, and the full key written down again even though the table already knows where it hashed.}
 \end{frame}
 
 \begin{frame}{What is a good hash table?}
@@ -277,7 +276,7 @@ Motivation. Hash tables are among the most used data structures and have been st
       \vspace{0.10cm}
       \begin{center}
         \begin{tikzpicture}[x=0.58cm,y=0.52cm]
-          \begin{scope}[visible on=<2->]
+          \begin{scope}
           \fill[CornellRed!8] (0,4.15) rectangle (8.35,5.15);
           \fill[CornellRed!8] (6.95,0) rectangle (8.35,5.15);
           \fill[CornellRed!8]
@@ -287,13 +286,13 @@ Motivation. Hash tables are among the most used data structures and have been st
           \draw[-Latex,line width=0.9pt] (0,0) -- (8.45,0);
           \node[font=\large,anchor=north] at (4.22,-0.32) {space efficiency};
           \draw[-Latex,line width=0.9pt] (0,0) -- (0,5.25) node[above,font=\large] {throughput};
-          \draw[CornellRed,dashed,line width=0.9pt,visible on=<2->] (6.95,0) -- (6.95,5.05);
-          \draw[CornellRed,dashed,line width=0.9pt,visible on=<2->] (0,4.15) -- (8.25,4.15);
+          \draw[CornellRed,dashed,line width=0.9pt] (6.95,0) -- (6.95,5.05);
+          \draw[CornellRed,dashed,line width=0.9pt] (0,4.15) -- (8.25,4.15);
           \draw[BlueGray,line width=1.5pt] plot[smooth] coordinates {(0.85,4.15) (2.0,3.42) (3.6,2.72) (5.2,1.95) (6.95,1.22)};
           \node[BlueGray,anchor=west,font=\large] at (0.15,4.50) {fast, huge};
           \node[BlueGray,anchor=west,font=\large] at (4.08,0.92) {small, slow};
           \node[BlueGray,anchor=west,align=left,font=\large] at (1.15,1.92) {existing\\tables};
-          \begin{scope}[visible on=<3->]
+          \begin{scope}
           \fill[CornellRed] (7.25,4.1) circle (4.3pt);
           \node[align=left,anchor=west,font=\large] at (7.55,4.1) {\textbf{TPHT target}\\fast and small};
           \draw[CornellRed,very thick,-Latex] (5.15,2.7) -- (7.02,3.95);
@@ -306,7 +305,7 @@ Motivation. Hash tables are among the most used data structures and have been st
       {\LARGE In our paper we study the \keyterm{tension} between \textbf{fast} hash
        tables and \textbf{small} hash tables.\par}
       \vspace{0.55cm}
-      \uncover<3->{{\Large\bfseries We want the top right corner.\par}}
+      {\Large\bfseries We want the top right corner.\par}
   \end{columns}
 \end{frame}
 
@@ -333,18 +332,19 @@ Motivation. Hash tables are among the most used data structures and have been st
 
     \column{0.42\textwidth}
       \vspace{0.25cm}
-      \uncover<3->{{\LARGE\bfseries Secret sauce:}\par}
+      \uncover<3->{%
+      {\LARGE\bfseries Secret sauce:}\par
       \vspace{0.24cm}
       \begin{enumerate}\Large
-        \item<3-> \keyterm{Tiny pointers}\\[-1pt]
+        \item \keyterm{Tiny pointers}\\[-1pt]
           {\Large compress the \textbf{pointer}}
           \vspace{0.18cm}
-        \item<4-> \keyterm{Quotienting}\\[-1pt]
+        \item \keyterm{Quotienting}\\[-1pt]
           {\Large compress the \textbf{key}}
           \vspace{0.18cm}
-        \item<5-> \keyterm{Cache-friendly layout}\\[-1pt]
+        \item \keyterm{Cache-friendly layout}\\[-1pt]
           {\Large compress the \textbf{execution time}}
-      \end{enumerate}
+      \end{enumerate}}
   \end{columns}
   \note{The headline. Chained-TPHT is the space-optimized variant: it passes one hundred percent space efficiency, meaning it stores more key and value bits than it has bytes of memory, which is what succinct means in practice. Flattened-TPHT gives up a little of that and buys the top throughput in our experiments. Then the roadmap for the rest of the talk: two theory ingredients, tiny pointers and quotienting, plus a cache-friendly layout. The third bullet is the joke: it compresses the execution time.}
 \end{frame}
@@ -424,8 +424,6 @@ Motivation. Hash tables are among the most used data structures and have been st
   \begin{column}{0.36\textwidth}
     \vspace{0.27cm}
     \raggedright
-    \uncover<4->{{\normalsize
-      \(p_1\) and \(p_2\) may store the \textbf{same} bits; different owners decode different targets.\par}}
 
     \vspace{0.44cm}
     \uncover<5->{{\Large\color{CornellRed}
@@ -564,13 +562,22 @@ Motivation. Hash tables are among the most used data structures and have been st
   \begin{column}{0.28\textwidth}
     \vspace{0.50cm}
     \raggedright
-    \uncover<7->{{\Large\keyterm{Dynamic allocator}\par}
+    \only<3-6>{%
+      \vspace{1.05cm}
+      \centering
+      \begin{tikzpicture}
+        \node[draw=BlueGray,fill=BlueGray!7,line width=1.2pt,rounded corners=5pt,
+              inner xsep=7pt,inner ysep=7pt,font=\normalsize\bfseries,text=BlueGray,align=center]
+              {Memory pool layout};
+      \end{tikzpicture}
+    }
+    \only<7->{{\Large\keyterm{Dynamic allocator}\par}
     \vspace{0.14cm}
     {\large Insert, delete, or look up freely, as long as the load factor stays
      below \textcolor{CornellRed}{\textbf{95\%}}\textsuperscript{*}.\par}}
     \vspace{0.22cm}
     \centering
-    \uncover<8->{\begin{tikzpicture}
+    \only<8->{\begin{tikzpicture}
       \node[draw=Gold,fill=Gold!22,line width=2.4pt,rounded corners=7pt,
             inner xsep=13pt,inner ysep=8pt,font=\large\bfseries,text=Ink,rotate=4,align=center]
             {The power\\of two choices!};
@@ -584,14 +591,14 @@ Motivation. Hash tables are among the most used data structures and have been st
 
 \begin{frame}{Ingredient 2: Quotienting}
   \vspace{0.05cm}
-  {\Large \keyterm{Quotienting}\textsuperscript{2} reduces the bits needed to represent a \textbf{key set} by \textbf{partitioning} it.}
+  {\Large \keyterm{Quotienting}\textsuperscript{2} reduces the bits needed to represent a \textbf{key set} by placing it into \textbf{buckets}.}
 
   \vspace{0.10cm}
-  \uncover<3->{\Large Insight: the \textbf{partition itself} already encodes part of the key.}
+  \uncover<3->{\Large Insight: the \textbf{bucket id itself} already encodes part of the key.}
 
   \vspace{0.04cm}
   \begin{columns}[T,onlytextwidth]
-  \begin{column}{0.74\textwidth}
+  \begin{column}{\textwidth}
   \centering
   \begin{tikzpicture}[x=1cm,y=1cm,every node/.style={font=\normalsize},
       flow/.style={-{Latex[length=2.4mm,width=1.7mm]},line width=1.0pt},
@@ -618,13 +625,13 @@ Motivation. Hash tables are among the most used data structures and have been st
       node[midway,above=8pt,xshift=0.25cm,font=\large\bfseries,text height=1.6ex,text depth=0.5ex,text=Purple] {remainder \(r\)};
     \end{scope}
 
-    % --- the partition array ---------------------------------------------
+    % --- the bucket array ------------------------------------------------
     \begin{scope}[visible on=<3->]
     \draw[Ink,line width=0.9pt,rounded corners=3pt,fill=CornellGray!60] (-1.95,-0.18) rectangle (2.18,3.20);
-    \node[anchor=north west,font=\large\bfseries] at (-1.78,3.12) {4 Partitions};
+    \node[anchor=north west,font=\large\bfseries] at (-1.78,3.12) {4 Buckets};
     \foreach \q/\y in {00/2.16,01/1.52,10/0.88,11/0.24} {
       \draw[BlueGray!50,line width=0.7pt,fill=white,rounded corners=1pt] (-1.73,\y-0.29) rectangle (1.95,\y+0.29);
-      \node[anchor=west,font=\normalsize\bfseries,text=BlueGray] at (-1.52,\y) {partition \(\q\)};
+      \node[anchor=west,font=\normalsize\bfseries,text=BlueGray] at (-1.52,\y) {bucket \(\q\)};
     }
     \end{scope}
     \draw[CornellRed,line width=1.25pt,rounded corners=1pt,visible on=<4->] (-1.73,0.59) rectangle (1.95,1.17);
@@ -638,42 +645,18 @@ Motivation. Hash tables are among the most used data structures and have been st
     \node[draw=Gold,fill=Gold!20,line width=1.0pt,rounded corners=3pt,visible on=<6->,
           inner sep=3.5pt,font=\Large\bfseries,rotate=4] at (1.05,-0.62) {only \textcolor{red}{4} bits stored!};
 
-    % --- quotient selects the partition; remainder is what gets stored ----
+    % --- quotient selects the bucket; remainder is what gets stored -------
     \draw[flow,CornellRed,visible on=<4->] (-5.13,1.72) .. controls (-5.30,0.95) and (-3.70,0.62) .. (-1.98,0.88);
     \draw[flow,Purple,rounded corners=10pt,visible on=<5->]
       (-2.89,1.98) -- (-2.32,2.58) -- (0.80,2.58) -- (0.80,1.10);
 
-    % --- the two closing beats, tucked under the quotienting arrow --------
-    \node[anchor=north west,align=left,font=\large\bfseries,visible on=<8->] at (-5.68,0.52)
-      {Skewed keys \(\Rightarrow\)\\crowded partitions};
-    \node[anchor=north west,align=left,font=\large\bfseries,text=CornellRed,visible on=<9->]
-      at (-5.68,-0.42) {One-round Feistel\\permutation\textsuperscript{3}};
   \end{tikzpicture}
-  \end{column}
-
-  \begin{column}{0.24\textwidth}
-    \raggedright\normalsize
-    \uncover<7->{%
-    {For a \textbf{\(w\)-bit key} \(k\) and \textbf{\(2^\ell\) partitions},\par}
-    \vspace{0.14cm}
-    \(\begin{aligned}
-       q&=\left\lfloor k/2^{w-\ell}\right\rfloor,\\
-       r&=k\bmod 2^{w-\ell},\\
-       k&=q\circ r,
-     \end{aligned}\)\par
-    \vspace{0.08cm}
-    {and only \(r\) is written down.\par}}
   \end{column}
   \end{columns}
 
   \vspace{0.04cm}
-  {\scriptsize\textsuperscript{2}Knuth, \emph{TAOCP} vol.~3, 1998; Bender et al., FAST 2012.\quad
-   \textsuperscript{3}Menezes et al., \emph{Handbook of Applied Cryptography}, 1996.}
-  \note{Say the two closing beats out loud; the slide only carries the phrases. First: quotienting as described assumes the keys spread evenly over the partitions, and real keys never do --- sequential ids share their top bits, so they all land in the same partition and that partition overflows while the rest sit empty. Second: the fix is to quotient a permuted key rather than the key itself. A one-round Feistel permutation makes a chosen bit range of the key look random, the way a hash would, but unlike a hash it is invertible, so the quotient is still recoverable from the partition index and no information about the key is lost. That is what lets the table store exact keys rather than fingerprints. The construction is the one from the Handbook of Applied Cryptography, which is footnote three.
-
-Two beats close this slide. Quotienting as described assumes the keys spread evenly over the partitions, which real keys never do: sequential ids share their top bits and pile into one partition. The fix is to quotient a permuted key rather than the key itself, using a one-round Feistel permutation, which the paper takes from the Handbook of Applied Cryptography. It makes a chosen bit range of the key look random, like a hash would, but unlike a hash it is invertible, so the quotient is still recoverable from the partition index and nothing about the key is lost. That is what lets the table store exact keys rather than fingerprints.
-
-For the talk track: We split the key into two parts. We call the prefix the quotient, and we call the remaining bits the remainder. Since the quotient decides which partition the key belongs to, the partition location itself already remembers those quotient bits; inside the partition we only store the remainder.}
+  {\scriptsize\textsuperscript{2}Knuth, \emph{TAOCP} vol.~3, 1998; Bender et al., FAST 2012.}
+  \note{For the talk track: We split the key into two parts. We call the prefix the quotient, and we call the remaining bits the remainder. Since the quotient decides which bucket the key belongs to, the bucket location itself already remembers those quotient bits; inside the bucket we only store the remainder.}
 \end{frame}
 
 \begin{frame}{Chained-TPHT}
@@ -689,7 +672,7 @@ For the talk track: We split the key into two parts. We call the prefix the quot
       tag/.style={line width=0.6pt},
       argbrace/.style={decorate,decoration={brace,mirror,amplitude=3pt,raise=2pt},line width=0.6pt}]
 
-    % =========== left column: insert, key split, head array ===============
+    % =========== left column: insert, key split, bucket array =============
     \node[draw=CornellRed,fill=CornellRed!7,rounded corners=2pt,line width=1.0pt,
           minimum width=2.05cm,minimum height=0.52cm,font=\Large\bfseries]
           (insert) at (-4.95,4.79) {\apiop{Insert}{k,v}};
@@ -710,14 +693,14 @@ For the talk track: We split the key into two parts. We call the prefix the quot
     \begin{scope}[visible on=<2->]
     \draw[Ink,line width=0.9pt,rounded corners=4pt,fill=CornellGray!55]
       (-6.60,1.35) rectangle (-3.30,2.65);
-    \node[anchor=north west,inner sep=0pt,font=\large\bfseries] at (-6.52,2.58) {Head Array};
+    \node[anchor=north west,inner sep=0pt,font=\large\bfseries] at (-6.52,2.58) {Bucket Array};
     \foreach \p/\c in {p_0/-6.07,p_1/-5.51,{\cdots}/-4.95,{\cdots}/-3.83} {
       \draw[BlueGray!55,line width=0.7pt,fill=white,rounded corners=1pt]
         (\c-0.25,1.55) rectangle (\c+0.25,2.10);
       \node[font=\normalsize\bfseries,text=Green] at (\c,1.825) {\(\p\)};
     }
     \node[anchor=north west,align=left,inner sep=0pt,font=\small,text=BlueGray] at (-6.60,1.18)
-      {one pointer\\[-2pt]per chain};
+      {one pointer\\[-2pt]per bucket/chain};
     \end{scope}
     % the q-th cell is just another cell until quotienting singles it out
     \begin{scope}[visible on=<2-3>]
@@ -831,7 +814,7 @@ For the talk track: We split the key into two parts. We call the prefix the quot
     \end{scope}
   \end{tikzpicture}
   \end{center}
-  \note{Insert splits the key into quotient q and remainder r. Quotienting sends q to the head array; the address of that cell is the owner id of the tiny pointer it holds, which is what Deref needs. Dereferencing lands on a slot inside a bin of the dereference table, and the node lives in that slot. Zooming in on that first hop: the insert allocates a free slot, using the address of that pointer field as the owner id, and writes the returned tiny pointer into it. The new slot holds the remainder, the value, and NULL. The quotient is never stored, because the head-array location already represents it.}
+  \note{Insert splits the key into quotient q and remainder r. Quotienting sends q to the bucket array; the address of that cell is the owner id of the tiny pointer it holds, which is what Deref needs. Dereferencing lands on a slot inside a bin of the dereference table, and the node lives in that slot. Zooming in on that first hop: the insert allocates a free slot, using the address of that pointer field as the owner id, and writes the returned tiny pointer into it. The new slot holds the remainder, the value, and NULL. The quotient is never stored, because the bucket-array location already represents it.}
 \end{frame}
 
 \begin{frame}{Making TPHT Fast}
@@ -842,7 +825,7 @@ For the talk track: We split the key into two parts. We call the prefix the quot
       \vspace{0.20cm}
       \begin{enumerate}\large
         \item \textbf{Heads stay in cache}\\[-1pt]
-          {\large the head array is
+          {\large the bucket array is
            \textcolor{CornellRed}{\textbf{\(8\times\)}} smaller}
           \vspace{0.18cm}
         \item \textbf{Smaller key storage}\\[-1pt]
@@ -853,17 +836,17 @@ For the talk track: We split the key into two parts. We call the prefix the quot
       \end{enumerate}
       \vspace{0.34cm}
       \centering
-      \uncover<2->{\begin{tikzpicture}
+      \begin{tikzpicture}
         \node[draw=Gold,fill=Gold!22,line width=2.0pt,rounded corners=6pt,align=center,
               inner xsep=9pt,inner ysep=5pt,font=\large\bfseries,text=Ink,rotate=4]
               {Very space-efficient,\\but locality can be better};
-      \end{tikzpicture}}
+      \end{tikzpicture}
 
     \column{0.50\textwidth}
-      \uncover<3->{{\LARGE\bfseries Opportunity 1:}\par}
+      \uncover<2->{{\LARGE\bfseries Opportunity 1:}\par}
       \vspace{-0.06cm}
       \begin{itemize}\Large
-        \item<3-> \textbf{First Pointer Indirection}
+        \item<2-> \textbf{First Pointer Indirection}
       \end{itemize}
       \vspace{-0.16cm}
       \begin{center}
@@ -883,20 +866,20 @@ For the talk track: We split the key into two parts. We call the prefix the quot
           tag/.style={anchor=north west,font=\normalsize,text=BlueGray}]
 
         % ===================== BEFORE =====================================
-        \begin{scope}[visible on=<3->]
+        \begin{scope}[visible on=<2->]
         \node[anchor=east,font=\small,text=BlueGray] at (3.00,1.98)
           {A chain in the hash table};
         \draw[beforepanel] (-2.95,0.16) rectangle (3.00,1.80);
         \node[beforetag] at (-2.70,1.05) {Before};
 
-        \node[anchor=south,font=\normalsize\bfseries,text=CornellRed,visible on=<4->] at (-0.77,1.34)
+        \node[anchor=south,font=\normalsize\bfseries,text=CornellRed,visible on=<3->] at (-0.77,1.34)
           {cache miss};
 
         \draw[box,Green,fill=Green!20] (-1.85,0.80) rectangle (-1.26,1.30);
         \node[fld] at (-1.555,1.05) {\(p\)};
-        \node[anchor=north,font=\normalsize,text=BlueGray] at (-1.555,0.72) {head array};
+        \node[anchor=north,font=\normalsize,text=BlueGray] at (-1.555,0.72) {bucket array};
 
-        \draw[flow,alt=<4->{CornellRed}{Ink}] (-1.26,1.05) -- (-0.28,1.05);
+        \draw[flow,alt=<3->{CornellRed}{Ink}] (-1.26,1.05) -- (-0.28,1.05);
 
         \fill[white,rounded corners=2pt] (-0.28,0.80) rectangle (1.13,1.30);
         \fill[Purple!20] (-0.28,0.80) rectangle (0.66,1.30);
@@ -918,7 +901,7 @@ For the talk track: We split the key into two parts. We call the prefix the quot
         \end{scope}
 
         % ===================== the merge ==================================
-        \begin{scope}[visible on=<5->]
+        \begin{scope}[visible on=<4->]
         \draw[mline] (-1.555,0.12) to[out=-80,in=162] (-1.145,-0.22);
         \draw[mline] (0.19,0.12) to[out=-100,in=18] (-1.145,-0.22);
         \draw[merge] (-1.145,-0.22) -- (-1.145,-0.80);
@@ -936,7 +919,7 @@ For the talk track: We split the key into two parts. We call the prefix the quot
         \node[fld] at (-1.615,-1.35) {\(r\)};
         \node[fld] at (-1.145,-1.35) {\(v\)};
         \node[fld] at (-0.675,-1.35) {\(p'\)};
-        \node[anchor=north,font=\normalsize,text=BlueGray] at (-1.145,-1.68) {head array};
+        \node[anchor=north,font=\normalsize,text=BlueGray] at (-1.145,-1.68) {bucket array};
 
         \draw[flow,Ink] (-0.44,-1.35) -- (0.44,-1.35);
         \draw[box,Ink!75,fill=white] (0.44,-1.60) rectangle (1.85,-1.10);
@@ -950,18 +933,18 @@ For the talk track: We split the key into two parts. We call the prefix the quot
         % ===================== payoff =====================================
         \node[draw=Gold,fill=Gold!22,line width=1.8pt,rounded corners=6pt,
               inner xsep=8pt,inner ysep=4pt,font=\Large\bfseries,text=Ink,rotate=4,
-              visible on=<6->]
+              visible on=<5->]
               at (0,-2.64) {One fewer cache miss!};
       \end{tikzpicture}
       \end{center}
   \end{columns}
-  \note{This slide transitions from the space story to the speed story. The main message is that Chained-TPHT is not merely smaller than a normal chained hash table; it is also more cache-friendly. Tiny pointers shrink the head array by a factor of eight, so the head array is much more likely to be cache-resident. Quotienting stores only the remainder r rather than the full key, so each tuple is smaller. Since head entries are cheap, we can also afford more quotient groups, which lowers the average chain length. Then emphasize the remaining problem: a head lookup still gives a pointer to the first chain node, and that first dereference can be an extra cache miss. The intermediate optimization is to inline the first tuple into the head entry. In the common case, the lookup obtains the first key-value candidate directly from the cache line holding the head entry; only later overflow tuples continue through pointers.}
+  \note{This slide transitions from the space story to the speed story. The main message is that Chained-TPHT is not merely smaller than a normal chained hash table; it is also more cache-friendly. Tiny pointers shrink the bucket array by a factor of eight, so the bucket array is much more likely to be cache-resident. Quotienting stores only the remainder r rather than the full key, so each tuple is smaller. Since head entries are cheap, we can also afford more quotient groups, which lowers the average chain length. Then emphasize the remaining problem: a head lookup still gives a pointer to the first chain node, and that first dereference can be an extra cache miss. The intermediate optimization is to inline the first tuple into the head entry. In the common case, the lookup obtains the first key-value candidate directly from the cache line holding the head entry; only later overflow tuples continue through pointers.}
 \end{frame}
 
 \begin{frame}{Making TPHT Fast: Chain Walks}
   \vspace{0.02cm}
   {\Large\bfseries Opportunity 2:}\hspace{0.40em}%
-  {\Large What if the whole chain lived in the \keyterm{header line}?}
+  {\Large What if the whole chain lived in the \textbf{bucket array}?}
 
   \vspace{0.06cm}
   \begin{center}
@@ -977,13 +960,13 @@ For the talk track: We split the key into two parts. We call the prefix the quot
                      line width=0.8pt,BlueGray},
       hop/.style={-{Latex[length=2.2mm,width=1.5mm]},line width=1.0pt,CornellRed},
       fixtag/.style={anchor=west,align=left,font=\large\bfseries},
-      yardtag/.style={font=\large\bfseries,text=CornellRed}]
+      yardtag/.style={font=\normalsize\bfseries,text=CornellRed}]
 
     % =================================================================
-    % LEFT -- one header line per bucket
+    % LEFT -- one cache line per bucket
     % =================================================================
     \draw[rounded corners=4pt,draw=none,fill=Gold!9] (-6.35,-2.10) rectangle (-0.45,3.20);
-    \node[anchor=north west,align=left] at (-6.20,3.15) {\large One \textbf{header line} per bucket};
+    \node[anchor=north west,align=left] at (-6.20,3.15) {\large One \textbf{cache line} per bucket};
 
     \foreach \q/\y/\n in {q_0/2.05/0, q_1/1.30/2, q_2/0.55/0, q_3/-0.20/3, q_*/-1.60/1} {
       \node[anchor=east,text=Ink] at (-5.65,\y) {\(\q\)};
@@ -997,7 +980,7 @@ For the talk track: We split the key into two parts. We call the prefix the quot
     }
     \node[font=\Large\bfseries,text=BlueGray] at (-3.85,-0.86) {\(\vdots\)};
 
-    % problem 1 -- header lines with nothing in them
+    % problem 1 -- cache lines with nothing in them
     \begin{scope}[visible on=<2->]
     \foreach \y in {2.05,0.55} {
       \fill[CornellRed!16,rounded corners=2pt] (-5.55,\y-0.24) rectangle (-2.15,\y+0.24);
@@ -1006,7 +989,7 @@ For the talk track: We split the key into two parts. We call the prefix the quot
     \node[anchor=west,align=left,text=CornellRed] at (-2.00,2.05) {empty:\\wasted};
     \end{scope}
 
-    % problem 2 -- a header line that cannot take one more
+    % problem 2 -- a cache line that cannot take one more
     \begin{scope}[visible on=<4->]
     \draw[flag] (-5.55,-0.44) rectangle (-2.15,0.04);
     \node[anchor=west,align=left,text=CornellRed] at (-2.00,-0.20) {full:\\no room};
@@ -1021,7 +1004,7 @@ For the talk track: We split the key into two parts. We call the prefix the quot
 
     % the front yard: one line opened up, many more like it below
     \draw[yardframe] (1.10,0.55) rectangle (5.95,3.20);
-    \node[yardtag,anchor=north west] at (1.25,3.15) {Front Yard};
+    \node[yardtag,anchor=north west] at (1.25,3.15) {Front Yard (Cache lines)};
 
     \draw[line64] (1.30,1.50) rectangle (5.75,2.46);
     \draw[metacell] (1.37,1.58) rectangle (2.11,2.02);
@@ -1047,14 +1030,14 @@ For the talk track: We split the key into two parts. We call the prefix the quot
     % =================================================================
     % fix 2: the spill goes out back -- and keeps chaining
     % =================================================================
-    \begin{scope}[visible on=<4->]
+    \begin{scope}[visible on=<5->]
     \node[fixtag] at (-0.28,-0.42) {Fix 2};
     \draw[ptr] (5.29,1.58) rectangle (5.69,2.02);
     \node[font=\small,text=Green!45!black] at (5.49,1.80) {\(p\)};
 
     \draw[yardframe] (1.10,-2.05) rectangle (5.95,0.20);
-    \node[yardtag,anchor=north west] at (1.25,0.14) {Back Yard};
-    \node[anchor=north west,font=\small,text=Ink] at (3.48,0.06) {Dereference Table};
+    \node[yardtag,anchor=north west] at (1.25,0.14) {Back Yard \small(Dereference Table)};
+    % \node[anchor=north west,font=\small,text=Ink] at (3.48,0.06) {Dereference Table};
     \foreach \c in {1.85,2.85,5.15} {
       \draw[Ink,line width=0.9pt,fill=white,rounded corners=1.5pt]
         (\c-0.26,-1.92) rectangle (\c+0.26,-0.52);
@@ -1076,9 +1059,9 @@ For the talk track: We split the key into two parts. We call the prefix the quot
   \end{center}
   \note{Walk this as one idea and two problems, taken one at a time.
 
-The idea: on the previous slide we pulled the first tuple into the head entry, so the obvious question is why stop there --- give each bucket a header line of its own and the whole chain lives in it, so a lookup never leaves that line.
+The idea: on the previous slide we pulled the first tuple into the head entry, so the obvious question is why stop there --- give each bucket a cache line of its own and the whole chain lives in it, so a lookup never leaves that line.
 
-First problem: buckets are short and a line holds about three tuples, so most header lines sit nearly empty; the two shaded ones hold nothing at all. That trades the locality problem for a space problem, which is the one thing this paper refuses to do. First fix: let several neighbouring buckets share one line, with a metadata field at the front that records where each bucket's run starts --- the brace shows what it is saying here, namely that q0 and q2 contribute nothing to this line and therefore cost nothing. The ghost lines above and below are the rest of the front yard: it is a whole array of these.
+First problem: buckets are short and a line holds about three tuples, so most cache lines sit nearly empty; the two shaded ones hold nothing at all. That trades the locality problem for a space problem, which is the one thing this paper refuses to do. First fix: let several neighbouring buckets share one line, with a metadata field at the front that records where each bucket's run starts --- the brace shows what it is saying here, namely that q0 and q2 contribute nothing to this line and therefore cost nothing. The ghost lines above and below are the rest of the front yard: it is a whole array of these.
 
 Second problem: capacity. Bucket q3 fills its share, and its next tuple has nowhere to go. Second fix: spend one tiny pointer at the end of the line and put the tuple in the dereference table, the back yard. But look at what happens there --- that tuple can point to another, and that one to another. We have moved the chain rather than removed it, and every hop is another cache miss. That is exactly the problem the next slide fixes: Flattened-TPHT makes the spill cost at most one hop.}
 \end{frame}
@@ -1089,7 +1072,7 @@ Second problem: capacity. Bucket q3 fills its share, and its next tuple has nowh
   \column{0.63\textwidth}
     {\Large Every operation costs at most \keyterm{one hop}.}
 
-    \vspace{-0.48cm}
+    \vspace{-0.18cm}
     \begin{center}
     \begin{tikzpicture}[x=1cm,y=1cm,
         flow/.style={-{Latex[length=2.4mm,width=1.7mm]},line width=1.0pt},
@@ -1182,8 +1165,6 @@ Second problem: capacity. Bucket q3 fills its share, and its next tuple has nowh
       % what k,v left behind: the freed bytes plus the pointer that replaced it
       \draw[CornellRed!65,dash pattern=on 2.2pt off 1.8pt,line width=0.9pt,rounded corners=2pt]
         (-1.60,0.58) rectangle (-0.48,1.02);
-      \node[anchor=north east,font=\normalsize,text=CornellRed] at (-0.68,0.55)
-        {\(k,v\) migrated};
       \draw[cell,Green!75,fill=Green!20] (-0.87,0.61) rectangle (-0.49,0.99);
       \node[font=\small,text=Green!55!black] at (-0.68,0.80) {\(p^{\dagger}\)};
       \draw[cell,blue!58!black,fill=blue!58!black!16] (-0.44,0.61) rectangle (-0.06,0.99);
@@ -1191,91 +1172,58 @@ Second problem: capacity. Bucket q3 fills its share, and its next tuple has nowh
 
       \end{scope}
 
-      % ---- dereference table -------------------------------------------
+      % ---- back yard: pointers land directly on key--value pairs -------
       \begin{scope}[visible on=<4->]
       \draw[dtbox] (0.80,0.58) rectangle (3.75,4.82);
       \node[anchor=north west,align=left,font=\large\bfseries,text=Ink] at (0.92,4.76)
         {\textcolor{CornellRed}{Back Yard}\\[-2pt]{\small\mdseries Dereference Table}};
-      \foreach \c in {1.31,1.79,2.75,3.23} {
-        \draw[Ink!70,line width=0.7pt,fill=white,rounded corners=1.5pt]
-          (\c-0.18,1.02) rectangle (\c+0.18,3.66);
-        \node[font=\normalsize\bfseries,text=BlueGray] at (\c,2.34) {\(\vdots\)};
-      }
-      \node[font=\normalsize\bfseries,text=BlueGray] at (2.27,2.34) {\(\cdots\)};
-      \slotball{1.31}{3.14}{1}\slotball{1.31}{2.80}{0}\slotball{1.31}{1.88}{1}\slotball{1.31}{1.54}{1}\slotball{1.31}{1.20}{0}
-      \slotball{1.79}{3.14}{0}\slotball{1.79}{2.80}{1}\slotball{1.79}{1.88}{1}\slotball{1.79}{1.54}{0}\slotball{1.79}{1.20}{1}
-      \slotball{2.75}{3.14}{1}\slotball{2.75}{2.80}{0}
-      \slotball{3.23}{3.14}{0}\slotball{3.23}{2.80}{1}\slotball{3.23}{1.54}{1}
-      \foreach \c/\y/\col in {1.31/3.48/{blue!58!black}} {
-        \fill[Ink] (\c,\y) circle (2.2pt);
-        \draw[\col,line width=1.1pt] (\c,\y) circle (4.0pt);
-      }
+      \draw[cell,blue!58!black,fill=blue!58!black!14] (1.48,3.28) rectangle (3.18,3.68);
+      \draw[blue!58!black!45,line width=0.5pt] (2.33,3.28) -- (2.33,3.68);
+      \node[font=\normalsize,text=blue!58!black] at (1.905,3.48) {\(k'\)};
+      \node[font=\normalsize,text=blue!58!black] at (2.755,3.48) {\(v'\)};
       \end{scope}
       \begin{scope}[visible on=<5->]
-      \foreach \c/\y/\col in {2.75/1.88/{Green!70!black}, 3.23/1.20/CornellRed} {
-        \fill[Ink] (\c,\y) circle (2.2pt);
-        \draw[\col,line width=1.1pt] (\c,\y) circle (4.0pt);
-      }
+      \draw[cell,CornellRed,fill=CornellRed!14] (1.48,2.16) rectangle (3.18,2.56);
+      \draw[CornellRed!45,line width=0.5pt] (2.33,2.16) -- (2.33,2.56);
+      \node[font=\normalsize,text=CornellRed] at (1.905,2.36) {\(k\)};
+      \node[font=\normalsize,text=CornellRed] at (2.755,2.36) {\(v\)};
+
+      \draw[cell,Green!70!black,fill=Green!14] (1.48,1.00) rectangle (3.18,1.40);
+      \draw[Green!45!black,line width=0.5pt] (2.33,1.00) -- (2.33,1.40);
+      \node[font=\normalsize,text=Green!55!black] at (1.905,1.20) {\(k^{\dagger}\)};
+      \node[font=\normalsize,text=Green!55!black] at (2.755,1.20) {\(v^{\dagger}\)};
       \end{scope}
 
       % each arrow leaves the pointer cell it belongs to
-      \draw[flow,blue!58!black,visible on=<4->] (-0.06,2.29) to[out=30,in=205] (1.11,3.42);
+      \draw[flow,blue!58!black,visible on=<4->] (-0.06,2.29) to[out=30,in=205] (1.45,3.48);
       \begin{scope}[visible on=<5->]
       \draw[flow,Green!70!black]
-        (-0.68,0.59) .. controls (-0.68,0.32) and (2.75,0.28) .. (2.75,1.78);
+        (-0.68,0.59) .. controls (-0.68,0.32) and (1.20,0.34) .. (1.45,1.20);
       \draw[flow,CornellRed]
-        (-1.11,0.59) .. controls (-1.11,0.10) and (3.23,0.04) .. (3.23,1.10);
-      \end{scope}
-
-      % ---- zoom: every ball opens into the tuple it holds ---------------
-      \begin{scope}[visible on=<4->]
-      \foreach \y/\col/\lk/\lv in {3.48/{blue!58!black}/{k'}/{v'}} {
-        \draw[cell,\col,fill=\col!14] (3.90,\y-0.20) rectangle (4.68,\y+0.20);
-        \draw[\col!45,line width=0.5pt] (4.29,\y-0.20) -- (4.29,\y+0.20);
-        \node[font=\normalsize,text=\col] at (4.095,\y) {\(\lk\)};
-        \node[font=\normalsize,text=\col] at (4.485,\y) {\(\lv\)};
-      }
-      \draw[zoomline,blue!58!black]  (1.49,3.48) -- (3.86,3.48);
-      \end{scope}
-      \begin{scope}[visible on=<5->]
-      \foreach \y/\col/\lk/\lv in {1.88/{Green!70!black}/{k^{\dagger}}/{v^{\dagger}},
-                                   1.20/CornellRed/{k}/{v}} {
-        \draw[cell,\col,fill=\col!14] (3.90,\y-0.20) rectangle (4.68,\y+0.20);
-        \draw[\col!45,line width=0.5pt] (4.29,\y-0.20) -- (4.29,\y+0.20);
-        \node[font=\normalsize,text=\col] at (4.095,\y) {\(\lk\)};
-        \node[font=\normalsize,text=\col] at (4.485,\y) {\(\lv\)};
-      }
-      \draw[zoomline,Green!70!black] (2.93,1.88) -- (3.86,1.88);
-      \draw[zoomline,CornellRed]     (3.41,1.20) -- (3.86,1.20);
+        (-1.11,1.02) .. controls (-0.92,1.20) and (0.30,1.14) .. (0.58,1.28)
+        .. controls (0.88,1.43) and (0.94,2.36) .. (1.45,2.36);
       \end{scope}
     \end{tikzpicture}
     \end{center}
 
   \column{0.34\textwidth}
-    \vspace{0.50cm}
+    \vspace{0.35cm}
     \uncover<6->{%
+    {\Large\bfseries Compact mixed layout\par}
+    \vspace{0.10cm}
+    {\large Each cache line packs both key--value pairs and tiny pointers.\par}}
+
+    \vspace{0.55cm}
+    \uncover<7->{%
     {\Large\bfseries No pointer chasing\par}
     \vspace{0.10cm}
     {\large \textcolor{CornellRed}{\textbf{1.25}} memory accesses
       per operation.\par}}
-
-    \vspace{0.50cm}
-    \uncover<7->{%
-    {\Large\bfseries Migration is rare\par}
-    \vspace{0.10cm}
-    {\large A tuple migrates out with probability
-      \textcolor{CornellRed}{\textbf{5.1\%}}.\par}}
-
-    \vspace{0.50cm}
-    \uncover<8->{%
-    {\Large\bfseries No hard overflow\par}
-    \vspace{0.10cm}
-    {\large Room for \textcolor{CornellRed}{\textbf{31}} pointers,
-      max load \textcolor{CornellRed}{\textbf{24}} w.h.p.\par}}
   \end{columns}
-  \note{This slide introduces Flattened-TPHT in a simplified way for the audience. We do not need to exactly follow every construction detail from the paper. The story is: each key bucket owns a cache-line home block. We append quotient-compressed tuples into the home block first. If we cannot append a full tuple, we store a tiny pointer to one tuple in the overflow table. Stress that this is not a linked list: the overflow tuple does not iteratively point to more overflow tuples. If more room is needed in the home block, we can push one existing tuple to the overflow table and replace it by a tiny pointer, which creates more space for new home-resident tuples or more tiny pointers. This works because quotienting shaved bytes off the stored keys. If the audience asks whether four home slots, two pointer slots, and the overflow table are enough, say that the paper analyzes these capacity questions and sizes the overflow pool using the spill tail; the slide gives the key numbers and the measured result that queries average about 1.25 cache misses.}
+  \note{This slide introduces Flattened-TPHT in a simplified way for the audience. Each bucket owns a compact cache-line block that packs quotient-compressed key--value pairs together with tiny pointers. A pointer leads directly to its key--value pair in the back yard, so lookups never chase a linked list. The measured result is about 1.25 memory accesses per operation.}
 \end{frame}
 
+\iffalse
 \begin{frame}{Experimental Setup}
   \vspace{0.35cm}
   \begin{center}
@@ -1510,37 +1458,122 @@ Second problem: capacity. Bucket q3 fills its share, and its next tuple has nowh
   \note{Each curve is one hash table swept across load factors: we insert in 5 percent increments on a single pinned core and plot throughput against the space efficiency reached so far. Two things to read off. First, where each curve ends: that is the most data the table can hold before it fails or resizes. The baselines stop between 70 and 82 percent; Chained-TPHT runs past 105 percent. Second, the height: Flattened-TPHT is the top curve almost everywhere, so the extra space efficiency does not cost throughput. Most tables slope down as they fill, which is the expected tension; TBB and Junction actually rise, because TBB allocates buckets lazily and Junction's probe behavior is cheap at low load.}
 \end{frame}
 
+\fi
+\begin{frame}{Results}
+  \vspace{0.04cm}
+  \begin{columns}[T,onlytextwidth]
+    \column{0.49\textwidth}
+      \parbox[t][1.35cm][t]{\linewidth}{\large
+        \Flat is \keyterm{2.0\(\times\)} the fastest baseline on load,
+        \keyterm{2.3\(\times\)} on run. \Chained stays competitive.\par}
+      \vspace{0.08cm}
+      \begin{center}
+      \begin{tikzpicture}
+        \begin{axis}[
+          ybar,
+          width=\linewidth,
+          height=0.56\textheight,
+          ymin=0,
+          ymax=545,
+          ylabel={\textbf{Throughput} (M ops/s)},
+          ylabel style={font=\normalsize},
+          symbolic x coords={Cuckoo,Iceberg,Junction,TBB,Chained,Flattened},
+          xtick={Cuckoo,Iceberg,Junction,TBB,Chained,Flattened},
+          xmin=Cuckoo, xmax=Flattened,
+          x tick label style={rotate=32,anchor=center,xshift=-0.25cm,yshift=-0.50cm,font=\scriptsize},
+          y tick label style={font=\scriptsize},
+          legend style={draw=none,fill=none,at={(0.50,1.02)},anchor=south,legend columns=2,font=\normalsize},
+          bar width=7pt,
+          enlarge x limits=0.11,
+          axis line style={draw=Ink},
+          grid=major,
+          major grid style={line width=0.25pt,draw=CornellGray},
+          tick align=outside,
+          nodes near coords={\pgfmathprintnumber[fixed,zerofill,precision=1]{\pgfplotspointmeta}},
+          nodes near coords style={font=\tiny,rotate=70,anchor=west,inner sep=1pt}
+        ]
+          \addplot[fill=BlueGray!30,draw=BlueGray,bar shift=-5pt,forget plot] coordinates
+            {(Cuckoo,116.1) (Iceberg,114.3) (Junction,18.4) (TBB,8.5)};
+          \addplot[fill=CornellRed!72,draw=CornellRed,bar shift=-5pt,forget plot] coordinates
+            {(Chained,100.4) (Flattened,227.5)};
+          \addplot[pattern=north east lines,pattern color=BlueGray,draw=BlueGray,
+                   bar shift=5pt,forget plot] coordinates
+            {(Cuckoo,130.5) (Iceberg,167.5) (Junction,156.7) (TBB,40.2)};
+          \addplot[pattern=north east lines,pattern color=CornellRed,draw=CornellRed,
+                   bar shift=5pt,forget plot] coordinates
+            {(Chained,196.0) (Flattened,391.2)};
+          \addlegendimage{area legend,fill=Ink!22,draw=Ink}
+          \addlegendentry{load}
+          \addlegendimage{area legend,pattern=north east lines,pattern color=Ink,draw=Ink}
+          \addlegendentry{run}
+        \end{axis}
+      \end{tikzpicture}
+      \end{center}
+
+    \column{0.49\textwidth}
+      \parbox[t][1.35cm][t]{\linewidth}{\large
+        \Chained passes \keyterm{100\%}: more payload than the memory it allocates.\par}
+      \vspace{0.58cm}
+      \begin{center}
+      \begin{tikzpicture}
+        \begin{axis}[
+          ybar,
+          width=\linewidth,
+          height=0.56\textheight,
+          ymin=0,
+          ymax=132,
+          ylabel={\textbf{Max Space Efficiency} (\%)},
+          ylabel style={font=\normalsize},
+          symbolic x coords={TBB,Cuckoo,Junction,IcebergHT,Flattened,Chained},
+          xtick={TBB,Cuckoo,Junction,IcebergHT,Flattened,Chained},
+          xmin=TBB, xmax=Chained,
+          x tick label style={rotate=32,anchor=center,xshift=-0.25cm,yshift=-0.50cm,font=\scriptsize},
+          y tick label style={font=\scriptsize},
+          nodes near coords={\pgfmathprintnumber[fixed,zerofill,precision=1]{\pgfplotspointmeta}},
+          nodes near coords style={font=\scriptsize,anchor=south,inner sep=1pt},
+          bar width=10pt,
+          enlarge x limits=0.12,
+          axis line style={draw=Ink},
+          grid=major,
+          major grid style={line width=0.25pt,draw=CornellGray},
+          tick align=outside
+        ]
+          \addplot[fill=BlueGray!30,draw=BlueGray] coordinates
+            {(TBB,32.3) (Cuckoo,70.1) (Junction,75.0) (IcebergHT,81.7)};
+          \addplot[fill=CornellRed!72,draw=CornellRed] coordinates
+            {(Flattened,83.4) (Chained,105.4)};
+          \draw[dashed,CornellRed!70,line width=0.8pt]
+            ({rel axis cs:0,0}|-{axis cs:TBB,100}) -- ({rel axis cs:1,0}|-{axis cs:TBB,100});
+        \end{axis}
+      \end{tikzpicture}
+      \end{center}
+  \end{columns}
+\end{frame}
+
 \begin{frame}{Summary}
   \begin{center}
   \begin{tikzpicture}[x=1cm,y=1cm]
-    \node[anchor=west,font=\LARGE\bfseries,text=CornellRed] at (0,0.46)  {Tiny pointers};
-    \node[anchor=west,font=\LARGE\bfseries,text=CornellRed] at (0,-0.46) {Quotienting};
+    \node[anchor=west,font=\LARGE\bfseries,text=CornellRed] at (-0.45,0.92)  {Tiny pointers};
+    \node[anchor=west,font=\LARGE\bfseries,text=CornellRed] at (-0.45,0)     {Quotienting};
+    \node[anchor=west,font=\LARGE\bfseries,text=CornellRed] at (-0.45,-0.92) {Cache friendliness};
     \draw[decorate,decoration={brace,amplitude=8pt},line width=1pt,Ink]
-      (3.95,0.98) -- (3.95,-0.98);
-    \node[anchor=west,font=\LARGE] at (4.60,0)
-      {engineered into real hash tables.};
+      (5.40,1.40) -- (5.40,-1.40);
+    \node[anchor=west,align=left,font=\LARGE] at (6.05,0)
+      {engineered into\\real hash tables.};
   \end{tikzpicture}
   \end{center}
 
-  \begin{columns}[T,onlytextwidth]
-    \column{0.49\textwidth}
-      {\LARGE\bfseries\Chained\par}
-      \vspace{0.22cm}
-      {\Large first practical \keyterm{succinct} table\par
-        \vspace{0.12cm}
-        smaller than the raw data\par
-        \vspace{0.12cm}
-        \keyterm{constant-time} operations\par}
-    \column{0.49\textwidth}
-      {\LARGE\bfseries\Flat\par}
-      \vspace{0.22cm}
-      {\Large cache-aware layout\par
-        \vspace{0.12cm}
-        typically \keyterm{one memory access}\par
-        \vspace{0.12cm}
-        best measured \keyterm{speed--space} trade-off\par}
-  \end{columns}
-  \note{This is the paper's conclusion in one slide. Lead with the thesis: tiny pointers and key quotienting are two ideas that lived in the theory literature, and the contribution is engineering them into hash tables people can actually ship. Then the two designs and what each one is for. Chained-TPHT is, to our knowledge, the first practical succinct hash table --- it uses less space than the data itself while keeping constant-time operations, which is the part a theory audience will care about. Flattened-TPHT is the one to reach for if latency matters: the cache-aware layout keeps the common case to a single memory access, and it is still more space-efficient than every baseline we compared against. On the last line, spell out what ready for real systems means: both variants support deletions, they resize online without any stop-the-world pause, and they integrate cleanly with plain 64-bit keys and values. That is what makes this usable rather than a paper artifact. Numbers are on the previous slides if anyone asks.}
+  \vspace{0.55cm}
+  \begin{center}
+    \begin{tikzpicture}
+      \node[draw=CornellRed,fill=CornellRed!7,line width=1.8pt,rounded corners=7pt,
+            inner xsep=18pt,inner ysep=12pt,align=center]
+        {\LARGE\bfseries TPHT delivers \textcolor{CornellRed}{fast} and
+         \textcolor{CornellRed}{small} hash tables---\\[3pt]
+         \Large at the same time.};
+    \end{tikzpicture}
+  \end{center}
+  \note{Close with the three ingredients: tiny pointers, quotienting, and a cache-friendly layout. Together they turn the usual speed--space trade-off into hash tables that are both fast and compact.}
 \end{frame}
 
 \begin{frame}[plain]
