@@ -236,7 +236,7 @@
     \begin{scope}[visible on=<2->]
     \node[draw=Gold,fill=Gold!22,line width=1.5pt,rounded corners=5pt,
           inner xsep=7pt,inner ysep=4pt,font=\Large\bfseries,text=Ink,rotate=-8]
-          (slowbadge) at (4.6,1.20) {\(1.7\times\) slower};
+          (slowbadge) at (4.6,1.20) {\(1.7\times\) faster};
     \draw[-{Latex[length=2.8mm,width=2.1mm]},Gold!50!Ink,line width=1.7pt]
       (slowbadge.west) to[out=195,in=15] (2.02,0.99);
     \end{scope}
@@ -336,14 +336,11 @@ Motivation. Hash tables are among the most used data structures and have been st
       {\LARGE\bfseries Secret sauce:}\par
       \vspace{0.24cm}
       \begin{enumerate}\Large
-        \item \keyterm{Tiny pointers}\\[-1pt]
-          {\Large compress the \textbf{pointer}}
+        \item \keyterm{Tiny pointers}
           \vspace{0.18cm}
-        \item \keyterm{Quotienting}\\[-1pt]
-          {\Large compress the \textbf{key}}
+        \item \keyterm{Quotienting}
           \vspace{0.18cm}
-        \item \keyterm{Cache-friendly layout}\\[-1pt]
-          {\Large compress the \textbf{execution time}}
+        \item \keyterm{Cache-friendly layout}
       \end{enumerate}}
   \end{columns}
   \note{The headline. Chained-TPHT is the space-optimized variant: it passes one hundred percent space efficiency, meaning it stores more key and value bits than it has bytes of memory, which is what succinct means in practice. Flattened-TPHT gives up a little of that and buys the top throughput in our experiments. Then the roadmap for the rest of the talk: two theory ingredients, tiny pointers and quotienting, plus a cache-friendly layout. The third bullet is the joke: it compresses the execution time.}
@@ -363,16 +360,16 @@ Motivation. Hash tables are among the most used data structures and have been st
     % Keep the diagram independent of the prose column.
     \path[use as bounding box] (-6.08,-1.40) rectangle (1.80,2.38);
 
-    \node[anchor=south west,align=left,inner sep=0pt,font=\small,text=BlueGray,visible on=<2->]
+    \node[anchor=south west,align=left,inner sep=0pt,font=\small,alt=<3-4>{text=Ink!20}{text=BlueGray},visible on=<2->]
       at (-5.96,1.92) {Bob: owner};
-    \node[draw=CornellRed,fill=CornellRed!7,rounded corners=2pt,visible on=<2->,
+    \node[alt=<3-4>{draw=Ink!20,fill=Ink!2,text=Ink!20}{draw=CornellRed,fill=CornellRed!7,text=Ink},rounded corners=2pt,visible on=<2->,
           anchor=west,minimum width=3.25cm,minimum height=0.52cm,font=\normalsize\bfseries] (alloc) at (-6.00,1.55)
       {\apiop{Alloc}{\text{Bob}}};
-    \node[font=\large\bfseries,CornellRed,visible on=<2->] at (-4.37,0.90) {return \(p_2\)};
-    \node[draw=Green,fill=Green!8,rounded corners=2pt,visible on=<3->,
+    \node[font=\large\bfseries,alt=<3-4>{text=Ink!20}{text=CornellRed},visible on=<2->] at (-4.37,0.90) {return \(p_2\)};
+    \node[alt=<4>{draw=Ink!20,fill=Ink!2,text=Ink!20}{draw=Green,fill=Green!8,text=Ink},rounded corners=2pt,visible on=<3->,
           anchor=west,minimum width=3.25cm,minimum height=0.52cm,font=\normalsize\bfseries] (deref) at (-6.00,0.25)
       {\apiop{Deref}{\text{Alice}, p_1}};
-    \node[font=\large\bfseries,Green!65!black,visible on=<3->] at (-4.37,-0.40) {return Bob};
+    \node[font=\large\bfseries,alt=<4>{text=Ink!20}{text=Green!65!black},visible on=<3->] at (-4.37,-0.40) {return Bob};
     \node[draw=Purple,fill=Purple!8,rounded corners=2pt,visible on=<4->,
           anchor=west,minimum width=3.25cm,minimum height=0.52cm,font=\normalsize\bfseries] (free) at (-6.00,-1.05)
       {\apiop{Free}{\text{owner}, p}};
@@ -383,42 +380,42 @@ Motivation. Hash tables are among the most used data structures and have been st
 
     % Alice's node: plain until Deref walks through it
     \draw[line width=0.9pt,rounded corners=2pt,
-          alt=<3->{Green,fill=Green!6}{Ink!55,fill=white}]
+          alt=<3>{Green,fill=Green!6}{alt=<4>{Ink!20,fill=Ink!2}{alt=<5->{Green,fill=Green!6}{Ink!55,fill=white}}}]
       (-0.90,0.97) rectangle (1.40,1.43);
-    \draw[line width=0.7pt,alt=<3->{Green}{Ink!55}] (0.60,0.97) -- (0.60,1.43);
-    \node[font=\normalsize\bfseries,alt=<3->{text=Green}{text=Ink}] (aobj) at (-0.15,1.20) {Alice};
-    \node[font=\normalsize\bfseries,alt=<3->{text=Green}{text=Ink}] (aptr) at (1.00,1.20) {\(p_1\)};
+    \draw[line width=0.7pt,alt=<3>{Green}{alt=<4>{Ink!20}{alt=<5->{Green}{Ink!55}}}] (0.60,0.97) -- (0.60,1.43);
+    \node[font=\normalsize\bfseries,alt=<3>{text=Green}{alt=<4>{text=Ink!20}{alt=<5->{text=Green}{text=Ink}}}] (aobj) at (-0.15,1.20) {Alice};
+    \node[font=\normalsize\bfseries,alt=<3>{text=Green}{alt=<4>{text=Ink!20}{alt=<5->{text=Green}{text=Ink}}}] (aptr) at (1.00,1.20) {\(p_1\)};
 
     % Bob's node: the pointer field starts as a NULL placeholder, and Alloc
     % is what turns it into p_2
     \draw[line width=0.9pt,rounded corners=2pt,
-          alt=<3->{Ink,fill=Green!8}{Ink!55,fill=white}]
+          alt=<3>{Ink,fill=Green!8}{alt=<4>{Ink!20,fill=Ink!2}{alt=<5->{Ink,fill=Green!8}{Ink!55,fill=white}}}]
       (-0.90,0.05) rectangle (0.60,0.51);
     \draw[line width=0.9pt,rounded corners=2pt,
-          alt=<2->{CornellRed,dashed,fill=CornellRed!7}{Ink!55,fill=white}]
+          alt=<2>{CornellRed,dashed,fill=CornellRed!7}{alt=<3-4>{Ink!20,dashed,fill=Ink!2}{alt=<5->{CornellRed,dashed,fill=CornellRed!7}{Ink!55,fill=white}}}]
       (0.60,0.05) rectangle (1.40,0.51);
-    \node[font=\normalsize\bfseries,alt=<3->{text=Green}{text=Ink}] (bobj) at (-0.15,0.28) {Bob};
-    \node[font=\normalsize\bfseries,alt=<2->{text=CornellRed}{text=BlueGray!75}] (bptr) at (1.00,0.28)
+    \node[font=\normalsize\bfseries,alt=<3>{text=Green}{alt=<4>{text=Ink!20}{alt=<5->{text=Green}{text=Ink}}}] (bobj) at (-0.15,0.28) {Bob};
+    \node[font=\normalsize\bfseries,alt=<2>{text=CornellRed}{alt=<3-4>{text=Ink!20}{alt=<5->{text=CornellRed}{text=BlueGray!75}}}] (bptr) at (1.00,0.28)
       {\alt<2->{\(p_2\)}{\(\bot\)}};
 
     \begin{scope}[visible on=<2->]
-    \draw[CornellRed,dashed,line width=0.9pt,rounded corners=2pt,fill=CornellRed!7]
+    \draw[alt=<3-4>{Ink!20,fill=Ink!2}{CornellRed,fill=CornellRed!7},dashed,line width=0.9pt,rounded corners=2pt]
       (-0.90,-0.87) rectangle (1.40,-0.41);
-    \draw[CornellRed,dashed,line width=0.7pt] (0.60,-0.87) -- (0.60,-0.41);
-    \node[CornellRed,font=\normalsize\bfseries] (cobj) at (-0.15,-0.64) {Carol};
-    \node[CornellRed,font=\normalsize\bfseries] (cptr) at (1.00,-0.64) {\(\bot\)};
+    \draw[alt=<3-4>{Ink!20}{CornellRed},dashed,line width=0.7pt] (0.60,-0.87) -- (0.60,-0.41);
+    \node[alt=<3-4>{text=Ink!20}{text=CornellRed},font=\normalsize\bfseries] (cobj) at (-0.15,-0.64) {Carol};
+    \node[alt=<3-4>{text=Ink!20}{text=CornellRed},font=\normalsize\bfseries] (cptr) at (1.00,-0.64) {\(\bot\)};
     \end{scope}
 
     \draw[-{Latex[length=2.15mm,width=1.55mm]},line width=0.95pt,
-          alt=<3->{Green}{Ink!55}]
-      (1.00,0.97) -- (1.00,0.53);
-    \draw[-{Latex[length=2.15mm,width=1.55mm]},CornellRed,dashed,line width=0.95pt,visible on=<2->]
-      (1.00,0.05) -- (1.00,-0.39);
+          alt=<3>{Green}{alt=<4>{Ink!20}{alt=<5->{Green}{Ink!55}}}]
+      (1.00,0.97) to[out=-105,in=75] (-0.15,0.53);
+    \draw[-{Latex[length=2.15mm,width=1.55mm]},alt=<3-4>{Ink!20}{CornellRed},dashed,line width=0.95pt,visible on=<2->]
+      (1.00,0.05) to[out=-105,in=75] (-0.15,-0.39);
 
     \coordinate (bobwest) at (-0.90,0.28);
     \coordinate (carolwest) at (-0.90,-0.64);
-    \draw[-Latex,Green,line width=1.0pt,visible on=<3->] (deref.east) to[out=0,in=180] (bobwest);
-    \draw[-Latex,CornellRed,line width=1.0pt,visible on=<2->] (alloc.east) to[out=0,in=180] (carolwest);
+    \draw[-Latex,alt=<4>{Ink!20}{Green},line width=1.0pt,visible on=<3->] (deref.east) to[out=0,in=180] (bobwest);
+    \draw[-Latex,alt=<3-4>{Ink!20}{CornellRed},line width=1.0pt,visible on=<2->] (alloc.east) to[out=0,in=180] (carolwest);
   \end{tikzpicture}
   \end{column}
   \begin{column}{0.36\textwidth}
@@ -436,7 +433,7 @@ Motivation. Hash tables are among the most used data structures and have been st
    \emph{Tiny Pointers}. SODA 2023.}
 \end{frame}
 
-\begin{frame}{Tiny Pointer: Implementation}
+\begin{frame}[t]{Tiny Pointer: Implementation}
   \vspace{0.04cm}
   {\LARGE Tiny pointers require a \textbf{special memory allocator}, called a \keyterm{dereference table}.}
 
@@ -577,7 +574,7 @@ Motivation. Hash tables are among the most used data structures and have been st
      below \textcolor{CornellRed}{\textbf{95\%}}\textsuperscript{*}.\par}}
     \vspace{0.22cm}
     \centering
-    \only<8->{\begin{tikzpicture}
+    \uncover<8->{\begin{tikzpicture}
       \node[draw=Gold,fill=Gold!22,line width=2.4pt,rounded corners=7pt,
             inner xsep=13pt,inner ysep=8pt,font=\large\bfseries,text=Ink,rotate=4,align=center]
             {The power\\of two choices!};
@@ -676,8 +673,8 @@ Motivation. Hash tables are among the most used data structures and have been st
     \node[draw=CornellRed,fill=CornellRed!7,rounded corners=2pt,line width=1.0pt,
           minimum width=2.05cm,minimum height=0.52cm,font=\Large\bfseries]
           (insert) at (-4.95,4.79) {\apiop{Insert}{k,v}};
-    % the key split only shows up once the two arrays are on screen
-    \begin{scope}[visible on=<3->]
+    % quotienting replaces the ordinary hash route on the second beat
+    \begin{scope}[visible on=<2->]
     \draw[flow,Ink] (-4.95,4.53) -- (-4.95,4.10);
 
     \node[inner sep=0pt,font=\Large\bfseries] at (-6.25,3.85) {\(k\)};
@@ -690,7 +687,7 @@ Motivation. Hash tables are among the most used data structures and have been st
     \node[font=\Large\bfseries,text=Purple] at (-4.13,3.85) {\(r\)};
     \end{scope}
 
-    \begin{scope}[visible on=<2->]
+    \begin{scope}[visible on=<1->]
     \draw[Ink,line width=0.9pt,rounded corners=4pt,fill=CornellGray!55]
       (-6.60,1.35) rectangle (-3.30,2.65);
     \node[anchor=north west,inner sep=0pt,font=\large\bfseries] at (-6.52,2.58) {Bucket Array};
@@ -702,13 +699,48 @@ Motivation. Hash tables are among the most used data structures and have been st
     \node[anchor=north west,align=left,inner sep=0pt,font=\small,text=BlueGray] at (-6.60,1.18)
       {one pointer\\[-2pt]per bucket/chain};
     \end{scope}
-    % the q-th cell is just another cell until quotienting singles it out
-    \begin{scope}[visible on=<2-3>]
-    \draw[BlueGray!55,line width=0.7pt,fill=white,rounded corners=1pt]
+    % ordinary chaining: the full key hashes to a bucket pointer
+    \begin{scope}[visible on=<1-2>]
+    \begin{scope}[visible on=<1>]
+    \draw[BlueGray,line width=1.0pt,fill=BlueGray!8,rounded corners=1pt]
       (-4.64,1.55) rectangle (-4.14,2.10);
-    \node[font=\normalsize\bfseries,text=Green] at (-4.39,1.825) {\(\cdots\)};
+    \node[font=\normalsize\bfseries,text=Green] at (-4.39,1.825) {\(p_i\)};
+    \draw[flow,BlueGray] (-4.95,4.53)
+      .. controls (-4.84,3.42) and (-3.76,3.18) .. (-3.76,2.66)
+      .. controls (-3.76,2.37) and (-4.15,2.30) .. (-4.28,2.14);
+    \node[fill=white,inner sep=1.8pt,font=\large,text=BlueGray] at (-4.70,3.60)
+      {\(i=h(k)\)};
     \end{scope}
-    \begin{scope}[visible on=<4->]
+
+    \node[anchor=north west,font=\Large\bfseries,text=BlueGray] at (0.30,4.88)
+      {Chain of tuples};
+    \draw[Ink!75,line width=1.0pt,rounded corners=2pt,fill=white]
+      (0.35,3.45) rectangle (2.70,4.05);
+    \draw[Ink!35,line width=0.7pt] (1.13,3.45) -- (1.13,4.05);
+    \draw[Ink!35,line width=0.7pt] (1.91,3.45) -- (1.91,4.05);
+    \draw[Purple,line width=1.15pt,fill=Purple!10,visible on=<2>]
+      (0.35,3.45) rectangle (1.13,4.05);
+    \node[font=\normalsize\bfseries] at (0.74,3.75)
+      {\only<1>{\(k_{*}\)}\only<2>{\textcolor{Purple}{\(r_{*}\)}}};
+    \node[font=\normalsize\bfseries] at (1.52,3.75) {\(v_{*}\)};
+    \node[font=\normalsize\bfseries,text=Green] at (2.305,3.75) {\(p\)};
+
+    \draw[Ink!75,line width=1.0pt,rounded corners=2pt,fill=white]
+      (3.25,3.45) rectangle (5.60,4.05);
+    \draw[Ink!35,line width=0.7pt] (4.03,3.45) -- (4.03,4.05);
+    \draw[Ink!35,line width=0.7pt] (4.81,3.45) -- (4.81,4.05);
+    \draw[Purple,line width=1.15pt,fill=Purple!10,visible on=<2>]
+      (3.25,3.45) rectangle (4.03,4.05);
+    \node[font=\normalsize\bfseries] at (3.64,3.75)
+      {\only<1>{\(k\)}\only<2>{\textcolor{Purple}{\(r\)}}};
+    \node[font=\normalsize\bfseries] at (4.42,3.75) {\(v\)};
+    \node[font=\normalsize\bfseries,text=BlueGray] at (5.205,3.75) {\(\bot\)};
+
+    \draw[flow,Green] (-4.14,1.825)
+      .. controls (-2.35,1.825) and (-1.30,3.75) .. (0.31,3.75);
+    \draw[flow,Green] (2.70,3.75) -- (3.21,3.75);
+    \end{scope}
+    \begin{scope}[visible on=<2->]
     \draw[CornellRed,line width=1.15pt,fill=CornellRed!8,rounded corners=1pt]
       (-4.64,1.55) rectangle (-4.14,2.10);
     \node[font=\normalsize\bfseries,text=Green] at (-4.39,1.825) {\(p_{\textcolor{CornellRed}{q}}\)};
@@ -720,14 +752,14 @@ Motivation. Hash tables are among the most used data structures and have been st
       {quotienting};
     \end{scope}
     % the address marker is what Deref needs, so it arrives with the call
-    \begin{scope}[visible on=<5->]
+    \begin{scope}[visible on=<4->]
     \fill[BlueGray] (-4.14,1.55) -- (-4.32,1.55) -- (-4.14,1.70) -- cycle;
     \draw[tag,BlueGray] (-4.14,1.55) -- (-4.14,1.18) -- (-3.06,1.18);
     \node[anchor=west,font=\small,text=BlueGray] at (-3.02,1.18) {address \(A_{\textcolor{CornellRed}{q}}\)};
     \end{scope}
 
     % =========== right column, top: the dereference table =================
-    \begin{scope}[visible on=<2->]
+    \begin{scope}[visible on=<3->]
     \draw[Ink,line width=0.9pt,rounded corners=4pt,fill=CornellGray!55]
       (0.20,2.55) rectangle (5.40,5.05);
     \node[anchor=north west,font=\large\bfseries] at (0.35,5.00) {Dereference Table};
@@ -747,20 +779,22 @@ Motivation. Hash tables are among the most used data structures and have been st
       {each\\column\\is a bin};
     \end{scope}
     % the occupied slot we reach, and the free slot the insert takes
-    \begin{scope}[visible on=<5->]
+    \begin{scope}[visible on=<3->]
     \fill[Ink] (0.90,3.84) circle (2.35pt);
     \draw[Green,line width=1.1pt] (0.90,3.84) circle (4.4pt);
     \end{scope}
-    \begin{scope}[visible on=<7->]
+    \begin{scope}[visible on=<3->]
     \draw[CornellRed,line width=1.1pt,fill=CornellRed!18] (1.90,3.10) circle (3.15pt);
     \draw[thinflow,CornellRed] (1.05,3.80) to[out=10,in=120] (1.76,3.21);
     \end{scope}
 
-    % =========== the dereference call rides on its own arrow ==============
-    \begin{scope}[visible on=<5->]
+    % =========== the structural arrow appears before its API annotation ===
+    \begin{scope}[visible on=<3->]
     \draw[flow,Green] (-4.14,1.825)
       .. controls (-3.52,1.825) and (-3.52,3.84) .. (-2.90,3.84)
       -- (0.75,3.84);
+    \end{scope}
+    \begin{scope}[visible on=<4->]
     \tikzset{callpart/.style={anchor=west,inner xsep=0pt,inner ysep=3pt,fill=white,
         text height=1.95ex,text depth=1.0ex,font=\Large\bfseries}}
     \node[callpart,text=Green] (dpre) at (-2.90,3.84) {{\ttfamily Deref}(};
@@ -773,30 +807,31 @@ Motivation. Hash tables are among the most used data structures and have been st
 
     % =========== right column, bottom: zoom on the two slots ==============
     % the first hop, whose pointer field is still NULL
-    \begin{scope}[visible on=<6->]
+    \begin{scope}[visible on=<3->]
     \draw[zoomline] (0.84,3.76) -- (-0.30,1.70);
     \draw[zoomline] (0.96,3.76) -- (1.80,1.70);
     \draw[Ink!75,line width=1.0pt,rounded corners=2pt,fill=white]
       (-0.30,1.10) rectangle (1.80,1.70);
     \draw[Ink!35,line width=0.7pt] (0.40,1.10) -- (0.40,1.70);
-    \node[font=\normalsize\bfseries] at (0.05,1.40) {\(r_{*}\)};
+    \draw[Purple,line width=1.15pt,fill=Purple!10]
+      (-0.30,1.10) rectangle (0.40,1.70);
+    \node[font=\normalsize\bfseries,text=Purple] at (0.05,1.40) {\(r_{*}\)};
     \node[font=\normalsize\bfseries] at (0.75,1.40) {\(v_{*}\)};
     \node[anchor=north west,inner sep=0pt,font=\small\bfseries] at (-0.30,0.99) {first hop};
     \end{scope}
-    % Alloc turns that NULL into the tiny pointer p
-    \draw[line width=1.0pt,rounded corners=2pt,visible on=<6->,
-          alt=<7->{CornellRed,dashed,dash pattern=on 2.2pt off 1.8pt,fill=CornellRed!7}%
-                  {Ink!45,fill=white}] (1.10,1.10) rectangle (1.80,1.70);
-    \node[font=\normalsize\bfseries,visible on=<6->,
-          alt=<7->{text=CornellRed}{text=BlueGray!75}] at (1.45,1.40)
-      {\alt<7->{\(p\)}{\(\bot\)}};
-    \begin{scope}[visible on=<7->]
+    % the transformed chain already uses a tiny pointer
+    \draw[line width=1.0pt,rounded corners=2pt,visible on=<3->,
+          CornellRed,dashed,dash pattern=on 2.2pt off 1.8pt,fill=CornellRed!7]
+      (1.10,1.10) rectangle (1.80,1.70);
+    \node[font=\normalsize\bfseries,text=CornellRed,visible on=<3->] at (1.45,1.40) {\(p\)};
+    \begin{scope}[visible on=<3->]
     \draw[zoomline] (1.84,3.02) -- (4.55,1.70);
     \draw[zoomline] (1.96,3.02) -- (6.40,1.70);
+    \begin{scope}[visible on=<4->]
     \fill[BlueGray] (1.80,1.10) -- (1.62,1.10) -- (1.80,1.25) -- cycle;
     \draw[tag,BlueGray] (1.80,1.10) -- (1.80,0.72) -- (2.12,0.72);
     \node[anchor=west,font=\small,text=BlueGray] at (2.16,0.72) {address \(A_{*}\)};
-    %
+    \end{scope}
 
     \fill[Purple!16,rounded corners=2pt] (4.57,1.12) rectangle (5.15,1.68);
     \draw[Ink!75,line width=1.0pt,dashed,dash pattern=on 2.6pt off 2.0pt,rounded corners=2pt]
@@ -809,18 +844,18 @@ Motivation. Hash tables are among the most used data structures and have been st
     \node[anchor=north west,inner sep=0pt,font=\small\bfseries] at (4.55,0.99) {new node};
 
     \draw[flow,CornellRed] (1.80,1.40) -- (4.51,1.40);
-    \node[fill=white,inner sep=1.8pt,font=\Large\bfseries,text=CornellRed]
+    \node[fill=white,inner sep=1.8pt,font=\Large\bfseries,text=CornellRed,visible on=<4->]
       at (3.175,1.8) {\apiop{Alloc}{A_{*}}};
     \end{scope}
   \end{tikzpicture}
   \end{center}
-  \note{Insert splits the key into quotient q and remainder r. Quotienting sends q to the bucket array; the address of that cell is the owner id of the tiny pointer it holds, which is what Deref needs. Dereferencing lands on a slot inside a bin of the dereference table, and the node lives in that slot. Zooming in on that first hop: the insert allocates a free slot, using the address of that pointer field as the owner id, and writes the returned tiny pointer into it. The new slot holds the remainder, the value, and NULL. The quotient is never stored, because the bucket-array location already represents it.}
+  \note{Show the complete ordinary chained table immediately: set i equal to h of k, then follow bucket pointer p sub i from the existing k-star, v-star tuple to the new k, v tuple. On the second beat, split k into quotient q and remainder r, replace h of k with quotienting into p sub q, and change the two stored key fields to the purple remainders r-star and r. On the third beat, replace that chain with the dereference table and zoomed tuples, but let the structure speak without API or address labels. On the final beat, reveal Deref, Alloc, and the two owner-address annotations. The quotient is never stored because the bucket-array location already represents it.}
 \end{frame}
 
-\begin{frame}{Making TPHT Fast}
+\begin{frame}{Chained-TPHT}
   \vspace{0.10cm}
   \begin{columns}[T,onlytextwidth]
-    \column{0.47\textwidth}
+    \column{0.58\textwidth}
       {\Large \Chained is already \keyterm{more cache-friendly} than chaining:}\par
       \vspace{0.20cm}
       \begin{enumerate}\large
@@ -834,19 +869,25 @@ Motivation. Hash tables are among the most used data structures and have been st
         \item \textbf{Shorter chains}\\[-1pt]
           {\large cheap heads buy more buckets}
       \end{enumerate}
-      \vspace{0.34cm}
+    \column{0.36\textwidth}
+      \vspace{1.35cm}
       \centering
       \begin{tikzpicture}
         \node[draw=Gold,fill=Gold!22,line width=2.0pt,rounded corners=6pt,align=center,
-              inner xsep=9pt,inner ysep=5pt,font=\large\bfseries,text=Ink,rotate=4]
-              {Very space-efficient,\\but locality can be better};
+              inner xsep=9pt,inner ysep=5pt,font=\Large\bfseries,text=Ink,rotate=4]
+              {We construct a\\super space-efficient\\hash table!};
       \end{tikzpicture}
+  \end{columns}
+\end{frame}
 
-    \column{0.50\textwidth}
-      \uncover<2->{{\LARGE\bfseries Opportunity 1:}\par}
+\begin{frame}{Making TPHT Fast}
+  \vspace{0.10cm}
+  \begin{columns}[T,onlytextwidth]
+    \column{0.92\textwidth}
+      \uncover<1->{{\LARGE\bfseries Opportunity 1:}\par}
       \vspace{-0.06cm}
       \begin{itemize}\Large
-        \item<2-> \textbf{First Pointer Indirection}
+        \item<1-> \textbf{First Pointer Indirection}
       \end{itemize}
       \vspace{-0.16cm}
       \begin{center}
@@ -866,20 +907,20 @@ Motivation. Hash tables are among the most used data structures and have been st
           tag/.style={anchor=north west,font=\normalsize,text=BlueGray}]
 
         % ===================== BEFORE =====================================
-        \begin{scope}[visible on=<2->]
+        \begin{scope}[visible on=<1->]
         \node[anchor=east,font=\small,text=BlueGray] at (3.00,1.98)
           {A chain in the hash table};
         \draw[beforepanel] (-2.95,0.16) rectangle (3.00,1.80);
         \node[beforetag] at (-2.70,1.05) {Before};
 
-        \node[anchor=south,font=\normalsize\bfseries,text=CornellRed,visible on=<3->] at (-0.77,1.34)
+        \node[anchor=south,font=\normalsize\bfseries,text=CornellRed,visible on=<2->] at (-0.77,1.34)
           {cache miss};
 
         \draw[box,Green,fill=Green!20] (-1.85,0.80) rectangle (-1.26,1.30);
         \node[fld] at (-1.555,1.05) {\(p\)};
         \node[anchor=north,font=\normalsize,text=BlueGray] at (-1.555,0.72) {bucket array};
 
-        \draw[flow,alt=<3->{CornellRed}{Ink}] (-1.26,1.05) -- (-0.28,1.05);
+        \draw[flow,alt=<2->{CornellRed}{Ink}] (-1.26,1.05) -- (-0.28,1.05);
 
         \fill[white,rounded corners=2pt] (-0.28,0.80) rectangle (1.13,1.30);
         \fill[Purple!20] (-0.28,0.80) rectangle (0.66,1.30);
@@ -901,7 +942,7 @@ Motivation. Hash tables are among the most used data structures and have been st
         \end{scope}
 
         % ===================== the merge ==================================
-        \begin{scope}[visible on=<4->]
+        \begin{scope}[visible on=<3->]
         \draw[mline] (-1.555,0.12) to[out=-80,in=162] (-1.145,-0.22);
         \draw[mline] (0.19,0.12) to[out=-100,in=18] (-1.145,-0.22);
         \draw[merge] (-1.145,-0.22) -- (-1.145,-0.80);
@@ -933,8 +974,8 @@ Motivation. Hash tables are among the most used data structures and have been st
         % ===================== payoff =====================================
         \node[draw=Gold,fill=Gold!22,line width=1.8pt,rounded corners=6pt,
               inner xsep=8pt,inner ysep=4pt,font=\Large\bfseries,text=Ink,rotate=4,
-              visible on=<5->]
-              at (0,-2.64) {One fewer cache miss!};
+              visible on=<3->]
+              at (5.35,0.00) {One fewer cache miss!};
       \end{tikzpicture}
       \end{center}
   \end{columns}
@@ -1090,10 +1131,8 @@ Second problem: capacity. Bucket q3 fills its share, and its next tuple has nowh
         \draw[block] (-4.10,\y-0.25) rectangle (0.06,\y+0.25);
         \draw[cell,Gold!85!Ink,fill=Gold!18] (-4.10,\y-0.25) rectangle (-3.22,\y+0.25);
         \node[font=\normalsize,text=Gold!55!Ink] at (-3.66,\y) {meta};
-        \foreach \x in {-3.16,-2.64,-2.12} {
-          \draw[ph] (\x,\y-0.19) rectangle (\x+0.46,\y+0.19);
-          \node[font=\tiny,text=Purple!75!black] at (\x+0.23,\y) {\(k,v\)};
-        }
+        \draw[ph] (-3.16,\y-0.19) rectangle (-1.83,\y+0.19);
+        \node[font=\normalsize,text=Purple!75!black] at (-2.495,\y) {\(k,v\)};
       }
       \end{scope}
       \begin{scope}[visible on=<3->]
@@ -1101,10 +1140,8 @@ Second problem: capacity. Bucket q3 fills its share, and its next tuple has nowh
         \draw[block] (-4.10,\y-0.25) rectangle (0.06,\y+0.25);
         \draw[cell,Gold!85!Ink,fill=Gold!18] (-4.10,\y-0.25) rectangle (-3.22,\y+0.25);
         \node[font=\normalsize,text=Gold!55!Ink] at (-3.66,\y) {meta};
-        \foreach \x in {-3.16,-2.64,-2.12} {
-          \draw[ph] (\x,\y-0.19) rectangle (\x+0.46,\y+0.19);
-          \node[font=\tiny,text=Purple!75!black] at (\x+0.23,\y) {\(k,v\)};
-        }
+        \draw[ph] (-3.16,\y-0.19) rectangle (-1.83,\y+0.19);
+        \node[font=\normalsize,text=Purple!75!black] at (-2.495,\y) {\(k,v\)};
       }
       \end{scope}
       \begin{scope}[visible on=<4->]
@@ -1112,10 +1149,8 @@ Second problem: capacity. Bucket q3 fills its share, and its next tuple has nowh
         \draw[block] (-4.10,\y-0.25) rectangle (0.06,\y+0.25);
         \draw[cell,Gold!85!Ink,fill=Gold!18] (-4.10,\y-0.25) rectangle (-3.22,\y+0.25);
         \node[font=\normalsize,text=Gold!55!Ink] at (-3.66,\y) {meta};
-        \foreach \x in {-3.16,-2.64,-2.12} {
-          \draw[ph] (\x,\y-0.19) rectangle (\x+0.46,\y+0.19);
-          \node[font=\tiny,text=Purple!75!black] at (\x+0.23,\y) {\(k,v\)};
-        }
+        \draw[ph] (-3.16,\y-0.19) rectangle (-1.83,\y+0.19);
+        \node[font=\normalsize,text=Purple!75!black] at (-2.495,\y) {\(k,v\)};
       }
       \end{scope}
       \begin{scope}[visible on=<5->]
@@ -1123,10 +1158,8 @@ Second problem: capacity. Bucket q3 fills its share, and its next tuple has nowh
         \draw[block] (-4.10,\y-0.25) rectangle (0.06,\y+0.25);
         \draw[cell,Gold!85!Ink,fill=Gold!18] (-4.10,\y-0.25) rectangle (-3.22,\y+0.25);
         \node[font=\normalsize,text=Gold!55!Ink] at (-3.66,\y) {meta};
-        \foreach \x in {-3.16,-2.64,-2.12} {
-          \draw[ph] (\x,\y-0.19) rectangle (\x+0.46,\y+0.19);
-          \node[font=\tiny,text=Purple!75!black] at (\x+0.23,\y) {\(k,v\)};
-        }
+        \draw[ph] (-3.16,\y-0.19) rectangle (-1.83,\y+0.19);
+        \node[font=\normalsize,text=Purple!75!black] at (-2.495,\y) {\(k,v\)};
       }
       \end{scope}
       \node[anchor=west,align=left,font=\large\bf,visible on=<2->] at (-4.30,5.42)
@@ -1141,16 +1174,16 @@ Second problem: capacity. Bucket q3 fills its share, and its next tuple has nowh
       \begin{scope}[visible on=<3->]
       \draw[ins,CornellRed] (-3.45,4.24) -- (-3.45,3.73);
       \node[anchor=west,font=\large\bf,text=CornellRed] at (-3.27,3.99) {\apiop{Insert}{k,v}};
-      \draw[cell,CornellRed!70,fill=CornellRed!16] (-1.60,3.23) rectangle (-0.50,3.61);
-      \node[font=\normalsize,text=CornellRed] at (-1.05,3.42) {\(k,v\)};
+      \draw[cell,CornellRed!70,fill=CornellRed!16] (-1.83,3.23) rectangle (-0.50,3.61);
+      \node[font=\normalsize,text=CornellRed] at (-1.165,3.42) {\(k,v\)};
       \end{scope}
 
       % insert k' -> tuple slots full, spend one pointer
       \begin{scope}[visible on=<4->]
       \draw[ins,blue!58!black] (-3.45,3.11) -- (-3.45,2.60);
       \node[anchor=west,font=\large\bf,text=blue!58!black] at (-3.27,2.86) {\apiop{Insert}{k',v'}};
-      \draw[cell,CornellRed!70,fill=CornellRed!16] (-1.60,2.10) rectangle (-0.50,2.48);
-      \node[font=\normalsize,text=CornellRed] at (-1.05,2.29) {\(k,v\)};
+      \draw[cell,CornellRed!70,fill=CornellRed!16] (-1.83,2.10) rectangle (-0.50,2.48);
+      \node[font=\normalsize,text=CornellRed] at (-1.165,2.29) {\(k,v\)};
       \draw[cell,blue!58!black,fill=blue!58!black!16] (-0.44,2.10) rectangle (-0.06,2.48);
       \node[font=\small,text=blue!58!black] at (-0.25,2.29) {\(p'\)};
       \end{scope}
@@ -1160,15 +1193,15 @@ Second problem: capacity. Bucket q3 fills its share, and its next tuple has nowh
       \draw[ins,Green!70!black] (-3.45,1.98) -- (-3.45,1.11);
       \node[anchor=west,font=\large\bf,text=Green!70!black] at (-3.27,1.55)
         {\apiop{Insert}{k^{\dagger},v^{\dagger}}};
-      \draw[cell,CornellRed!70,fill=CornellRed!16] (-1.30,0.61) rectangle (-0.92,0.99);
-      \node[font=\small,text=CornellRed] at (-1.11,0.80) {\(p\)};
+      \draw[cell,CornellRed!70,fill=CornellRed!16] (-1.28,0.61) rectangle (-0.94,0.99);
+      \node[font=\small,text=CornellRed,text height=1.6ex,text depth=0.5ex] at (-1.11,0.80) {\(p\)};
       % what k,v left behind: the freed bytes plus the pointer that replaced it
       \draw[CornellRed!65,dash pattern=on 2.2pt off 1.8pt,line width=0.9pt,rounded corners=2pt]
-        (-1.60,0.58) rectangle (-0.48,1.02);
-      \draw[cell,Green!75,fill=Green!20] (-0.87,0.61) rectangle (-0.49,0.99);
-      \node[font=\small,text=Green!55!black] at (-0.68,0.80) {\(p^{\dagger}\)};
-      \draw[cell,blue!58!black,fill=blue!58!black!16] (-0.44,0.61) rectangle (-0.06,0.99);
-      \node[font=\small,text=blue!58!black] at (-0.25,0.80) {\(p'\)};
+        (-1.83,0.58) rectangle (-0.48,1.02);
+      \draw[cell,Green!75,fill=Green!20] (-0.85,0.61) rectangle (-0.51,0.99);
+      \node[font=\small,text=Green!55!black,text height=1.6ex,text depth=0.5ex] at (-0.68,0.80) {\(p^{\dagger}\)};
+      \draw[cell,blue!58!black,fill=blue!58!black!16] (-0.42,0.61) rectangle (-0.08,0.99);
+      \node[font=\small,text=blue!58!black,text height=1.6ex,text depth=0.5ex] at (-0.25,0.80) {\(p'\)};
 
       \end{scope}
 
